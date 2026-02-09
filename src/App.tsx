@@ -38,7 +38,6 @@ function App() {
   
   // Hooks
   const sessionHook = useSession();
-  const timer = useTimer();
   const chat = useChat();
   
   // Auto-save session state every 30 seconds
@@ -60,64 +59,10 @@ function App() {
     }
   }, [sessionHook.session?.status, sessionHook.session?.id, sessionHook.session?.code, chat.messages, currentProblem?.id]);
   
-  // Handle timer expiry
-  const handleTimerExpiry = useCallback(() => {
-    if (sessionHook.session?.status === 'active') {
-      handleSubmitForEvaluation(true); // true = timer expired, skip confirmation
-    }
-  }, [sessionHook.session?.status]);
-  
-  const timerWithExpiry = useTimer(handleTimerExpiry);
-  
   // Load problems on mount
   useEffect(() => {
     problemService.loadProblems().catch(console.error);
   }, []);
-  
-  // Start a new session
-  const handleStartSession = useCallback(async () => {
-    try {
-      // Get a random problem
-      const problem = problemService.getRandomProblem();
-      if (!problem) {
-        console.error('No problems available');
-        return;
-      }
-      
-      setCurrentProblem(problem);
-      
-      // Start session
-      sessionHook.startSession(problem);
-      
-      // Start timer with problem's time limit
-      timerWithExpiry.start(problem.timeLimit * 60); // Convert minutes to seconds
-      
-      // Generate proctor intro
-      const intro = await proctorService.generateIntro(problem);
-      sessionHook.addChatMessage({ role: 'proctor', content: intro });
-      
-      // Navigate to session view
-      setCurrentView('session');
-    } catch (error) {
-      console.error('Failed to start session:', error);
-    }
-  }, [sessionHook, timerWithExpiry]);
-  
-  // Handle submit button click
-  const handleSubmitClick = useCallback(() => {
-    const timeRemaining = timerWithExpiry.timeRemaining;
-    
-    // If more than 5 minutes remaining, show confirmation dialog
-    if (timeRemaining > 300) { // 5 minutes = 300 seconds
-      setConfirmDialog({
-        isOpen: true,
-        timeRemaining,
-      });
-    } else {
-      // Submit immediately
-      handleSubmitForEvaluation(false);
-    }
-  }, [timerWithExpiry.timeRemaining]);
   
   // Handle actual submission for evaluation
   const handleSubmitForEvaluation = useCallback(async (skipConfirmation: boolean = false) => {
@@ -174,6 +119,60 @@ function App() {
       setCurrentView('home');
     }
   }, [currentProblem, sessionHook, timerWithExpiry, chat.messages]);
+  
+  // Handle timer expiry
+  const handleTimerExpiry = useCallback(() => {
+    if (sessionHook.session?.status === 'active') {
+      handleSubmitForEvaluation(true); // true = timer expired, skip confirmation
+    }
+  }, [sessionHook.session?.status, handleSubmitForEvaluation]);
+  
+  const timerWithExpiry = useTimer(handleTimerExpiry);
+  
+  // Start a new session
+  const handleStartSession = useCallback(async () => {
+    try {
+      // Get a random problem
+      const problem = problemService.getRandomProblem();
+      if (!problem) {
+        console.error('No problems available');
+        return;
+      }
+      
+      setCurrentProblem(problem);
+      
+      // Start session
+      sessionHook.startSession(problem);
+      
+      // Start timer with problem's time limit
+      timerWithExpiry.start(problem.timeLimit * 60); // Convert minutes to seconds
+      
+      // Generate proctor intro
+      const intro = await proctorService.generateIntro(problem);
+      sessionHook.addChatMessage({ role: 'proctor', content: intro });
+      
+      // Navigate to session view
+      setCurrentView('session');
+    } catch (error) {
+      console.error('Failed to start session:', error);
+    }
+  }, [sessionHook, timerWithExpiry]);
+  
+  // Handle submit button click
+  const handleSubmitClick = useCallback(() => {
+    const timeRemaining = timerWithExpiry.timeRemaining;
+    
+    // If more than 5 minutes remaining, show confirmation dialog
+    if (timeRemaining > 300) { // 5 minutes = 300 seconds
+      setConfirmDialog({
+        isOpen: true,
+        timeRemaining,
+      });
+    } else {
+      // Submit immediately
+      handleSubmitForEvaluation(false);
+    }
+  }, [timerWithExpiry.timeRemaining, handleSubmitForEvaluation]);
   
   // Handle chat message send
   const handleSendMessage = useCallback(async (message: string) => {
