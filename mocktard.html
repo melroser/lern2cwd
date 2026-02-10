@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Coding Interview Simulator — CRT Synthwave Mock</title>
+  <style>
+    :root{
+      --bg:#040608;
+      --panel:#07110a;
+      --panel2:#050c08;
+      --fg:#b6ffb6;
+      --muted:#6cff9a;
+      --dim:#2aff6e;
+      --grid:rgba(42,255,110,.08);
+      --scan:rgba(60,255,150,.06);
+      --border:rgba(96,255,160,.22);
+      --shadow:rgba(0,255,120,.25);
+      --hot:#ff3bd6;      /* synthwave magenta */
+      --cool:#3bf0ff;     /* synthwave cyan */
+      --warn:#ffe24a;
+      --danger:#ff4a5f;
+      --font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--fg);
+      background:
+        radial-gradient(1200px 900px at 70% -10%, rgba(255,59,214,.13), transparent 55%),
+        radial-gradient(1000px 800px at 10% 110%, rgba(59,240,255,.10), transparent 55%),
+        linear-gradient(180deg, #020304 0%, #03060a 40%, #020304 100%);
+      overflow:hidden;
+    }
+
+    /* CRT glass frame */
+    .crt{
+      position:relative;
+      height:100%;
+      padding:18px;
+    }
+    .crt::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,0) 0px,
+          rgba(0,0,0,0) 2px,
+          rgba(0,0,0,.18) 3px
+        );
+      pointer-events:none;
+      mix-blend-mode:multiply;
+      opacity:.55;
+    }
+    .crt::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(120% 90% at 50% 20%, rgba(255,255,255,.06), rgba(255,255,255,0) 55%),
+        radial-gradient(100% 100% at 50% 50%, rgba(0,255,120,.06), rgba(0,0,0,0) 60%),
+        linear-gradient(90deg, rgba(0,0,0,.08), rgba(0,0,0,0), rgba(0,0,0,.08));
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .shell{
+      height:100%;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:
+        linear-gradient(180deg, rgba(5,10,7,.92), rgba(2,5,4,.92)),
+        repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 32px),
+        repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 32px);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.45) inset,
+        0 0 30px rgba(0,255,120,.10),
+        0 0 90px rgba(255,59,214,.06);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(96,255,160,.18);
+      background: linear-gradient(180deg, rgba(10,22,14,.85), rgba(4,10,6,.65));
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center;
+      letter-spacing:.08em;
+      font-weight:700;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+    .brand .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--dim));
+      box-shadow: 0 0 12px rgba(42,255,110,.45);
+    }
+    .meta{
+      display:flex; gap:14px; align-items:center;
+      font-size:12px;
+      color:rgba(182,255,182,.9);
+    }
+    .pill{
+      border:1px solid rgba(96,255,160,.24);
+      border-radius:999px;
+      padding:6px 10px;
+      background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.05));
+      box-shadow: 0 0 18px rgba(0,255,120,.08);
+      display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
+    }
+    .timer{
+      font-variant-numeric: tabular-nums;
+      color:var(--warn);
+      text-shadow: 0 0 12px rgba(255,226,74,.15);
+    }
+    .kbd{
+      color:rgba(182,255,182,.75);
+      border:1px solid rgba(96,255,160,.18);
+      border-bottom-color: rgba(96,255,160,.10);
+      padding:2px 6px;
+      border-radius:6px;
+      font-size:11px;
+      background: rgba(0,0,0,.25);
+    }
+
+    /* Main split */
+    .main{
+      flex:1;
+      display:grid;
+      grid-template-columns: 1.9fr 1.1fr;
+      min-height:0;
+    }
+
+    /* Left: editor + prompt */
+    .left{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      border-right:1px solid rgba(96,255,160,.16);
+    }
+
+    .problem{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(96,255,160,.16);
+      background: linear-gradient(180deg, rgba(2,7,4,.35), rgba(2,7,4,.08));
+    }
+    .problem .title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .problem h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(182,255,182,.95);
+    }
+    .tags{
+      display:flex; gap:8px; flex-wrap:wrap;
+      font-size:11px;
+    }
+    .tag{
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(96,255,160,.18);
+      color:rgba(182,255,182,.8);
+      background: rgba(0,0,0,.18);
+    }
+    .tag.hot{
+      border-color: rgba(255,59,214,.35);
+      color: rgba(255,59,214,.9);
+      box-shadow: 0 0 20px rgba(255,59,214,.08);
+    }
+    .tag.cool{
+      border-color: rgba(59,240,255,.30);
+      color: rgba(59,240,255,.9);
+      box-shadow: 0 0 20px rgba(59,240,255,.07);
+    }
+
+    .prompt{
+      margin:0;
+      font-size:12.5px;
+      line-height:1.45;
+      color:rgba(182,255,182,.86);
+    }
+    .prompt code{
+      color:var(--cool);
+    }
+
+    .editorWrap{
+      flex:1;
+      min-height:0;
+      padding:12px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .editorHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      color:rgba(182,255,182,.75);
+    }
+    .editorHeader .leftBits{
+      display:flex; gap:10px; align-items:center;
+    }
+    .statusLight{
+      width:8px; height:8px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--dim));
+      box-shadow: 0 0 10px rgba(42,255,110,.45);
+    }
+
+    .editor{
+      position:relative;
+      flex:1;
+      min-height:0;
+      border:1px solid rgba(96,255,160,.18);
+      border-radius:12px;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.08)),
+        radial-gradient(800px 260px at 50% 0%, rgba(42,255,110,.08), transparent 55%);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,.35) inset,
+        0 0 24px rgba(0,255,120,.06);
+      overflow:hidden;
+    }
+
+    .gutter{
+      position:absolute; top:0; bottom:0; left:0;
+      width:56px;
+      border-right:1px solid rgba(96,255,160,.12);
+      background: rgba(0,0,0,.22);
+      color:rgba(182,255,182,.45);
+      padding:12px 10px;
+      font-size:12px;
+      line-height:1.6;
+      user-select:none;
+    }
+    .codearea{
+      position:absolute;
+      top:0; bottom:0; left:56px; right:0;
+      padding:12px 14px;
+      outline:none;
+      white-space:pre;
+      overflow:auto;
+      font-size:13px;
+      line-height:1.6;
+      color:rgba(182,255,182,.92);
+      text-shadow: 0 0 10px rgba(42,255,110,.10);
+      caret-color: var(--cool);
+    }
+    .codearea:focus{
+      box-shadow: 0 0 0 2px rgba(59,240,255,.14) inset;
+    }
+    .hintLine{
+      color: rgba(182,255,182,.58);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      padding:10px 0 0;
+    }
+    .btn{
+      font-family:var(--font);
+      border-radius:12px;
+      border:1px solid rgba(96,255,160,.22);
+      padding:10px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.06));
+      color:rgba(182,255,182,.9);
+      cursor:pointer;
+      transition: transform .06s ease, box-shadow .12s ease, border-color .12s ease;
+      box-shadow: 0 0 18px rgba(0,255,120,.06);
+      font-size:12px;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+    .btn:hover{
+      border-color: rgba(59,240,255,.30);
+      box-shadow: 0 0 24px rgba(59,240,255,.08);
+      transform: translateY(-1px);
+    }
+    .btn.primary{
+      border-color: rgba(42,255,110,.35);
+      box-shadow: 0 0 26px rgba(42,255,110,.10);
+    }
+    .btn.danger{
+      border-color: rgba(255,74,95,.35);
+      color: rgba(255,140,150,.95);
+      box-shadow: 0 0 26px rgba(255,74,95,.08);
+    }
+
+    /* Right: chat */
+    .right{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.06));
+    }
+    .chatHeader{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(96,255,160,.14);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(10,18,12,.65), rgba(4,10,6,.35));
+    }
+    .chatHeader .label{
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(182,255,182,.85);
+    }
+    .signal{
+      display:flex; gap:6px; align-items:center;
+      font-size:11px;
+      color:rgba(182,255,182,.70);
+    }
+    .bars{
+      display:flex; gap:3px;
+    }
+    .bars span{
+      width:4px; border-radius:2px;
+      background: rgba(42,255,110,.30);
+      box-shadow: 0 0 10px rgba(42,255,110,.12);
+      display:block;
+    }
+    .bars span:nth-child(1){ height:6px; }
+    .bars span:nth-child(2){ height:9px; }
+    .bars span:nth-child(3){ height:12px; }
+    .bars span:nth-child(4){ height:8px; opacity:.7; }
+
+    .chatLog{
+      flex:1;
+      min-height:0;
+      padding:12px 14px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .msg{
+      border:1px solid rgba(96,255,160,.14);
+      border-radius:14px;
+      padding:10px 10px 10px 12px;
+      background: rgba(0,0,0,.20);
+      box-shadow: 0 0 18px rgba(0,255,120,.04);
+      max-width:100%;
+    }
+    .msg .who{
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:6px;
+      color: rgba(182,255,182,.65);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .msg .time{
+      font-variant-numeric: tabular-nums;
+      color: rgba(182,255,182,.45);
+    }
+    .msg.proctor{
+      border-color: rgba(59,240,255,.22);
+      box-shadow: 0 0 24px rgba(59,240,255,.05);
+      background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.10));
+    }
+    .msg.user{
+      border-color: rgba(255,59,214,.22);
+      box-shadow: 0 0 24px rgba(255,59,214,.05);
+      background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.10));
+      align-self:flex-end;
+    }
+    .msg .text{
+      margin:0;
+      font-size:12.5px;
+      line-height:1.45;
+      color: rgba(182,255,182,.90);
+    }
+    .msg.proctor .text{
+      color: rgba(200,255,220,.92);
+    }
+
+    .chatInput{
+      padding:12px 14px;
+      border-top:1px solid rgba(96,255,160,.14);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      background: linear-gradient(180deg, rgba(4,10,6,.25), rgba(2,6,4,.45));
+    }
+    .field{
+      flex:1;
+      border:1px solid rgba(96,255,160,.18);
+      border-radius:12px;
+      background: rgba(0,0,0,.20);
+      color: rgba(182,255,182,.92);
+      padding:10px 12px;
+      font-family:var(--font);
+      font-size:12.5px;
+      outline:none;
+      box-shadow: 0 0 18px rgba(0,255,120,.05);
+    }
+    .field:focus{
+      border-color: rgba(59,240,255,.30);
+      box-shadow: 0 0 0 2px rgba(59,240,255,.10) inset, 0 0 24px rgba(59,240,255,.06);
+    }
+
+    /* Footer status */
+    .footer{
+      padding:10px 14px;
+      border-top:1px solid rgba(96,255,160,.14);
+      font-size:11px;
+      color: rgba(182,255,182,.65);
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      background: rgba(0,0,0,.18);
+    }
+    .footer .pulse{
+      color: rgba(59,240,255,.85);
+      text-shadow: 0 0 14px rgba(59,240,255,.12);
+    }
+
+    /* Neon accent line */
+    .neonLine{
+      height:2px;
+      background: linear-gradient(90deg, transparent, rgba(59,240,255,.75), rgba(255,59,214,.75), transparent);
+      opacity:.35;
+    }
+
+    /* Small screens */
+    @media (max-width: 980px){
+      body{ overflow:auto; }
+      .crt{ overflow:auto; }
+      .shell{ height:auto; min-height:100%; }
+      .main{ grid-template-columns: 1fr; }
+      .left{ border-right:none; border-bottom:1px solid rgba(96,255,160,.16); }
+    }
+  </style>
+</head>
+<body>
+  <div class="crt">
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>INTERVIEW SIMULATOR</span>
+          <span style="color:rgba(59,240,255,.85)">/</span>
+          <span style="color:rgba(255,59,214,.85)">PYTHON</span>
+        </div>
+
+        <div class="meta">
+          <div class="pill">
+            <span style="color:rgba(182,255,182,.65)">PROBLEM</span>
+            <span style="color:rgba(59,240,255,.9)">FizzBuzz</span>
+          </div>
+          <div class="pill">
+            <span style="color:rgba(182,255,182,.65)">TIMER</span>
+            <span class="timer" id="timer">29:58</span>
+          </div>
+          <div class="pill">
+            <span class="kbd">⌘</span><span class="kbd">⏎</span>
+            <span style="color:rgba(182,255,182,.65)">Send</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="neonLine"></div>
+
+      <div class="main">
+        <!-- LEFT -->
+        <section class="left">
+          <div class="problem">
+            <div class="title">
+              <h2>FizzBuzz</h2>
+              <div class="tags">
+                <span class="tag cool">easy</span>
+                <span class="tag">loop</span>
+                <span class="tag">modulo</span>
+                <span class="tag hot">crt mode</span>
+              </div>
+            </div>
+            <p class="prompt">
+              Write <code>fizzbuzz(n)</code> that prints 1..n. Multiples of 3 → <code>Fizz</code>,
+              multiples of 5 → <code>Buzz</code>, both → <code>FizzBuzz</code>.
+              You can write real Python or pseudocode — intent matters.
+            </p>
+          </div>
+
+          <div class="editorWrap">
+            <div class="editorHeader">
+              <div class="leftBits">
+                <span class="statusLight"></span>
+                <span>EDITOR</span>
+                <span style="opacity:.6">/ plain text</span>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <span style="color:rgba(182,255,182,.55)">Mode:</span>
+                <span style="color:rgba(255,59,214,.9)">Assessment</span>
+              </div>
+            </div>
+
+            <div class="editor">
+              <div class="gutter" aria-hidden="true">
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+              </div>
+              <div class="codearea" id="code" contenteditable="true" spellcheck="false">
+def fizzbuzz(n):
+    # write your solution here
+    # hint: check 15 first so "FizzBuzz" wins
+    for i in range(1, n+1):
+        if i % 15 == 0:
+            print("FizzBuzz")
+        elif i % 3 == 0:
+            print("Fizz")
+        elif i % 5 == 0:
+            print("Buzz")
+        else:
+            print(i)
+
+<span class="hintLine"># (optional) edge case: what if n <= 0?</span>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn" type="button" id="askBtn">Ask question</button>
+              <button class="btn primary" type="button" id="doneBtn">I'm done</button>
+              <button class="btn" type="button" id="nextBtn">Next problem</button>
+              <button class="btn danger" type="button" id="reviewBtn">Review</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- RIGHT -->
+        <aside class="right">
+          <div class="chatHeader">
+            <div class="label">Proctor Channel</div>
+            <div class="signal">
+              <div class="bars" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <span>secure link</span>
+            </div>
+          </div>
+
+          <div class="chatLog" id="chatLog">
+            <div class="msg proctor">
+              <div class="who">
+                <span>PROCTOR</span>
+                <span class="time">00:00</span>
+              </div>
+              <p class="text">
+                Welcome. You have 30 minutes. Ask clarifying questions anytime.
+                When you’re finished, click <span style="color:rgba(59,240,255,.9)">I’m done</span>.
+              </p>
+            </div>
+
+            <div class="msg user">
+              <div class="who">
+                <span>YOU</span>
+                <span class="time">00:12</span>
+              </div>
+              <p class="text">Should I print or return a list?</p>
+            </div>
+
+            <div class="msg proctor">
+              <div class="who">
+                <span>PROCTOR</span>
+                <span class="time">00:16</span>
+              </div>
+              <p class="text">
+                Great catch. Unless specified, printing is fine here. If you prefer returning,
+                state your choice clearly and stay consistent.
+              </p>
+            </div>
+          </div>
+
+          <div class="chatInput">
+            <input class="field" id="chatField" placeholder="Ask the proctor…" />
+            <button class="btn primary" id="sendBtn" type="button">Send</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="footer">
+        <div>
+          <span style="opacity:.7">Status:</span>
+          <span class="pulse">LIVE SESSION</span>
+          <span style="opacity:.55">•</span>
+          <span style="opacity:.7">Miss tags:</span>
+          <span style="color:rgba(255,59,214,.85)">edge-cases</span>
+          <span style="opacity:.55">•</span>
+          <span style="opacity:.7">Rubric:</span>
+          <span style="color:rgba(59,240,255,.9)">Approach</span>,
+          <span style="color:rgba(59,240,255,.9)">Completeness</span>,
+          <span style="color:rgba(59,240,255,.9)">Complexity</span>,
+          <span style="color:rgba(59,240,255,.9)">Communication</span>
+        </div>
+        <div style="opacity:.65">CRT/Outrun skin • v0 mock</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tiny mock interactions for vibe (no framework)
+    const chatLog = document.getElementById('chatLog');
+    const chatField = document.getElementById('chatField');
+    const sendBtn = document.getElementById('sendBtn');
+    const doneBtn = document.getElementById('doneBtn');
+    const timerEl = document.getElementById('timer');
+
+    function addMsg(role, text){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (role === 'proctor' ? 'proctor' : 'user');
+      const t = new Date();
+      const mm = String(t.getMinutes()).padStart(2,'0');
+      const ss = String(t.getSeconds()).padStart(2,'0');
+      wrap.innerHTML = `
+        <div class="who">
+          <span>${role === 'proctor' ? 'PROCTOR' : 'YOU'}</span>
+          <span class="time">${mm}:${ss}</span>
+        </div>
+        <p class="text"></p>
+      `;
+      wrap.querySelector('.text').textContent = text;
+      chatLog.appendChild(wrap);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const v = chatField.value.trim();
+      if(!v) return;
+      addMsg('user', v);
+      chatField.value = '';
+      setTimeout(() => {
+        addMsg('proctor', "Noted. State assumptions, then walk through a small example. What edge case might break a naive approach?");
+      }, 450);
+    });
+
+    chatField.addEventListener('keydown', (e) => {
+      if((e.metaKey || e.ctrlKey) && e.key === 'Enter') sendBtn.click();
+    });
+
+    doneBtn.addEventListener('click', () => {
+      addMsg('proctor', "Marked as submitted. Quick rubric pass: looks solid. Consider mentioning complexity O(n) / O(1) and n<=0 behavior.");
+    });
+
+    // Faux timer countdown (visual only)
+    let total = 29*60 + 58;
+    setInterval(() => {
+      total = Math.max(0, total - 1);
+      const m = String(Math.floor(total/60)).padStart(2,'0');
+      const s = String(total%60).padStart(2,'0');
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+  </script>
+</body>
+</html>

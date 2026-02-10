@@ -293,38 +293,11 @@ export class ProctorService implements IProctorService {
    * @param problem The problem to introduce
    * @returns A friendly introduction message
    */
-  async generateIntro(problem: Problem): Promise<string> {
-    // For intro, we always use the template-based approach for consistency
-    // This ensures the problem details are always presented correctly
+  async generateIntro(_problem: Problem): Promise<string> {
+    // Realistic proctor intro - minimal and professional
     await simulateLatency(300, 600);
 
-    const difficultyText = {
-      easy: "a great warm-up",
-      medium: "a solid challenge",
-      hard: "a challenging problem"
-    }[problem.difficulty];
-
-    return `👋 Hi there! Welcome to your coding assessment.
-
-Today we'll be working on **${problem.title}** - ${difficultyText} that will test your problem-solving skills.
-
-**Here's the problem:**
-${problem.prompt}
-
-**Constraints:**
-${problem.constraints.map(c => `• ${c}`).join('\n')}
-
-**Examples:**
-${problem.examples.map((ex, i) => `
-Example ${i + 1}:
-- Input: ${ex.input}
-- Output: ${ex.output}${ex.explanation ? `\n- Explanation: ${ex.explanation}` : ''}`).join('\n')}
-
-I've set up the starter code in the editor for you. You have **${problem.timeLimit} minutes** to work on this.
-
-Feel free to ask me any clarifying questions as you work through the problem. I'm here to help! When you're ready to submit, click the "I'm Done" button.
-
-Good luck! 🍀`;
+    return `Welcome to the assessment. When you're ready to begin, let me know.`;
   }
 
   /**
@@ -406,131 +379,149 @@ Good luck! 🍀`;
       await simulateLatency();
 
       const questionLower = question.toLowerCase();
-      const { problem, currentCode, timeRemaining } = context;
+      const { currentCode, timeRemaining } = context;
+
+      // Check if user has made progress
+      const hasCode = currentCode && currentCode.trim().length > 50;
+      const hasSignificantCode = currentCode && currentCode.trim().length > 200;
 
       // Time warning if under 5 minutes
       const timeWarning = timeRemaining < 300
-        ? `\n\n⏰ *Quick note: You have about ${Math.floor(timeRemaining / 60)} minutes left. Focus on getting a working solution first!*`
+        ? ` You have about ${Math.floor(timeRemaining / 60)} minutes left.`
         : '';
 
-      // Analyze the user's current code for more contextual responses
-      const hasCode = currentCode && currentCode.trim().length > problem.scaffold.length + 20;
-      const hasLoop = /\b(for|while)\b/.test(currentCode || '');
-      const hasConditional = /\b(if|elif|else)\b/.test(currentCode || '');
-      const hasReturn = /\breturn\b/.test(currentCode || '');
+      // INTERVIEWER ROLE: Asking about approach/complexity/thinking
+      
+      // Candidate is narrating their approach
+      if ((questionLower.includes('i think') || questionLower.includes('i\'m going to') ||
+          questionLower.includes('i\'ll') || questionLower.includes('my plan')) && hasCode) {
+        const responses = [
+          'Sounds good. What\'s the complexity?',
+          'Explain the idea.',
+          'What are you watching for?',
+          'Good. Keep going.',
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
 
-      // Build a brief code observation for contextual responses
-      let codeObservation = '';
-      if (hasCode) {
-        const observations: string[] = [];
-        if (hasLoop) observations.push('a loop');
-        if (hasConditional) observations.push('conditional logic');
-        if (hasReturn) observations.push('a return statement');
-        if (observations.length > 0) {
-          codeObservation = `I can see you've got ${observations.join(', ')} in your solution so far. `;
-        } else {
-          codeObservation = `I see you've started writing some code. `;
+      // Candidate mentions an approach
+      if (questionLower.includes('hashmap') || questionLower.includes('two pointer') ||
+          questionLower.includes('sliding window') || questionLower.includes('prefix sum') ||
+          questionLower.includes('dp') || questionLower.includes('bfs') || questionLower.includes('dfs')) {
+        if (hasSignificantCode) {
+          return 'Walk me through it.';
         }
+        return 'What\'s your plan?';
       }
 
-      // Check for common question patterns and provide appropriate responses
-      if (questionLower.includes('hint') || questionLower.includes('stuck') || questionLower.includes('help')) {
-        const hintResponse = hasCode
-          ? `${codeObservation}Let me give you a nudge in the right direction without giving too much away.
-
-  **Think about the approach:**
-  ${problem.expectedApproach.split('.')[0]}.
-
-  ${!hasLoop ? "**Tip:** This problem likely needs some form of iteration — think about what you need to loop over." : ''}
-  ${!hasConditional ? "**Tip:** You'll probably need some conditional checks to handle different cases." : ''}
-  ${hasLoop && hasConditional ? "You're on the right track with your structure! Make sure your logic covers all the cases in the examples." : ''}
-
-  Take a moment to think about this, and let me know if you'd like me to elaborate on any specific part.`
-          : `No worries, let me help you get started!
-
-  **Think about the approach:**
-  ${problem.expectedApproach.split('.')[0]}.
-
-  **A key question to consider:**
-  What data structure might help you efficiently solve this? Start by thinking about the simplest approach that could work.
-
-  Take a moment to think about this, and let me know if you'd like me to elaborate on any specific part.`;
-
-        return hintResponse + timeWarning;
+      // Candidate mentions complexity
+      if (questionLower.includes('o(n)') || questionLower.includes('o(1)') ||
+          questionLower.includes('time complexity') || questionLower.includes('space complexity')) {
+        return 'Good.';
       }
 
-      if (questionLower.includes('edge case') || questionLower.includes('edge-case')) {
-        return `Great question about edge cases! ${codeObservation}Here are some things to consider:
-
-  ${problem.commonPitfalls.slice(0, 2).map(p => `• ${p}`).join('\n')}
-
-  Make sure your solution handles these scenarios. Would you like to walk through any specific edge case?${timeWarning}`;
+      // Candidate is debugging/checking
+      if (questionLower.includes('hidden test') || questionLower.includes('failed') ||
+          questionLower.includes('bug') || questionLower.includes('error')) {
+        const responses = [
+          'What are you checking first?',
+          'What\'s your hypothesis?',
+          'That\'s a common one.',
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
       }
 
-      if (questionLower.includes('complexity') || questionLower.includes('time') || questionLower.includes('space')) {
-        const complexityNote = hasLoop
-          ? "I see you're using a loop — think about how many iterations it makes relative to the input size."
-          : "Think about how many times you'll need to iterate through the input.";
-
-        return `Good thinking about complexity! ${codeObservation}
-
-  **For this problem:**
-  • Time: ${complexityNote}
-  • Space: Consider what additional data structures you might need
-
-  What do you think the complexity of your current approach would be?${timeWarning}`;
+      // Candidate found something
+      if (questionLower.includes('aha') || questionLower.includes('got it') ||
+          questionLower.includes('i see') || questionLower.includes('makes sense')) {
+        return 'Good catch.';
       }
 
-      if (questionLower.includes('example') || questionLower.includes('test')) {
-        const example = problem.examples[0];
-        return `Let's walk through an example together:
+      // PROCTOR ROLE: Clarifying questions and logistics
 
-  **Input:** ${example.input}
-  **Expected Output:** ${example.output}
-
-  ${hasCode ? "Try tracing through your current code with this input. What result do you get at each step?" : "Once you have some code written, try tracing through it with this input step by step."}${timeWarning}`;
+      // Clarifying questions about problem statement
+      if (questionLower.includes('what does') || questionLower.includes('what is') || 
+          questionLower.includes('does this mean') || questionLower.includes('clarify')) {
+        return 'What specifically is unclear?';
       }
 
-      if (questionLower.includes('approach') || questionLower.includes('start') || questionLower.includes('begin')) {
-        return `Let's think about the approach step by step:
-
-  1. **Understand the problem:** What are we trying to find or compute?
-  2. **Identify patterns:** Are there any patterns in the examples that might help?
-  3. **Choose a strategy:** ${problem.expectedApproach.split('.')[0]}.
-
-  ${hasCode ? `${codeObservation}How does your current approach align with these steps?` : "What's your initial thought on how to tackle this?"}${timeWarning}`;
+      // Can I assume / Is it okay to
+      if (questionLower.includes('can i assume') || questionLower.includes('is it okay') ||
+          questionLower.includes('should i') || questionLower.includes('do i need to')) {
+        return 'That\'s up to you.';
       }
 
-      // If user has written code, give feedback on it
-      if (hasCode) {
-        const feedbackPoints: string[] = [];
-        if (!hasReturn && !currentCode?.includes('None')) {
-          feedbackPoints.push("Make sure you're returning the result — I don't see a return statement yet.");
+      // Asking for hints or help (proctor doesn't give these)
+      if (questionLower.includes('hint') || questionLower.includes('help me') || 
+          questionLower.includes('how do i') || questionLower.includes('how should i')) {
+        if (!hasCode) {
+          return `Can't give hints. What's your thinking?${timeWarning}`;
         }
-        if (!hasLoop && problem.expectedApproach.toLowerCase().includes('loop')) {
-          feedbackPoints.push("The expected approach involves iteration — consider adding a loop.");
-        }
-        feedbackPoints.push('Does your solution handle all the constraints mentioned in the problem?');
-        feedbackPoints.push('Have you thought about what happens with the edge cases?');
-
-        return `${codeObservation}That's great progress!
-
-  Here are a few things to consider:
-  ${feedbackPoints.slice(0, 3).map(p => `• ${p}`).join('\n')}
-
-  Would you like to walk through your logic with me, or do you have a specific question about your implementation?${timeWarning}`;
+        return `Can't help with approach. What have you tried?${timeWarning}`;
       }
 
-      // Default response for general questions
-      return `That's a good question! Let me help you think through this.
+      // Stuck / don't know what to do
+      if (questionLower.includes('stuck') || questionLower.includes("don't know") ||
+          questionLower.includes('not sure') || questionLower.includes('confused')) {
+        if (!hasCode) {
+          return `What's your plan?${timeWarning}`;
+        }
+        return `What have you tried?${timeWarning}`;
+      }
 
-  For **${problem.title}**, the key is to break down the problem into smaller steps:
+      // Asking about approach or algorithm (interviewer asks back)
+      if (questionLower.includes('which approach') || questionLower.includes('what algorithm') ||
+          questionLower.includes('which data structure')) {
+        return 'What are you thinking?';
+      }
 
-  1. First, understand what the input looks like
-  2. Then, figure out what transformation or computation is needed
-  3. Finally, return the result in the expected format
+      // Is this right / correct
+      if (questionLower.includes('is this right') || questionLower.includes('is this correct') ||
+          questionLower.includes('does this work') || questionLower.includes('will this')) {
+        return 'Test it with the examples.';
+      }
 
-  What part would you like to explore further?${timeWarning}`;
+      // Bathroom break / technical issues
+      if (questionLower.includes('bathroom') || questionLower.includes('break') ||
+          questionLower.includes('technical') || questionLower.includes('issue')) {
+        return 'Sure. Timer keeps running.';
+      }
+
+      // Time check
+      if (questionLower.includes('time') && (questionLower.includes('how much') || 
+          questionLower.includes('left') || questionLower.includes('remaining'))) {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')} left.`;
+      }
+
+      // Candidate is narrating progress (proctor acknowledges)
+      if (hasCode && (questionLower.includes('okay') || questionLower.includes('alright') ||
+          questionLower.includes('done') || questionLower.includes('submitting'))) {
+        const responses = [
+          'Sounds good.',
+          'Keep going.',
+          'Alright.',
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+
+      // Edge cases question
+      if (questionLower.includes('edge case') || questionLower.includes('corner case')) {
+        return 'What edge cases?';
+      }
+
+      // Complexity question (interviewer asks them to explain)
+      if (questionLower.includes('complexity') || questionLower.includes('big o')) {
+        return 'What do you think?';
+      }
+
+      // Default: Proctor stays neutral
+      if (!hasCode) {
+        return `Clarifying questions only.${timeWarning}`;
+      }
+
+      return 'Keep going.';
     }
 
   /**

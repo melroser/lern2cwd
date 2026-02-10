@@ -5,5 +5,7 @@
 export { useTimer } from './useTimer';
 export { useSession } from './useSession';
 export { useChat } from './useChat';
+export { useTypewriter } from './useTypewriter';
 export type { ProctorResponseCallback, UseChatOptions } from './useChat';
 export type { UseTimerReturn, UseSessionReturn, UseChatReturn } from '../types';
+export type { UseTypewriterOptions, UseTypewriterReturn } from './useTypewriter';

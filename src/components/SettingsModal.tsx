@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { saveApiKey, removeApiKey } from '../utils/apiKeyStorage';
 import { storageService } from '../services/storageService';
-import { saveEditorSettings } from '../utils/editorSettings';
+import { saveEditorSettings, getEditorSettings } from '../utils/editorSettings';
 
 /**
  * SettingsModal - Modal for BYOK (Bring Your Own Key) API key management
@@ -374,6 +374,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [showKey, setShowKey] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [localVimMode, setLocalVimMode] = useState(vimMode);
+
+  // Load vim mode from localStorage when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const settings = getEditorSettings();
+      setLocalVimMode(settings.vimMode);
+    }
+  }, [isOpen]);
 
   // Use a key to reset state when modal opens with different initialApiKey
   const modalKey = useMemo(() => `${isOpen}-${initialApiKey}`, [isOpen, initialApiKey]);

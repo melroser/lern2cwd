@@ -128,11 +128,28 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     setIsLoading(false);
   }, []);
 
+  /**
+   * Add a message directly to the chat history
+   * Generates ID and timestamp automatically
+   * 
+   * @param message - Message without id and timestamp
+   */
+  const addMessage = useCallback((message: Omit<ChatMessage, 'id' | 'timestamp'>): void => {
+    const newMessage: ChatMessage = {
+      ...message,
+      id: generateMessageId(),
+      timestamp: Date.now(),
+    };
+    
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  }, []);
+
   return {
     messages,
     sendMessage,
     isLoading,
     clearMessages,
+    addMessage,
   };
 }
 

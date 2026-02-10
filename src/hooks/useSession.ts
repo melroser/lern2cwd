@@ -47,7 +47,7 @@ export function useSession(): UseSessionReturn & {
    * - Unique session ID
    * - Problem's scaffold as initial code (Requirement 3.1)
    * - Empty chat history
-   * - Active status
+   * - Waiting to start status (timer hasn't started yet)
    * 
    * @param problem - The problem to start the session with
    */
@@ -57,7 +57,7 @@ export function useSession(): UseSessionReturn & {
       problemId: problem.id,
       startTime: Date.now(),
       endTime: null,
-      status: 'active',
+      status: 'waiting_to_start',
       code: problem.scaffold, // Requirement 3.1: Post scaffold to Code_Editor
       chatHistory: [],
     };
@@ -95,14 +95,37 @@ export function useSession(): UseSessionReturn & {
         return null;
       }
 
-      // Only update if session is active (Requirement 7.4: preserve content)
-      if (currentSession.status !== 'active') {
+      // Only update if session is active or waiting to start
+      if (currentSession.status !== 'active' && currentSession.status !== 'waiting_to_start') {
         return currentSession;
       }
 
       return {
         ...currentSession,
         code,
+      };
+    });
+  }, []);
+
+  /**
+   * Activate the session (move from waiting_to_start to active)
+   * This is called when the user says they're ready to begin
+   */
+  const activateSession = useCallback(() => {
+    setSession((currentSession) => {
+      if (!currentSession) {
+        return null;
+      }
+
+      // Only activate if waiting to start
+      if (currentSession.status !== 'waiting_to_start') {
+        return currentSession;
+      }
+
+      return {
+        ...currentSession,
+        status: 'active',
+        startTime: Date.now(), // Reset start time to when they actually start
       };
     });
   }, []);
@@ -161,6 +184,7 @@ export function useSession(): UseSessionReturn & {
     startSession,
     endSession,
     updateCode,
+    activateSession,
     submitForEvaluation,
     addChatMessage,
   };

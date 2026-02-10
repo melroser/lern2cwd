@@ -73,7 +73,7 @@ export interface ChatMessage {
 /**
  * Session status states
  */
-export type SessionStatus = 'active' | 'evaluating' | 'completed';
+export type SessionStatus = 'waiting_to_start' | 'active' | 'evaluating' | 'completed';
 
 /**
  * Active session state
@@ -292,6 +292,7 @@ export interface UseSessionReturn {
   startSession: (problem: Problem) => void;
   endSession: () => void;
   updateCode: (code: string) => void;
+  activateSession: () => void;
   submitForEvaluation: () => Promise<void>;
 }
 
@@ -303,6 +304,7 @@ export interface UseChatReturn {
   sendMessage: (content: string) => Promise<void>;
   isLoading: boolean;
   clearMessages: () => void;
+  addMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
 }
 
 // =============================================================================

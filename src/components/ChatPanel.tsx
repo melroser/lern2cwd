@@ -18,134 +18,56 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: '#1e1e2e',
-    color: '#cdd6f4',
-  },
-  header: {
-    padding: '16px',
-    borderBottom: '1px solid #45475a',
-    backgroundColor: '#181825',
-  },
-  headerTitle: {
-    margin: 0,
-    fontSize: '1rem',
-    fontWeight: 600,
-    color: '#89b4fa',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.5px',
   },
   messagesContainer: {
     flex: 1,
     overflowY: 'auto',
-    padding: '16px',
+    padding: '12px 14px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
-  },
-  messageWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '85%',
-  },
-  userMessageWrapper: {
-    alignSelf: 'flex-end',
-  },
-  proctorMessageWrapper: {
-    alignSelf: 'flex-start',
-  },
-  messageLabel: {
-    fontSize: '0.7rem',
-    fontWeight: 600,
-    textTransform: 'uppercase' as const,
-    marginBottom: '4px',
-    letterSpacing: '0.5px',
-  },
-  userLabel: {
-    color: '#a6e3a1',
-    textAlign: 'right' as const,
-  },
-  proctorLabel: {
-    color: '#89b4fa',
-  },
-  messageBubble: {
-    padding: '12px 16px',
-    borderRadius: '12px',
-    fontSize: '0.9rem',
-    lineHeight: 1.6,
-    wordBreak: 'break-word' as const,
-  },
-  userMessage: {
-    backgroundColor: '#313244',
-    color: '#cdd6f4',
-    borderBottomRightRadius: '4px',
-  },
-  proctorMessage: {
-    backgroundColor: '#45475a',
-    color: '#cdd6f4',
-    borderBottomLeftRadius: '4px',
+    gap: '10px',
   },
   inputContainer: {
-    padding: '16px',
-    borderTop: '1px solid #45475a',
-    backgroundColor: '#181825',
+    padding: '12px 14px',
+    borderTop: '1px solid rgba(96, 255, 160, 0.14)',
     display: 'flex',
-    gap: '12px',
+    gap: '10px',
+    alignItems: 'center',
+    background: 'linear-gradient(180deg, rgba(4, 10, 6, 0.25), rgba(2, 6, 4, 0.45))',
   },
   input: {
     flex: 1,
-    padding: '12px 16px',
-    fontSize: '0.9rem',
-    backgroundColor: '#313244',
-    color: '#cdd6f4',
-    border: '1px solid #45475a',
-    borderRadius: '8px',
+    border: '1px solid rgba(96, 255, 160, 0.18)',
+    borderRadius: '12px',
+    background: 'rgba(0, 0, 0, 0.20)',
+    color: 'rgba(182, 255, 182, 0.92)',
+    padding: '10px 12px',
+    fontFamily: 'var(--font)',
+    fontSize: '12.5px',
     outline: 'none',
+    boxShadow: '0 0 18px rgba(0, 255, 120, 0.05)',
     resize: 'none' as const,
-    fontFamily: 'inherit',
     minHeight: '44px',
     maxHeight: '120px',
   },
   inputFocused: {
-    borderColor: '#89b4fa',
+    borderColor: 'rgba(59, 240, 255, 0.30)',
+    boxShadow: '0 0 0 2px rgba(59, 240, 255, 0.10) inset, 0 0 24px rgba(59, 240, 255, 0.06)',
   },
   inputDisabled: {
     opacity: 0.6,
     cursor: 'not-allowed',
-  },
-  sendButton: {
-    padding: '12px 20px',
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    color: '#1e1e2e',
-    backgroundColor: '#89b4fa',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    alignSelf: 'flex-end',
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#585b70',
-    color: '#9399b2',
-    cursor: 'not-allowed',
-  },
-  sendButtonHover: {
-    backgroundColor: '#b4befe',
-    transform: 'translateY(-1px)',
   },
   emptyState: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#6c7086',
+    color: 'rgba(182, 255, 182, 0.45)',
     fontStyle: 'italic',
     padding: '32px',
     textAlign: 'center' as const,
-  },
-  // Markdown styling
-  markdownContent: {
-    margin: 0,
+    fontSize: '12px',
   },
 };
 
@@ -165,35 +87,37 @@ const markdownStyles = `
     margin: 4px 0;
   }
   .proctor-markdown code {
-    background-color: #313244;
+    background-color: rgba(0, 0, 0, 0.30);
     padding: 2px 6px;
     border-radius: 4px;
     font-family: "Fira Code", "Consolas", "Monaco", monospace;
     font-size: 0.85em;
+    color: var(--cool);
   }
   .proctor-markdown pre {
-    background-color: #313244;
+    background-color: rgba(0, 0, 0, 0.30);
     padding: 12px;
     border-radius: 8px;
     overflow-x: auto;
     margin: 8px 0;
+    border: 1px solid rgba(96, 255, 160, 0.14);
   }
   .proctor-markdown pre code {
     background-color: transparent;
     padding: 0;
   }
   .proctor-markdown strong {
-    color: #f9e2af;
+    color: var(--cool);
     font-weight: 600;
   }
   .proctor-markdown em {
-    color: #cba6f7;
+    color: var(--hot);
   }
   .proctor-markdown blockquote {
-    border-left: 3px solid #89b4fa;
+    border-left: 3px solid var(--cool);
     margin: 8px 0;
     padding-left: 12px;
-    color: #a6adc8;
+    color: rgba(182, 255, 182, 0.75);
   }
 `;
 
@@ -209,28 +133,14 @@ const Message: React.FC<MessageProps> = ({ message }) => {
   
   return (
     <div
-      style={{
-        ...styles.messageWrapper,
-        ...(isUser ? styles.userMessageWrapper : styles.proctorMessageWrapper),
-      }}
+      className={`msg ${isUser ? 'user' : 'proctor'}`}
       data-testid={`message-${message.id}`}
       data-role={message.role}
     >
-      <span
-        style={{
-          ...styles.messageLabel,
-          ...(isUser ? styles.userLabel : styles.proctorLabel),
-        }}
-      >
+      <div className="who">
         {isUser ? 'You' : 'Proctor'}
-      </span>
-      <div
-        style={{
-          ...styles.messageBubble,
-          ...(isUser ? styles.userMessage : styles.proctorMessage),
-        }}
-        data-testid={`message-content-${message.id}`}
-      >
+      </div>
+      <div className="text">
         {isUser ? (
           // User messages are plain text
           <span>{message.content}</span>
@@ -350,11 +260,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     <div style={styles.container} data-testid="chat-panel">
       {/* Inject markdown styles */}
       <style>{markdownStyles}</style>
-      
-      {/* Header */}
-      <div style={styles.header}>
-        <h2 style={styles.headerTitle}>Chat with Proctor</h2>
-      </div>
 
       {/* Messages Container - Requirement 6.1: scrollable message history */}
       <div
@@ -365,7 +270,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       >
         {messages.length === 0 ? (
           <div style={styles.emptyState} data-testid="empty-state">
-            Start a conversation with the proctor. Ask questions about the problem or your approach.
+            Start a conversation with the proctor
           </div>
         ) : (
           <>
@@ -379,7 +284,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       </div>
 
       {/* Input Container */}
-      <div style={styles.inputContainer}>
+      <div style={styles.inputContainer} className="chatInput">
         <textarea
           ref={inputRef}
           value={inputValue}
@@ -387,13 +292,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           onKeyDown={handleKeyDown}
           onFocus={() => setIsInputFocused(true)}
           onBlur={() => setIsInputFocused(false)}
-          placeholder={isDisabled ? 'Chat disabled' : 'Type your message... (Enter to send, Shift+Enter for new line)'}
+          placeholder={isDisabled ? 'Chat disabled' : 'Type your message...'}
           disabled={isDisabled}
           style={{
             ...styles.input,
             ...(isInputFocused && !isDisabled ? styles.inputFocused : {}),
             ...(isDisabled ? styles.inputDisabled : {}),
           }}
+          className="field"
           data-testid="chat-input"
           aria-label="Chat message input"
           rows={1}
@@ -403,10 +309,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           disabled={!canSend}
           onMouseEnter={() => setIsButtonHovered(true)}
           onMouseLeave={() => setIsButtonHovered(false)}
+          className={`btn ${canSend ? 'primary' : ''}`}
           style={{
-            ...styles.sendButton,
-            ...(!canSend ? styles.sendButtonDisabled : {}),
-            ...(canSend && isButtonHovered ? styles.sendButtonHover : {}),
+            ...(isButtonHovered && canSend ? { transform: 'translateY(-1px)' } : {}),
           }}
           data-testid="send-button"
           aria-label="Send message"

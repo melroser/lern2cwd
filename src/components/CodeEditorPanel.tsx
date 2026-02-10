@@ -126,7 +126,6 @@ export interface CodeEditorPanelExtendedProps extends CodeEditorPanelProps {
 }
 
 export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
-  problemPrompt,
   code,
   onCodeChange,
   onSubmit,
@@ -279,14 +278,6 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
 
   return (
     <div style={styles.container} data-testid="code-editor-panel">
-      {/* Problem Prompt Section */}
-      <div style={styles.promptSection} data-testid="problem-prompt-section">
-        <div style={styles.promptLabel}>Problem</div>
-        <pre style={styles.promptText} data-testid="problem-prompt">
-          {problemPrompt || 'No problem loaded'}
-        </pre>
-      </div>
-
       {/* Code Editor Section */}
       <div style={styles.editorSection}>
         <div style={styles.editorLabel}>
