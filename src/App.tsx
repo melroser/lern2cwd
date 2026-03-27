@@ -18,8 +18,6 @@ import { problemService } from './services/problemService';
 import { proctorService } from './services/proctorService';
 import { storageService } from './services/storageService';
 import {
-  getStoredApiKey,
-  hasApiKey,
   isEnvironmentApiKeyConfigured,
   getEnvironmentApiKeySource,
   setApiKeyStorageScope,
@@ -167,7 +165,6 @@ function AppShell() {
   // View state management
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showSettings, setShowSettings] = useState(false);
-  const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [storageScopeReady, setStorageScopeReady] = useState(false);
   const [vimMode, setVimMode] = useState(false);
   const [problemTab, setProblemTab] = useState<'description' | 'constraints' | 'examples'>('description');
@@ -189,7 +186,6 @@ function AppShell() {
     lastCodeDigest: '',
   });
   const latestCodeRef = useRef('');
-  const canManageApiKey = auth.hasRole('admin');
   
   // Session state
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
@@ -240,20 +236,13 @@ function AppShell() {
     return null;
   }, []);
   
-  // Check for API key on mount
+  // Load editor settings once storage scope is ready.
   useEffect(() => {
     if (!storageScopeReady) return;
 
-    const keyExists = hasApiKey();
-    setApiKeyConfigured(keyExists);
-    if (canManageApiKey && !keyExists) {
-      setShowSettings(true);
-    }
-    
-    // Load vim mode setting
     const editorSettings = getEditorSettings();
     setVimMode(editorSettings.vimMode);
-  }, [canManageApiKey, storageScopeReady]);
+  }, [storageScopeReady]);
   
   // Auto-save session state every 30 seconds
   useEffect(() => {
@@ -653,12 +642,8 @@ function AppShell() {
     }
   }, []);
   
-  if (!storageScopeReady) {
-    return <AuthLoadingFallback />;
-  }
-
   // Get stored sessions for history
-  const storedSessions = storageService.getSessions();
+  const storedSessions = storageScopeReady ? storageService.getSessions() : [];
 
   const problemAttemptMap = useMemo<Record<string, ProblemAttemptSummary>>(() => {
     const summaries: Record<string, ProblemAttemptSummary> = {};
@@ -850,21 +835,16 @@ function AppShell() {
             <div className="hud-corner bl"></div>
             <div className="hud-corner br"></div>
 
-            {/* Settings Modal */}
-            {showSettings && (
+        {/* Settings Modal */}
+        {showSettings && (
           <SettingsModal
             isOpen={showSettings}
             onClose={() => setShowSettings(false)}
-            onSave={() => {
-              setApiKeyConfigured(hasApiKey());
-              setShowSettings(false);
-            }}
+            onSave={() => setShowSettings(false)}
             onVimModeChange={(enabled: boolean) => setVimMode(enabled)}
-            initialApiKey={getStoredApiKey() || ''}
+            initialApiKey=""
             isEnvironmentApiKeyConfigured={isEnvironmentApiKeyConfigured()}
             environmentApiKeySource={getEnvironmentApiKeySource()}
-            isFirstLaunch={canManageApiKey && !apiKeyConfigured}
-            canManageApiKey={canManageApiKey}
             vimMode={vimMode}
             problemSetOptions={problemSetOptions}
             selectedProblemSetIds={selectedProblemSetIds}

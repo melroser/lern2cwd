@@ -1,21 +1,15 @@
 /**
- * API Key Storage Utilities
- * 
- * Handles localStorage operations for the BYOK (Bring Your Own Key) API key.
- * 
- * Security Model (from design.md):
- * - Key is stored in localStorage (plaintext for MVP)
- * - Key is sent directly from browser to LLM API (no backend proxy)
- * - User is responsible for their own API usage and billing
+ * API Key Resolution Utilities
+ *
+ * The app now uses environment-provided keys only.
+ * No API key is persisted in browser storage.
  */
 
-// localStorage key for API key storage
 export const API_KEY_STORAGE_KEY = 'coding-interview-simulator-api-key';
 const BUILD_ENV_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 const BUILD_ENV_API_KEY_SOURCE = import.meta.env.VITE_OPENAI_API_KEY_SOURCE;
-let apiKeyStorageScope: string | null = null;
 
-type ApiKeyLocation = 'local_storage' | 'environment' | null;
+type ApiKeyLocation = 'environment' | null;
 
 interface EnvironmentApiKey {
   key: string;
@@ -27,24 +21,17 @@ interface RuntimeConfigShape {
   VITE_OPENAI_API_KEY?: unknown;
 }
 
-function getScopedApiKeyStorageKey(): string {
-  return apiKeyStorageScope ? `${API_KEY_STORAGE_KEY}:${apiKeyStorageScope}` : API_KEY_STORAGE_KEY;
-}
-
-export function setApiKeyStorageScope(scope: string | null): void {
-  apiKeyStorageScope = scope;
-}
-
 function normalizeApiKey(value: unknown): string | null {
   if (typeof value !== 'string') {
     return null;
   }
+
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
 }
 
 function pickFirstConfiguredEnvironmentApiKey(
-  candidates: Array<{ source: string; value: unknown }>
+  candidates: Array<{ source: string; value: unknown }>,
 ): EnvironmentApiKey | null {
   for (const candidate of candidates) {
     const normalized = normalizeApiKey(candidate.value);
@@ -55,6 +42,7 @@ function pickFirstConfiguredEnvironmentApiKey(
       };
     }
   }
+
   return null;
 }
 
@@ -77,6 +65,7 @@ function getBuildEnvironmentApiKey(): EnvironmentApiKey | null {
   if (!normalized) {
     return null;
   }
+
   return {
     key: normalized,
     source: normalizeApiKey(BUILD_ENV_API_KEY_SOURCE) ?? 'VITE_OPENAI_API_KEY',
@@ -87,89 +76,46 @@ function getEnvironmentApiKeyRecord(): EnvironmentApiKey | null {
   return getRuntimeInjectedEnvironmentApiKey() ?? getBuildEnvironmentApiKey();
 }
 
-/**
- * Get the stored API key from localStorage
- */
-export function getStoredApiKey(): string | null {
-  try {
-    const key = localStorage.getItem(getScopedApiKeyStorageKey());
-    if (!key || key.trim().length === 0) {
-      return null;
-    }
-    return key.trim();
-  } catch {
-    return null;
-  }
+export function setApiKeyStorageScope(_scope: string | null): void {
+  // Environment-only mode: no browser-scoped API key storage.
 }
 
-/**
- * Get API key from build-time environment (e.g. Netlify VITE_OPENAI_API_KEY)
- */
+export function getStoredApiKey(): string | null {
+  return null;
+}
+
 export function getEnvironmentApiKey(): string | null {
   return getEnvironmentApiKeyRecord()?.key ?? null;
 }
 
-/**
- * Get environment API key source (if configured)
- */
 export function getEnvironmentApiKeySource(): string | null {
   return getEnvironmentApiKeyRecord()?.source ?? null;
 }
 
-/**
- * Check if environment API key is configured
- */
 export function isEnvironmentApiKeyConfigured(): boolean {
   return getEnvironmentApiKey() !== null;
 }
 
-/**
- * Get effective API key.
- * Priority: localStorage user key, then environment key.
- */
 export function getConfiguredApiKey(): string | null {
-  return getStoredApiKey() ?? getEnvironmentApiKey();
+  return getEnvironmentApiKey();
 }
 
-/**
- * Return where the effective API key is coming from
- */
 export function getConfiguredApiKeySource(): ApiKeyLocation {
-  if (getStoredApiKey()) {
-    return 'local_storage';
-  }
   if (getEnvironmentApiKey()) {
     return 'environment';
   }
+
   return null;
 }
 
-/**
- * Save API key to localStorage
- */
-export function saveApiKey(apiKey: string): void {
-  try {
-    localStorage.setItem(getScopedApiKeyStorageKey(), apiKey);
-  } catch (error) {
-    console.error('Failed to save API key to localStorage:', error);
-    throw new Error('Failed to save API key. localStorage may be full or disabled.');
-  }
+export function saveApiKey(_apiKey: string): void {
+  throw new Error('API keys are environment-managed in this build.');
 }
 
-/**
- * Remove API key from localStorage
- */
 export function removeApiKey(): void {
-  try {
-    localStorage.removeItem(getScopedApiKeyStorageKey());
-  } catch {
-    // Ignore removal errors
-  }
+  // Environment-only mode: no browser-stored API key to remove.
 }
 
-/**
- * Check if an API key is configured
- */
 export function hasApiKey(): boolean {
   return getConfiguredApiKey() !== null;
 }

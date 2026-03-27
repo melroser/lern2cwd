@@ -1,26 +1,13 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { saveApiKey, removeApiKey } from '../utils/apiKeyStorage';
+import React, { useState, useCallback } from 'react';
 import { storageService } from '../services/storageService';
 import { saveEditorSettings, getEditorSettings } from '../utils/editorSettings';
 import type { ProblemSetOption } from '../types';
 
 /**
- * SettingsModal - Modal for BYOK (Bring Your Own Key) API key management
- * 
- * Requirements: 3.2, 4.1
- * 
- * Security Model (from design.md):
- * - User enters their API key in Settings modal on first launch
- * - Key is stored in localStorage (plaintext for MVP, optional passphrase encryption future)
- * - Key is sent directly from browser to LLM API (no backend proxy)
- * - User is responsible for their own API usage and billing
- * 
- * Security Warnings (must be explicit with users):
- * - The API key is visible in browser DevTools Network tab
- * - Users should use keys with spending limits set
- * - On shared devices, other users could access stored keys
- * - Browser sync may copy localStorage to other devices
- * - XSS vulnerabilities could expose the key
+ * SettingsModal - App settings for the invite-only beta.
+ *
+ * API key entry is intentionally not exposed in the browser. LLM access
+ * is environment-managed for the deployed app.
  */
 
 export interface SettingsModalProps {
@@ -36,7 +23,6 @@ export interface SettingsModalProps {
   selectedProblemSetIds?: string[];
   isEnvironmentApiKeyConfigured?: boolean;
   environmentApiKeySource?: string | null;
-  canManageApiKey?: boolean;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -401,71 +387,32 @@ const styles: Record<string, React.CSSProperties> = {
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  onSave,
   onVimModeChange,
   onProblemSetSelectionChange,
-  initialApiKey = '',
   isFirstLaunch = false,
   vimMode = false,
   problemSetOptions = [],
   selectedProblemSetIds = [],
   isEnvironmentApiKeyConfigured = false,
   environmentApiKeySource = null,
-  canManageApiKey = true,
 }) => {
-  const [apiKey, setApiKey] = useState(initialApiKey);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const [showKey, setShowKey] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const effectiveVimMode = vimMode ?? getEditorSettings().vimMode;
   const effectiveProblemSetIds = selectedProblemSetIds;
 
-  // Use a key to reset state when modal opens with different initialApiKey
-  const modalKey = useMemo(() => `${isOpen}-${initialApiKey}`, [isOpen, initialApiKey]);
-
-  // Reset state when modal opens (using key pattern instead of useEffect)
-  const currentApiKey = isOpen ? apiKey : initialApiKey;
-  if (isOpen && apiKey !== initialApiKey && apiKey === '') {
-    // This handles the case when modal opens fresh
-  }
-
-  const handleSave = useCallback(() => {
-    const trimmedKey = currentApiKey.trim();
-    if (trimmedKey) {
-      saveApiKey(trimmedKey);
-      onSave(trimmedKey);
-      onClose();
-    }
-  }, [currentApiKey, onSave, onClose]);
-
-  const handleRemoveKey = useCallback(() => {
-    removeApiKey();
-    setApiKey('');
-    onSave('');
-  }, [onSave]);
-
   const handleClearAllData = useCallback(() => {
-    // Clear all localStorage data: sessions and API key
     storageService.clearSessions();
-    removeApiKey();
-    setApiKey('');
     setShowClearConfirm(false);
-    onSave('');
-  }, [onSave]);
+  }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && currentApiKey.trim()) {
-      handleSave();
-    }
-    if (e.key === 'Escape' && !isFirstLaunch) {
+    if (e.key === 'Escape') {
       onClose();
     }
-  }, [currentApiKey, handleSave, isFirstLaunch, onClose]);
+  }, [onClose]);
 
-  const hasLocalKey = currentApiKey.trim().length > 0;
-  const isKeyConfigured = hasLocalKey || isEnvironmentApiKeyConfigured;
-  const canClose = !isFirstLaunch || isKeyConfigured || !canManageApiKey;
+  const canClose = true;
 
   const handleProblemSetToggle = useCallback((setId: string, checked: boolean) => {
     const next = checked
@@ -478,7 +425,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div 
-      key={modalKey}
       style={styles.overlay} 
       data-testid="settings-modal-overlay"
       onClick={canClose ? onClose : undefined}
@@ -491,7 +437,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       >
         <div style={styles.header}>
           <h2 style={styles.title}>
-            {isFirstLaunch ? '🔑 API Key Required' : '⚙️ Settings'}
+            ⚙️ Settings
           </h2>
           {canClose && (
             <button
@@ -505,22 +451,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
         </div>
 
-        {isFirstLaunch && canManageApiKey && (
+        {isFirstLaunch && (
           <div style={styles.infoBox}>
             <div style={styles.infoTitle}>
               <span>ℹ️</span>
               <span>Welcome to Coding Interview Simulator!</span>
             </div>
             <p style={styles.infoText}>
-              This app uses AI to simulate coding interviews. To get started, 
-              you'll need to provide your own LLM API key. Your key is stored 
-              locally on this device only.
+              This app uses AI to simulate interview sessions. LLM access is configured
+              centrally for the invite-only beta and is not entered in the browser.
             </p>
           </div>
         )}
 
         {/* Privacy notice on first launch - Requirement 9.6 */}
-        {isFirstLaunch && canManageApiKey && (
+        {isFirstLaunch && (
           <div style={styles.privacyNotice} data-testid="privacy-notice">
             <div style={styles.privacyNoticeTitle}>
               <span>🔒</span>
@@ -533,86 +478,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         )}
 
-        {canManageApiKey ? (
-          <div style={styles.section}>
-            <h3 style={styles.sectionTitle}>LLM API Key</h3>
-            <p style={styles.description}>
-              Manage the LLM key used for AI-powered interview simulation. For this beta,
-              only admin users should change this setting.
-            </p>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label} htmlFor="api-key-input">
-                API Key
-              </label>
-              <input
-                id="api-key-input"
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
-                placeholder="sk-..."
-                style={{
-                  ...styles.input,
-                  ...(isInputFocused ? styles.inputFocused : {}),
-                }}
-                data-testid="api-key-input"
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <div style={{ marginTop: '8px' }}>
-                <label style={{ fontSize: '0.85rem', color: '#a6adc8', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={showKey}
-                    onChange={(e) => setShowKey(e.target.checked)}
-                    style={{ marginRight: '8px' }}
-                    data-testid="show-key-checkbox"
-                  />
-                  Show API key
-                </label>
-              </div>
-              <div
-                style={{
-                  ...styles.keyStatus,
-                  ...(isKeyConfigured ? styles.keyStatusConfigured : styles.keyStatusNotConfigured),
-                }}
-                data-testid="key-status"
-              >
-                <span
-                  style={{
-                    ...styles.statusDot,
-                    ...(isKeyConfigured ? styles.statusDotConfigured : styles.statusDotNotConfigured),
-                  }}
-                />
-                {hasLocalKey
-                  ? 'API key configured'
-                  : isEnvironmentApiKeyConfigured
-                    ? 'API key configured (environment)'
-                    : 'No API key configured'}
-              </div>
-              {isEnvironmentApiKeyConfigured && !hasLocalKey && (
-                <p style={styles.envKeyHint} data-testid="environment-key-hint">
-                  Using environment key source: {environmentApiKeySource ?? 'VITE_OPENAI_API_KEY'}.
-                </p>
-              )}
-            </div>
+        <div style={styles.infoBox} data-testid="llm-access-info">
+          <div style={styles.infoTitle}>
+            <span>🔐</span>
+            <span>LLM Access</span>
           </div>
-        ) : (
-          <div style={styles.infoBox} data-testid="llm-access-info">
-            <div style={styles.infoTitle}>
-              <span>🔐</span>
-              <span>LLM Access</span>
-            </div>
-            <p style={styles.infoText}>
-              API configuration is admin-managed for this invite-only beta.
-              {isEnvironmentApiKeyConfigured
-                ? ` Shared access is configured via ${environmentApiKeySource ?? 'environment variables'}.`
-                : ' Shared access is not configured yet.'}
-            </p>
-          </div>
-        )}
+          <p style={styles.infoText}>
+            API configuration is environment-managed for this app.
+            {isEnvironmentApiKeyConfigured
+              ? ` Shared access is configured via ${environmentApiKeySource ?? 'environment variables'}.`
+              : ' Shared access is not configured yet.'}
+          </p>
+        </div>
 
         {/* Editor Settings Section */}
         <div style={styles.section} data-testid="editor-settings-section">
@@ -682,22 +559,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {canManageApiKey && (
-          <div style={styles.warningBox} data-testid="security-warning">
-            <div style={styles.warningTitle}>
-              <span style={styles.warningIcon}>⚠️</span>
-              <span>Security Notice</span>
-            </div>
-            <ul style={styles.warningList}>
-              <li>Your API key is visible in browser DevTools (Network tab)</li>
-              <li>Use API keys with spending limits set in your provider dashboard</li>
-              <li>On shared devices, other users could access stored keys</li>
-              <li>Browser sync may copy localStorage to other devices</li>
-              <li>This tool is designed for personal use on trusted devices</li>
-            </ul>
-          </div>
-        )}
-
         <div style={styles.infoBox}>
           <div style={styles.infoTitle}>
             <span>💡</span>
@@ -705,7 +566,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
           <p style={styles.infoText}>
             All session data is stored locally on this device only. 
-            No data is sent to any server except the LLM API for generating responses.
+            API keys are not stored in the browser.
           </p>
         </div>
 
@@ -718,8 +579,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Data Management</span>
               </div>
               <p style={styles.dangerText}>
-                Clear all stored data including session history, API key, and any 
-                other locally stored information. This action cannot be undone.
+                Clear all stored data including session history and other locally stored
+                simulator state. This action cannot be undone.
               </p>
               <button
                 style={styles.clearAllButton}
@@ -733,37 +594,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         )}
 
         <div style={styles.buttonGroup}>
-          {canManageApiKey && initialApiKey && (
-            <button
-              style={styles.removeButton}
-              onClick={handleRemoveKey}
-              data-testid="remove-key-button"
-            >
-              Remove Key
-            </button>
-          )}
-          {canClose && (
-            <button
-              style={styles.cancelButton}
-              onClick={onClose}
-              data-testid="settings-cancel-button"
-            >
-              Cancel
-            </button>
-          )}
-          {canManageApiKey && (
-            <button
-              style={{
-                ...styles.saveButton,
-                ...(!hasLocalKey ? styles.saveButtonDisabled : {}),
-              }}
-              onClick={handleSave}
-              disabled={!hasLocalKey}
-              data-testid="settings-save-button"
-            >
-              {isFirstLaunch ? 'Get Started' : 'Save'}
-            </button>
-          )}
+          <button
+            style={styles.cancelButton}
+            onClick={onClose}
+            data-testid="settings-cancel-button"
+          >
+            Close
+          </button>
         </div>
       </div>
 
@@ -780,8 +617,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           >
             <h3 style={styles.confirmTitle}>⚠️ Clear All Data?</h3>
             <p style={styles.confirmText}>
-              This will permanently delete all your session history, API key, 
-              and any other stored data. This action cannot be undone.
+              This will permanently delete all your session history and other
+              locally stored simulator data. This action cannot be undone.
             </p>
             <div style={styles.confirmButtons}>
               <button
