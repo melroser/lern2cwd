@@ -192,6 +192,15 @@ function isValidSessionRecord(record: unknown): record is SessionRecord {
  */
 export class StorageService implements StorageServiceInterface {
   private warningCallback?: (usage: StorageUsage) => void;
+  private storageScope: string | null = null;
+
+  setStorageScope(scope: string | null): void {
+    this.storageScope = scope;
+  }
+
+  private getStorageKey(): string {
+    return this.storageScope ? `${STORAGE_KEY}:${this.storageScope}` : STORAGE_KEY;
+  }
 
   /**
    * Set a callback to be called when storage usage exceeds 80%
@@ -231,7 +240,7 @@ export class StorageService implements StorageServiceInterface {
    */
   getSessions(): SessionRecord[] {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data = localStorage.getItem(this.getStorageKey());
       if (!data) return [];
       
       const parsed = JSON.parse(data);
@@ -270,7 +279,7 @@ export class StorageService implements StorageServiceInterface {
    */
   clearSessions(): void {
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(this.getStorageKey());
     } catch (error) {
       console.warn('StorageService: Failed to clear sessions:', error);
     }
@@ -329,7 +338,7 @@ export class StorageService implements StorageServiceInterface {
   private saveSessions(sessions: SessionRecord[]): void {
     try {
       const data = JSON.stringify(sessions);
-      localStorage.setItem(STORAGE_KEY, data);
+      localStorage.setItem(this.getStorageKey(), data);
     } catch (error) {
       // Re-throw quota errors for handling
       if (this.isQuotaError(error)) {

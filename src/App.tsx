@@ -10,13 +10,20 @@ import { AuthDebugPanel } from './components/AuthDebugPanel';
 import { AuthStatusControls } from './components/AuthStatusControls';
 import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
+import { useAuth } from './auth/useAuth';
 import { useSession } from './hooks/useSession';
 import { useTimer } from './hooks/useTimer';
 import { useChat } from './hooks/useChat';
 import { problemService } from './services/problemService';
 import { proctorService } from './services/proctorService';
 import { storageService } from './services/storageService';
-import { getStoredApiKey, hasApiKey, isEnvironmentApiKeyConfigured, getEnvironmentApiKeySource } from './utils/apiKeyStorage';
+import {
+  getStoredApiKey,
+  hasApiKey,
+  isEnvironmentApiKeyConfigured,
+  getEnvironmentApiKeySource,
+  setApiKeyStorageScope,
+} from './utils/apiKeyStorage';
 import { getEditorSettings } from './utils/editorSettings';
 import { getProblemSetSettings, saveProblemSetSettings } from './utils/problemSetSettings';
 import type {
@@ -155,10 +162,13 @@ function buildLegacySnapshotFromSession(sessionRecord: SessionRecord): string {
 }
 
 function AppShell() {
+  const auth = useAuth();
+
   // View state management
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showSettings, setShowSettings] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
+  const [storageScopeReady, setStorageScopeReady] = useState(false);
   const [vimMode, setVimMode] = useState(false);
   const [problemTab, setProblemTab] = useState<'description' | 'constraints' | 'examples'>('description');
   const [proctorMode, setProctorMode] = useState<ProctorInteractionMode>(() => proctorService.getLastInteractionMode());
@@ -179,6 +189,7 @@ function AppShell() {
     lastCodeDigest: '',
   });
   const latestCodeRef = useRef('');
+  const canManageApiKey = auth.hasRole('admin');
   
   // Session state
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
@@ -196,6 +207,12 @@ function AppShell() {
   const sessionHook = useSession();
   const chat = useChat();
   const addChatMessage = chat.addMessage;
+
+  useEffect(() => {
+    storageService.setStorageScope(auth.profileKey);
+    setApiKeyStorageScope(auth.profileKey);
+    setStorageScopeReady(true);
+  }, [auth.profileKey]);
 
   useEffect(() => {
     latestCodeRef.current = sessionHook.session?.code ?? latestCodeRef.current;
@@ -225,16 +242,18 @@ function AppShell() {
   
   // Check for API key on mount
   useEffect(() => {
+    if (!storageScopeReady) return;
+
     const keyExists = hasApiKey();
     setApiKeyConfigured(keyExists);
-    if (!keyExists) {
+    if (canManageApiKey && !keyExists) {
       setShowSettings(true);
     }
     
     // Load vim mode setting
     const editorSettings = getEditorSettings();
     setVimMode(editorSettings.vimMode);
-  }, []);
+  }, [canManageApiKey, storageScopeReady]);
   
   // Auto-save session state every 30 seconds
   useEffect(() => {
@@ -257,11 +276,13 @@ function AppShell() {
   
   // Load problems when selected sets change
   useEffect(() => {
+    if (!storageScopeReady) return;
+
     problemService.loadProblems(selectedProblemSetIds).then((problems) => {
       setLoadedProblems(problems);
       setProblemSetOptions(problemService.getAvailableProblemSets());
     }).catch(console.error);
-  }, [selectedProblemSetIds]);
+  }, [selectedProblemSetIds, storageScopeReady]);
 
   // Auto-scale problem text to fit the panel
   useEffect(() => {
@@ -632,6 +653,10 @@ function AppShell() {
     }
   }, []);
   
+  if (!storageScopeReady) {
+    return <AuthLoadingFallback />;
+  }
+
   // Get stored sessions for history
   const storedSessions = storageService.getSessions();
 
@@ -838,7 +863,8 @@ function AppShell() {
             initialApiKey={getStoredApiKey() || ''}
             isEnvironmentApiKeyConfigured={isEnvironmentApiKeyConfigured()}
             environmentApiKeySource={getEnvironmentApiKeySource()}
-            isFirstLaunch={!apiKeyConfigured}
+            isFirstLaunch={canManageApiKey && !apiKeyConfigured}
+            canManageApiKey={canManageApiKey}
             vimMode={vimMode}
             problemSetOptions={problemSetOptions}
             selectedProblemSetIds={selectedProblemSetIds}

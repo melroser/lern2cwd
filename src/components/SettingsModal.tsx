@@ -36,6 +36,7 @@ export interface SettingsModalProps {
   selectedProblemSetIds?: string[];
   isEnvironmentApiKeyConfigured?: boolean;
   environmentApiKeySource?: string | null;
+  canManageApiKey?: boolean;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -410,6 +411,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   selectedProblemSetIds = [],
   isEnvironmentApiKeyConfigured = false,
   environmentApiKeySource = null,
+  canManageApiKey = true,
 }) => {
   const [apiKey, setApiKey] = useState(initialApiKey);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -463,7 +465,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const hasLocalKey = currentApiKey.trim().length > 0;
   const isKeyConfigured = hasLocalKey || isEnvironmentApiKeyConfigured;
-  const canClose = !isFirstLaunch || isKeyConfigured;
+  const canClose = !isFirstLaunch || isKeyConfigured || !canManageApiKey;
 
   const handleProblemSetToggle = useCallback((setId: string, checked: boolean) => {
     const next = checked
@@ -503,7 +505,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
         </div>
 
-        {isFirstLaunch && (
+        {isFirstLaunch && canManageApiKey && (
           <div style={styles.infoBox}>
             <div style={styles.infoTitle}>
               <span>ℹ️</span>
@@ -518,7 +520,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         )}
 
         {/* Privacy notice on first launch - Requirement 9.6 */}
-        {isFirstLaunch && (
+        {isFirstLaunch && canManageApiKey && (
           <div style={styles.privacyNotice} data-testid="privacy-notice">
             <div style={styles.privacyNoticeTitle}>
               <span>🔒</span>
@@ -531,73 +533,86 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         )}
 
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>LLM API Key</h3>
-          <p style={styles.description}>
-            Enter your API key to enable AI-powered interview simulation. 
-            The key is sent directly from your browser to the LLM API.
-            You can also set it via environment variable (for example on Netlify).
-          </p>
+        {canManageApiKey ? (
+          <div style={styles.section}>
+            <h3 style={styles.sectionTitle}>LLM API Key</h3>
+            <p style={styles.description}>
+              Manage the LLM key used for AI-powered interview simulation. For this beta,
+              only admin users should change this setting.
+            </p>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label} htmlFor="api-key-input">
-              API Key
-            </label>
-            <input
-              id="api-key-input"
-              type={showKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              onFocus={() => setIsInputFocused(true)}
-              onBlur={() => setIsInputFocused(false)}
-              placeholder="sk-..."
-              style={{
-                ...styles.input,
-                ...(isInputFocused ? styles.inputFocused : {}),
-              }}
-              data-testid="api-key-input"
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <div style={{ marginTop: '8px' }}>
-              <label style={{ fontSize: '0.85rem', color: '#a6adc8', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={showKey}
-                  onChange={(e) => setShowKey(e.target.checked)}
-                  style={{ marginRight: '8px' }}
-                  data-testid="show-key-checkbox"
-                />
-                Show API key
+            <div style={styles.inputGroup}>
+              <label style={styles.label} htmlFor="api-key-input">
+                API Key
               </label>
-            </div>
-            <div 
-              style={{
-                ...styles.keyStatus,
-                ...(isKeyConfigured ? styles.keyStatusConfigured : styles.keyStatusNotConfigured),
-              }}
-              data-testid="key-status"
-            >
-              <span 
+              <input
+                id="api-key-input"
+                type={showKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
+                placeholder="sk-..."
                 style={{
-                  ...styles.statusDot,
-                  ...(isKeyConfigured ? styles.statusDotConfigured : styles.statusDotNotConfigured),
+                  ...styles.input,
+                  ...(isInputFocused ? styles.inputFocused : {}),
                 }}
+                data-testid="api-key-input"
+                autoComplete="off"
+                spellCheck={false}
               />
-              {hasLocalKey
-                ? 'API key configured'
-                : isEnvironmentApiKeyConfigured
-                  ? 'API key configured (environment)'
-                  : 'No API key configured'}
+              <div style={{ marginTop: '8px' }}>
+                <label style={{ fontSize: '0.85rem', color: '#a6adc8', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={showKey}
+                    onChange={(e) => setShowKey(e.target.checked)}
+                    style={{ marginRight: '8px' }}
+                    data-testid="show-key-checkbox"
+                  />
+                  Show API key
+                </label>
+              </div>
+              <div
+                style={{
+                  ...styles.keyStatus,
+                  ...(isKeyConfigured ? styles.keyStatusConfigured : styles.keyStatusNotConfigured),
+                }}
+                data-testid="key-status"
+              >
+                <span
+                  style={{
+                    ...styles.statusDot,
+                    ...(isKeyConfigured ? styles.statusDotConfigured : styles.statusDotNotConfigured),
+                  }}
+                />
+                {hasLocalKey
+                  ? 'API key configured'
+                  : isEnvironmentApiKeyConfigured
+                    ? 'API key configured (environment)'
+                    : 'No API key configured'}
+              </div>
+              {isEnvironmentApiKeyConfigured && !hasLocalKey && (
+                <p style={styles.envKeyHint} data-testid="environment-key-hint">
+                  Using environment key source: {environmentApiKeySource ?? 'VITE_OPENAI_API_KEY'}.
+                </p>
+              )}
             </div>
-            {isEnvironmentApiKeyConfigured && !hasLocalKey && (
-              <p style={styles.envKeyHint} data-testid="environment-key-hint">
-                Using environment key source: {environmentApiKeySource ?? 'VITE_OPENAI_API_KEY'}.
-                You can still save a local key to override on this device.
-              </p>
-            )}
           </div>
-        </div>
+        ) : (
+          <div style={styles.infoBox} data-testid="llm-access-info">
+            <div style={styles.infoTitle}>
+              <span>🔐</span>
+              <span>LLM Access</span>
+            </div>
+            <p style={styles.infoText}>
+              API configuration is admin-managed for this invite-only beta.
+              {isEnvironmentApiKeyConfigured
+                ? ` Shared access is configured via ${environmentApiKeySource ?? 'environment variables'}.`
+                : ' Shared access is not configured yet.'}
+            </p>
+          </div>
+        )}
 
         {/* Editor Settings Section */}
         <div style={styles.section} data-testid="editor-settings-section">
@@ -667,19 +682,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        <div style={styles.warningBox} data-testid="security-warning">
-          <div style={styles.warningTitle}>
-            <span style={styles.warningIcon}>⚠️</span>
-            <span>Security Notice</span>
+        {canManageApiKey && (
+          <div style={styles.warningBox} data-testid="security-warning">
+            <div style={styles.warningTitle}>
+              <span style={styles.warningIcon}>⚠️</span>
+              <span>Security Notice</span>
+            </div>
+            <ul style={styles.warningList}>
+              <li>Your API key is visible in browser DevTools (Network tab)</li>
+              <li>Use API keys with spending limits set in your provider dashboard</li>
+              <li>On shared devices, other users could access stored keys</li>
+              <li>Browser sync may copy localStorage to other devices</li>
+              <li>This tool is designed for personal use on trusted devices</li>
+            </ul>
           </div>
-          <ul style={styles.warningList}>
-            <li>Your API key is visible in browser DevTools (Network tab)</li>
-            <li>Use API keys with spending limits set in your provider dashboard</li>
-            <li>On shared devices, other users could access stored keys</li>
-            <li>Browser sync may copy localStorage to other devices</li>
-            <li>This tool is designed for personal use on trusted devices</li>
-          </ul>
-        </div>
+        )}
 
         <div style={styles.infoBox}>
           <div style={styles.infoTitle}>
@@ -716,7 +733,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         )}
 
         <div style={styles.buttonGroup}>
-          {initialApiKey && (
+          {canManageApiKey && initialApiKey && (
             <button
               style={styles.removeButton}
               onClick={handleRemoveKey}
@@ -734,17 +751,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               Cancel
             </button>
           )}
-          <button
-            style={{
-              ...styles.saveButton,
-              ...(!hasLocalKey ? styles.saveButtonDisabled : {}),
-            }}
-            onClick={handleSave}
-            disabled={!hasLocalKey}
-            data-testid="settings-save-button"
-          >
-            {isFirstLaunch ? 'Get Started' : 'Save'}
-          </button>
+          {canManageApiKey && (
+            <button
+              style={{
+                ...styles.saveButton,
+                ...(!hasLocalKey ? styles.saveButtonDisabled : {}),
+              }}
+              onClick={handleSave}
+              disabled={!hasLocalKey}
+              data-testid="settings-save-button"
+            >
+              {isFirstLaunch ? 'Get Started' : 'Save'}
+            </button>
+          )}
         </div>
       </div>
 

@@ -13,6 +13,7 @@
 export const API_KEY_STORAGE_KEY = 'coding-interview-simulator-api-key';
 const BUILD_ENV_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 const BUILD_ENV_API_KEY_SOURCE = import.meta.env.VITE_OPENAI_API_KEY_SOURCE;
+let apiKeyStorageScope: string | null = null;
 
 type ApiKeyLocation = 'local_storage' | 'environment' | null;
 
@@ -24,6 +25,14 @@ interface EnvironmentApiKey {
 interface RuntimeConfigShape {
   OPENAI_API_KEY?: unknown;
   VITE_OPENAI_API_KEY?: unknown;
+}
+
+function getScopedApiKeyStorageKey(): string {
+  return apiKeyStorageScope ? `${API_KEY_STORAGE_KEY}:${apiKeyStorageScope}` : API_KEY_STORAGE_KEY;
+}
+
+export function setApiKeyStorageScope(scope: string | null): void {
+  apiKeyStorageScope = scope;
 }
 
 function normalizeApiKey(value: unknown): string | null {
@@ -83,7 +92,7 @@ function getEnvironmentApiKeyRecord(): EnvironmentApiKey | null {
  */
 export function getStoredApiKey(): string | null {
   try {
-    const key = localStorage.getItem(API_KEY_STORAGE_KEY);
+    const key = localStorage.getItem(getScopedApiKeyStorageKey());
     if (!key || key.trim().length === 0) {
       return null;
     }
@@ -140,7 +149,7 @@ export function getConfiguredApiKeySource(): ApiKeyLocation {
  */
 export function saveApiKey(apiKey: string): void {
   try {
-    localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    localStorage.setItem(getScopedApiKeyStorageKey(), apiKey);
   } catch (error) {
     console.error('Failed to save API key to localStorage:', error);
     throw new Error('Failed to save API key. localStorage may be full or disabled.');
@@ -152,7 +161,7 @@ export function saveApiKey(apiKey: string): void {
  */
 export function removeApiKey(): void {
   try {
-    localStorage.removeItem(API_KEY_STORAGE_KEY);
+    localStorage.removeItem(getScopedApiKeyStorageKey());
   } catch {
     // Ignore removal errors
   }
