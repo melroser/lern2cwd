@@ -1,0 +1,481 @@
+[
+  {
+    "id": "fde2-fastapi-health-endpoint",
+    "title": "FastAPI Health Endpoint",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["fastapi", "api-shape", "backend-basics"],
+    "prompt": "Implement a FastAPI endpoint `GET /health` that returns a JSON object with keys `ok` and `service`. The value of `ok` should be `True` and the value of `service` should be `inventory-api`.",
+    "constraints": [
+      "Use FastAPI",
+      "Return JSON automatically",
+      "Keep the endpoint minimal"
+    ],
+    "scaffold": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/health')\ndef health():\n    pass",
+    "examples": [
+      {
+        "input": "GET /health",
+        "output": "{\"ok\": true, \"service\": \"inventory-api\"}",
+        "explanation": "Basic health check shape."
+      }
+    ],
+    "expectedApproach": "Return a plain Python dict from the endpoint.",
+    "commonPitfalls": [
+      "Overengineering a simple endpoint",
+      "Returning a string instead of structured JSON",
+      "Adding unrelated logic"
+    ],
+    "idealSolutionOutline": "Define endpoint, return dict literal.",
+    "evaluationNotes": "Reward clean FastAPI familiarity and calm execution."
+  },
+  {
+    "id": "fde2-request-summary-endpoint",
+    "title": "Request Summary Endpoint",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["fastapi", "aggregation", "json-shape"],
+    "prompt": "Given an in-memory list of request records with `status` and `latency_ms`, implement a FastAPI endpoint `GET /summary` that returns total requests, error count, and max latency.",
+    "constraints": [
+      "Treat status >= 400 as an error",
+      "Use a single pass over the records",
+      "Return JSON"
+    ],
+    "scaffold": "from fastapi import FastAPI\n\napp = FastAPI()\nREQUESTS = [{\"status\": 200, \"latency_ms\": 120}, {\"status\": 500, \"latency_ms\": 350}]\n\n@app.get('/summary')\ndef summary():\n    pass",
+    "examples": [
+      {
+        "input": "GET /summary",
+        "output": "{\"total_requests\": 2, \"error_count\": 1, \"max_latency_ms\": 350}",
+        "explanation": "Aggregate in one pass."
+      }
+    ],
+    "expectedApproach": "Use counters and max tracking in one loop.",
+    "commonPitfalls": [
+      "Multiple unnecessary passes",
+      "Misclassifying errors",
+      "Returning the raw request list instead of a summary"
+    ],
+    "idealSolutionOutline": "Loop once, calculate fields, return dict.",
+    "evaluationNotes": "Reward good API shape and backend aggregation fluency."
+  },
+  {
+    "id": "fde2-parse-then-persist",
+    "title": "Parse Then Persist",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["separation-of-concerns", "backend-thinking", "python-basics"],
+    "prompt": "Implement two functions. The first computes min and max from a list of integers. The second stores the result in an in-memory run log with an incrementing id. Do not combine the two responsibilities.",
+    "constraints": [
+      "One function computes only",
+      "One function persists only",
+      "IDs start at 1"
+    ],
+    "scaffold": "RUN_LOG: list[dict[str, int]] = []\n\ndef compute_min_max(values: list[int]) -> dict[str, int]:\n    pass\n\n\ndef persist_run(result: dict[str, int]) -> dict[str, int]:\n    pass",
+    "examples": [
+      {
+        "input": "compute_min_max([5, 2, 9]) then persist_run(...)",
+        "output": "{\"id\": 1, \"min\": 2, \"max\": 9}",
+        "explanation": "Computation and persistence are separate."
+      }
+    ],
+    "expectedApproach": "Keep responsibilities separate and explicit.",
+    "commonPitfalls": [
+      "Doing persistence inside the compute function",
+      "Recomputing min and max in persist_run",
+      "Confusing run id with business data"
+    ],
+    "idealSolutionOutline": "Compute function returns result dict, persist function appends id plus result to run log.",
+    "evaluationNotes": "Reward backend design judgment."
+  },
+  {
+    "id": "fde2-sql-orders-by-status",
+    "title": "SQL Orders By Status",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "sql",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["sql", "aggregation", "business-question-mapping"],
+    "prompt": "Write a SQL query that returns each order status and the number of orders with that status from a table `work_orders(work_order_id, status)`.",
+    "constraints": [
+      "Return one row per status",
+      "Include the count",
+      "Sort by count descending"
+    ],
+    "scaffold": "-- write SQL here",
+    "examples": [
+      {
+        "input": "work_orders with statuses open, open, closed",
+        "output": "open 2; closed 1",
+        "explanation": "Group by status."
+      }
+    ],
+    "expectedApproach": "Use GROUP BY and COUNT.",
+    "commonPitfalls": [
+      "Forgetting GROUP BY",
+      "Sorting alphabetically instead of by count",
+      "Using unnecessary subqueries"
+    ],
+    "idealSolutionOutline": "SELECT status, COUNT(*) ... GROUP BY status ORDER BY COUNT(*) DESC",
+    "evaluationNotes": "Reward direct mapping from business question to SQL."
+  },
+  {
+    "id": "fde2-sql-join-shortages",
+    "title": "SQL Join Shortages",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "sql",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["sql", "joins", "inventory-reasoning"],
+    "prompt": "Write a SQL query that returns each work order and required part where inventory is insufficient. Use tables `work_order_requirements(work_order_id, part_id, required_qty)` and `inventory(part_id, on_hand_qty)`.",
+    "constraints": [
+      "Return work_order_id, part_id, required_qty, on_hand_qty",
+      "Treat missing inventory rows as zero quantity",
+      "Only return shortages"
+    ],
+    "scaffold": "-- write SQL here",
+    "examples": [
+      {
+        "input": "required_qty 10 and on_hand_qty 4",
+        "output": "return that row as a shortage",
+        "explanation": "Available stock is below requirement."
+      }
+    ],
+    "expectedApproach": "LEFT JOIN inventory and use COALESCE for missing rows.",
+    "commonPitfalls": [
+      "Using inner join and losing missing-inventory shortages",
+      "Forgetting COALESCE",
+      "Not filtering correctly"
+    ],
+    "idealSolutionOutline": "Join requirements to inventory, replace null with 0, filter where available < required.",
+    "evaluationNotes": "Reward practical SQL correctness."
+  },
+  {
+    "id": "fde2-sql-inbound-before-due-date",
+    "title": "SQL Inbound Before Due Date",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "sql",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["sql", "joins", "correlated-subquery", "business-logic"],
+    "prompt": "Given `work_orders(work_order_id, due_date)`, `work_order_requirements(work_order_id, part_id, required_qty)`, `inventory(part_id, on_hand_qty)`, and `purchase_orders(part_id, inbound_qty, expected_date)`, write a SQL query that returns work order and part rows where available supply before due date is less than required quantity.",
+    "constraints": [
+      "Available supply = on_hand_qty + inbound_qty with expected_date <= due_date",
+      "Treat missing inventory or purchase orders as zero",
+      "Return work_order_id, part_id, required_qty, available_qty"
+    ],
+    "scaffold": "-- write SQL here",
+    "examples": [
+      {
+        "input": "required 10, on hand 4, inbound before due 3",
+        "output": "available_qty 7, row should be returned",
+        "explanation": "7 is below the requirement of 10."
+      }
+    ],
+    "expectedApproach": "Build per-work-order per-part coverage using joins plus a correlated subquery or grouped join.",
+    "commonPitfalls": [
+      "Ignoring the due date filter on inbound supply",
+      "Double-counting purchase orders",
+      "Using inner joins and dropping missing data"
+    ],
+    "idealSolutionOutline": "Join work orders to requirements, left join inventory, sum purchase order quantities arriving on time, compute available_qty, filter shortages.",
+    "evaluationNotes": "Reward ability to translate operations logic into SQL."
+  },
+  {
+    "id": "fde2-fastapi-risk-endpoint",
+    "title": "FastAPI Risk Endpoint",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["fastapi", "json-shape", "business-logic"],
+    "prompt": "Implement a FastAPI endpoint `GET /at_risk_orders` that returns a list of work orders whose required parts are in shortage. Use in-memory lists for work orders, requirements, and inventory.",
+    "constraints": [
+      "Treat missing inventory as zero",
+      "A work order is at risk if any required part is short",
+      "Return grouped JSON by work_order_id"
+    ],
+    "scaffold": "from fastapi import FastAPI\n\napp = FastAPI()\nWORK_ORDERS = [{\"work_order_id\": 1}, {\"work_order_id\": 2}]\nREQUIREMENTS = [{\"work_order_id\": 1, \"part_id\": 10, \"required_qty\": 5}, {\"work_order_id\": 2, \"part_id\": 10, \"required_qty\": 2}]\nINVENTORY = [{\"part_id\": 10, \"on_hand_qty\": 3}]\n\n@app.get('/at_risk_orders')\ndef at_risk_orders():\n    pass",
+    "examples": [
+      {
+        "input": "GET /at_risk_orders",
+        "output": "[{\"work_order_id\": 1, \"status\": \"at_risk\", \"shortages\": [...]}]",
+        "explanation": "WO 1 is short, WO 2 is not."
+      }
+    ],
+    "expectedApproach": "Build a part inventory lookup dict, scan requirements, collect shortage rows, group by work order.",
+    "commonPitfalls": [
+      "Returning one row per shortage instead of a grouped order view",
+      "Ignoring missing inventory rows",
+      "Mixing transport shape with internal computation"
+    ],
+    "idealSolutionOutline": "Lookup inventory by part_id, detect shortages, group by work_order_id, return structured JSON list.",
+    "evaluationNotes": "Reward API design and business-logic clarity."
+  },
+  {
+    "id": "fde2-recovery-plan-endpoint",
+    "title": "Recovery Plan Endpoint",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["fastapi", "heuristics", "business-judgment"],
+    "prompt": "Implement a FastAPI endpoint `GET /recovery_plan/{work_order_id}` that returns recommended actions for each shortage. Use simple deterministic rules: if some stock exists, recommend `reallocate_stock`; if no stock exists but a future purchase order exists, recommend `expedite_purchase_order`; otherwise recommend `flag_planner_review`.",
+    "constraints": [
+      "Use in-memory data",
+      "Return empty actions if the work order is not at risk",
+      "Keep v1 deterministic"
+    ],
+    "scaffold": "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/recovery_plan/{work_order_id}')\ndef recovery_plan(work_order_id: int):\n    pass",
+    "examples": [
+      {
+        "input": "GET /recovery_plan/1",
+        "output": "{\"work_order_id\":1,\"recommended_actions\":[...]}",
+        "explanation": "Each shortage gets a simple action recommendation."
+      }
+    ],
+    "expectedApproach": "Use clear if/elif rules and explain why deterministic v1 is better than jumping to AI.",
+    "commonPitfalls": [
+      "Overcomplicating the decision logic",
+      "Not separating shortage detection from action assignment",
+      "Using vague action names"
+    ],
+    "idealSolutionOutline": "Find shortages, inspect stock and future PO presence, map each to one action with a short reason.",
+    "evaluationNotes": "Reward product judgment and controlled scope."
+  },
+  {
+    "id": "fde2-dockerfile-api-service",
+    "title": "Dockerfile for API Service",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "dockerfile",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["docker", "container-basics", "deployment"],
+    "prompt": "Write a Dockerfile for a small FastAPI service using Python 3.12 slim. The service has files `requirements.txt` and `app.py`, and should run uvicorn on port 8000.",
+    "constraints": [
+      "Use a slim Python base image",
+      "Install requirements before copying app code when possible",
+      "Expose port 8000 through uvicorn command"
+    ],
+    "scaffold": "# write Dockerfile here",
+    "examples": [
+      {
+        "input": "build context contains requirements.txt and app.py",
+        "output": "valid Dockerfile",
+        "explanation": "Container should start the API correctly."
+      }
+    ],
+    "expectedApproach": "WORKDIR, copy requirements, pip install, copy app, CMD uvicorn.",
+    "commonPitfalls": [
+      "Copying everything too early and losing cache benefits",
+      "Forgetting working directory",
+      "Using dev-only server commands"
+    ],
+    "idealSolutionOutline": "Minimal production-like Dockerfile for a simple service.",
+    "evaluationNotes": "Reward boring correctness."
+  },
+  {
+    "id": "fde2-compose-api-postgres",
+    "title": "Compose API and Postgres",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "yaml",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["docker-compose", "service-dependencies", "env-vars"],
+    "prompt": "Write a docker-compose.yml file with two services: `db` using Postgres 16 and `api` built from the current directory. The API should receive a DATABASE_URL environment variable pointing at the db service and depend on the database health check.",
+    "constraints": [
+      "Name services `db` and `api`",
+      "Use Postgres healthcheck",
+      "Map API port 8000 to host 8000"
+    ],
+    "scaffold": "# write compose yaml here",
+    "examples": [
+      {
+        "input": "docker compose up",
+        "output": "db and api start with correct dependency behavior",
+        "explanation": "API waits on healthy database."
+      }
+    ],
+    "expectedApproach": "Define db image and env vars, add healthcheck, define api build and DATABASE_URL, set depends_on condition.",
+    "commonPitfalls": [
+      "No healthcheck on db",
+      "Using localhost in DATABASE_URL instead of service name",
+      "Forgetting port mapping"
+    ],
+    "idealSolutionOutline": "Simple two-service compose stack with healthy startup order.",
+    "evaluationNotes": "Reward real-world Compose fluency."
+  },
+  {
+    "id": "fde2-sql-run-audit-table",
+    "title": "SQL Run Audit Table",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "sql",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["sql", "schema-design", "audit-logging"],
+    "prompt": "Write SQL to create a table `runs` with columns `id`, `min_value`, `max_value`, and `created_at`. Use an auto-incrementing integer primary key and default the timestamp to now.",
+    "constraints": [
+      "Use PostgreSQL syntax",
+      "id should auto-increment",
+      "created_at should default to current timestamp"
+    ],
+    "scaffold": "-- write SQL here",
+    "examples": [
+      {
+        "input": "create table statement",
+        "output": "valid PostgreSQL DDL",
+        "explanation": "Simple audit log table."
+      }
+    ],
+    "expectedApproach": "Use SERIAL or IDENTITY, integer columns, timestamp default now().",
+    "commonPitfalls": [
+      "No primary key",
+      "No default timestamp",
+      "Unnecessarily complicated schema"
+    ],
+    "idealSolutionOutline": "Minimal audit table for endpoint runs.",
+    "evaluationNotes": "Reward practical DDL fluency."
+  },
+  {
+    "id": "fde2-insert-run-record",
+    "title": "Insert Run Record",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "sql",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["sql", "insert", "parameterization-thinking"],
+    "prompt": "Write a SQL insert statement for table `runs(id, min_value, max_value, created_at)` that inserts only min_value and max_value and lets the database fill the other fields.",
+    "constraints": [
+      "Do not provide id explicitly",
+      "Do not provide created_at explicitly"
+    ],
+    "scaffold": "-- write SQL here",
+    "examples": [
+      {
+        "input": "min=23, max=1048",
+        "output": "INSERT INTO runs (min_value, max_value) VALUES (...);",
+        "explanation": "Let defaults handle generated values."
+      }
+    ],
+    "expectedApproach": "Insert into only explicit business columns.",
+    "commonPitfalls": [
+      "Providing generated columns manually",
+      "Using SELECT syntax unnecessarily",
+      "Confusing column order"
+    ],
+    "idealSolutionOutline": "Simple INSERT with two columns.",
+    "evaluationNotes": "Reward comfort with boring CRUD SQL."
+  },
+  {
+    "id": "fde2-python-db-wait-loop",
+    "title": "Python DB Wait Loop",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["python-basics", "retries", "deployment-thinking"],
+    "prompt": "Implement a function that repeatedly calls a provided `check_db()` function until it succeeds or a maximum retry count is reached. Sleep between attempts.",
+    "constraints": [
+      "Raise RuntimeError if retries are exhausted",
+      "Use a simple retry loop",
+      "Assume check_db raises exceptions on failure"
+    ],
+    "scaffold": "import time\n\ndef wait_for_db(check_db, max_tries: int = 5, sleep_seconds: int = 1) -> None:\n    pass",
+    "examples": [
+      {
+        "input": "check_db fails 2 times then succeeds",
+        "output": "function returns without error",
+        "explanation": "Retry behavior handles startup timing."
+      }
+    ],
+    "expectedApproach": "For loop with try/except, sleep on failure, return on success, raise after max retries.",
+    "commonPitfalls": [
+      "Swallowing final failure silently",
+      "Sleeping after success",
+      "Infinite retry loop when max retries are required"
+    ],
+    "idealSolutionOutline": "Simple bounded retry helper.",
+    "evaluationNotes": "Reward practical startup robustness."
+  },
+  {
+    "id": "fde2-validate-query-params",
+    "title": "Validate Query Params",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["fastapi", "validation", "api-design"],
+    "prompt": "Implement a FastAPI endpoint `GET /top_errors?limit=...` that returns the first `limit` records from a hardcoded list of error records. Reject non-positive limits with a 400 style error.",
+    "constraints": [
+      "Use FastAPI",
+      "Validate that limit > 0",
+      "Return only the first limit records"
+    ],
+    "scaffold": "from fastapi import FastAPI, HTTPException\n\napp = FastAPI()\nERRORS = [{\"code\": \"E1\"}, {\"code\": \"E2\"}, {\"code\": \"E3\"}]\n\n@app.get('/top_errors')\ndef top_errors(limit: int):\n    pass",
+    "examples": [
+      {
+        "input": "GET /top_errors?limit=2",
+        "output": "[{\"code\":\"E1\"},{\"code\":\"E2\"}]",
+        "explanation": "Return the requested slice."
+      }
+    ],
+    "expectedApproach": "Validate limit early and raise HTTPException for invalid values.",
+    "commonPitfalls": [
+      "Not validating the parameter",
+      "Returning too many rows",
+      "Using string comparison on the numeric query param"
+    ],
+    "idealSolutionOutline": "Simple parameter validation and list slicing.",
+    "evaluationNotes": "Reward practical API guardrails."
+  },
+  {
+    "id": "fde2-env-config-loader",
+    "title": "Env Config Loader",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-backend-phase-2",
+    "competencyTags": ["env-vars", "deployment", "python-basics"],
+    "prompt": "Implement a function that loads `DATABASE_URL` from environment variables and falls back to a provided default value if it is not set.",
+    "constraints": [
+      "Use os.getenv",
+      "Return a string",
+      "Keep the function minimal"
+    ],
+    "scaffold": "import os\n\ndef load_database_url(default_url: str) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "DATABASE_URL unset, default='postgresql://local'",
+        "output": "'postgresql://local'",
+        "explanation": "Use fallback when env var is absent."
+      }
+    ],
+    "expectedApproach": "Use os.getenv with a default.",
+    "commonPitfalls": [
+      "Accessing os.environ directly and crashing when missing",
+      "Adding unnecessary parsing logic",
+      "Returning None"
+    ],
+    "idealSolutionOutline": "One-line getenv-based config loader.",
+    "evaluationNotes": "Reward basic deployment hygiene."
+  }
+]

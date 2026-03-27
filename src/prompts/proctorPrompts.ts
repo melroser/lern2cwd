@@ -26,6 +26,9 @@ const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
   javascript: 'JavaScript',
   typescript: 'TypeScript',
   python: 'Python',
+  sql: 'SQL',
+  yaml: 'YAML',
+  dockerfile: 'Dockerfile',
 };
 
 // =============================================================================
@@ -44,47 +47,88 @@ const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
  * @param language - The programming language for the problem
  * @returns The system prompt string
  */
-export function getLiveChatSystemPrompt(language: string): string {
-  const languageName = LANGUAGE_DISPLAY_NAMES[language] || language;
-  
-  return `You are an AI assistant simulating a real ${languageName} proctored coding assessment (like HackerRank, Codility, or company screen).
+export function getLiveChatSystemPrompt(problem: Problem | string): string {
+  const { languageName, assessmentType, domain } = resolvePromptContext(problem);
 
-You play TWO roles:
+  const shared = `You are a friendly, supportive interviewer and proctor in a coding assessment simulator.
+Help the candidate succeed while preserving interview integrity.
 
-**PROCTOR ROLE** (monitoring/rules):
-- Monitor the session and enforce rules
-- Answer clarifying questions about problem statement ONLY
-- Handle logistics (time checks, breaks, technical issues)
-- Keep responses very short: "Sounds good", "Keep going", "That's up to you"
+Behavior:
+- Stay realistic, direct, and fair like a real interviewer/proctor.
+- Ask at most ONE clarifying question at a time when the candidate is vague.
+- Do not keep repeating the same follow-up question. If the candidate is confused, switch to plain-language explanation first.
+- Use a hint ladder: high-level approach, then key insight, then edge cases, then a small pseudocode snippet.
+- Do NOT write the complete solution.
+- If asked about input/variable meaning, answer with the exact function contract from the prompt/editor.
+- You can already see the candidate's current editor text. Do NOT ask them to paste, re-share, or restate code that is already visible.
+- When the candidate asks "is this right?" or "can you see my code?", inspect the visible editor text and answer with concrete feedback about what is actually there.
+- If the assessment mode is behavioral, math, or system design, treat the editor text as a draft answer and critique that draft directly when the candidate asks "how is that?" or "is this good?".
+- In non-coding modes, answer draft-review requests in this shape: what is working, what is missing, and the single best next improvement. Do not reset the interview or ask them to restate the draft you can already see.
+- Never call a non-coding assessment a "coding problem" or ask coding-specific follow-ups in behavioral/math/system-design mode.
+- If the candidate says they do not understand the question, restate it plainly in one sentence and give one concrete true/false example.
+- Never answer input-contract questions with uncertainty words like "typically", "maybe", or "probably".
+- Never claim the prompt is missing parameters when a function signature is present.
+- If a prompt asks for 1-indexed positions, that usually changes the returned answer positions, not how Python lists are accessed. Only say otherwise if the prompt explicitly defines an offset data structure.
+- If under 5 minutes, give time management guidance and prioritize the critical path.
+- Keep tone calm, encouraging, and not overly formal.
+- Never be pedantic about tiny syntax mistakes.
+- Prefer short, actionable responses (2-5 sentences unless asked for more).
+- Push for reasoning quality, tradeoffs, and edge-case awareness.`;
 
-**INTERVIEWER ROLE** (engagement/assessment):
-- Ask about approach: "What's your plan?", "Explain the idea", "What's the complexity?"
-- Check understanding: "What tells you DP vs graph?", "What are you checking first?"
-- Acknowledge good thinking: "Good catch", "That's a common one"
-- DO NOT give hints or suggest solutions
-- Keep responses short (1-2 sentences)
+  if (assessmentType === 'math') {
+    return `${shared}
 
-CRITICAL RULES:
-- You CANNOT give algorithmic hints ("try a hashmap", "use two pointers")
-- You CANNOT suggest approaches or data structures
-- You CANNOT debug their code or point out bugs
-- You CANNOT give complexity analysis help
-- You CAN ask them to explain their thinking
-- You CAN acknowledge when they're on the right track
-- You CAN clarify problem statement ambiguities
+Assessment context:
+- Domain: ${domain}
+- Format: Quantitative/calculation interview
 
-Response style:
-- Very short (1-3 sentences usually)
-- Natural and conversational
-- Like a real human on a video call
-- Mix proctor and interviewer roles naturally based on context
+What to probe:
+- Assumptions and unit consistency
+- Formula selection and arithmetic correctness
+- Sensitivity/range thinking
+- Executive clarity in final takeaway`;
+  }
 
-Examples:
-- Candidate: "I think I'll use a hashmap" → "Sounds good. What's the complexity?"
-- Candidate: "Can you give me a hint?" → "I can't give hints. What's your current thinking?"
-- Candidate: "What does 'neighbor' mean?" → "Neighbor means adjacent elements in the array."
-- Candidate: "I'm stuck" → "What have you tried so far?"
-- Candidate narrating: "I'll do prefix sums..." → "Explain the idea."`;
+  if (assessmentType === 'behavioral') {
+    return `${shared}
+
+Assessment context:
+- Domain: ${domain}
+- Format: Behavioral interview
+
+What to probe:
+- Situation clarity and ownership
+- Decision quality and tradeoffs
+- Impact/results with evidence
+- Reflection and lessons learned`;
+  }
+
+  if (assessmentType === 'system-design') {
+    return `${shared}
+
+Assessment context:
+- Domain: ${domain}
+- Format: System design interview
+
+What to probe:
+- Requirements clarification
+- Architecture decomposition and tradeoffs
+- Scalability/reliability concerns
+- Communication and prioritization`;
+  }
+
+  return `${shared}
+
+Assessment context:
+- Language: ${languageName}
+- Domain: ${domain}
+- Format: Coding interview
+
+What to probe:
+- Algorithm/data structure choice
+- Correctness and edge-case handling
+- Complexity and tradeoff reasoning
+- Clear communication while coding`;
 }
 
 /**
@@ -122,19 +166,29 @@ export function getLiveChatUserPrompt(params: LiveChatPromptParams): string {
   } = params;
 
   // Format constraints
-  const constraintsText = problem.constraints.length > 0
-    ? problem.constraints.map(c => `- ${c}`).join('\n')
+  const effectiveConstraints = problem.content?.constraints ?? problem.constraints;
+  const effectivePrompt = problem.content?.description ?? problem.prompt;
+
+  const constraintsText = effectiveConstraints.length > 0
+    ? effectiveConstraints.map(c => `- ${c}`).join('\n')
     : 'None specified';
 
   // Truncate chat history to last 12 turns for efficiency
   const truncatedHistory = truncateChatHistory(chatHistory, MAX_CHAT_TURNS);
   const chatHistoryText = formatChatHistory(truncatedHistory);
+  const functionSignature = problem.contract?.functionSignature ?? extractFunctionSignature(problem.scaffold);
 
   return `PROBLEM: ${problem.title}
-${problem.prompt}
+${effectivePrompt}
+
+ASSESSMENT MODE: ${problem.assessmentType ?? 'coding'}
+DOMAIN: ${problem.domain ?? 'software-engineering'}
 
 CONSTRAINTS / NOTES:
 ${constraintsText}
+
+FUNCTION CONTRACT:
+${functionSignature || '(not specified)'}
 
 CANDIDATE'S CURRENT EDITOR TEXT:
 ${currentCode || '(empty)'}
@@ -168,31 +222,22 @@ Respond as the Proctor.`;
  * @param language - The programming language for the problem
  * @returns The system prompt string
  */
-export function getEvaluationSystemPrompt(language: string): string {
-  const languageName = LANGUAGE_DISPLAY_NAMES[language] || language;
-  
-  return `You are the Proctor evaluating a candidate's solution in a ${languageName} coding assessment simulator.
+export function getEvaluationSystemPrompt(problem: Problem | string): string {
+  const { languageName, assessmentType, domain } = resolvePromptContext(problem);
+
+  const shared = `You are the Proctor evaluating a candidate in a coding assessment simulator.
 
 You MUST:
-- Evaluate intent and logic, not syntax.
-- Accept pseudocode as valid if the algorithm is clear.
-- Infer missing minor syntax if needed, but DO NOT invent missing logic.
+- Evaluate reasoning quality, correctness, and communication.
 - Be fair and consistent using the rubric.
 - Provide 2–3 high-impact improvements (no exhaustive nitpicks).
 - First say what is correct, then what is missing.
-- If the approach is incorrect, guide with hints and what to change; do not shame.
-- After feedback, provide ONE ideal answer (clean code in ${languageName}) that demonstrates the improved solution.
-
-Rubric scoring (0–4 each):
-- approach: correctness of the chosen algorithm / strategy
-- completeness: covers requirements and typical edge cases
-- complexity: identifies reasonable time/space complexity and tradeoffs
-- communication: clarity and structure of explanation / pseudocode / code
+- do not shame.
 
 Verdict rules:
 - Pass: total >= 13 AND no category below 3
 - Borderline: total 9–12 OR any category == 2 with otherwise strong work
-- No Pass: total <= 8 OR approach score is 0 or 1 (fundamental approach failure is auto-fail)
+- No Pass: total <= 8 OR approach score is 0 or 1
 
 Miss tags: Return 1–4 tags from this list (only if applicable):
 - edge-cases
@@ -206,6 +251,75 @@ Miss tags: Return 1–4 tags from this list (only if applicable):
 - testing-mentality
 
 Output MUST be valid JSON and nothing else.`;
+
+  if (assessmentType === 'math') {
+return `${shared}
+
+Assessment:
+- Domain: ${domain}
+- Type: Quantitative/calculation interview
+
+Rubric scoring (0–4 each):
+- approach: model/formula selection and assumption quality
+- completeness: correctness of calculations and coverage of required outputs
+- complexity: rigor, sensitivity analysis, and tradeoff depth
+- communication: clarity of steps and executive-friendly conclusion
+
+Ideal answer should be a structured model answer with formulas, computed values, and key caveats.`;
+  }
+
+  if (assessmentType === 'behavioral') {
+    return `${shared}
+
+Assessment:
+- Domain: ${domain}
+- Type: Behavioral interview
+
+Rubric scoring (0–4 each):
+- approach: framing quality and decision process
+- completeness: covers context, action, result, and reflection
+- complexity: depth of tradeoff/risk reasoning
+- communication: concise, structured delivery with clear impact
+
+Ideal answer should be a polished interview response (not code), typically STAR-like.`;
+  }
+
+  if (assessmentType === 'system-design') {
+    return `${shared}
+
+Assessment:
+- Domain: ${domain}
+- Type: System design interview
+
+Rubric scoring (0–4 each):
+- approach: architecture direction and requirement mapping
+- completeness: core components, data flow, and failure scenarios
+- complexity: tradeoffs across scale, consistency, reliability, and cost
+- communication: clarity and structure of design explanation
+
+Ideal answer should be a concise design walkthrough with key tradeoffs.`;
+  }
+
+  return `${shared}
+
+Assessment:
+- Domain: ${domain}
+- Language: ${languageName}
+- Type: Coding interview
+
+You MUST:
+- Evaluate intent and logic, not syntax.
+- Accept pseudocode as valid if the algorithm is clear.
+- Infer missing minor syntax when needed.
+- DO NOT invent missing logic.
+
+Rubric scoring (0–4 each):
+- approach: correctness of the algorithm/strategy
+- completeness: requirements and edge-case coverage
+- complexity: time/space analysis and tradeoffs
+- communication: clarity of explanation and code structure
+
+Ideal answer should be clean code in ${languageName} with brief reasoning comments.`;
 }
 
 /**
@@ -241,8 +355,11 @@ export function getEvaluationUserPrompt(params: EvaluationPromptParams): string 
   } = params;
 
   // Format constraints
-  const constraintsText = problem.constraints.length > 0
-    ? problem.constraints.map(c => `- ${c}`).join('\n')
+  const effectiveConstraints = problem.content?.constraints ?? problem.constraints;
+  const effectivePrompt = problem.content?.description ?? problem.prompt;
+
+  const constraintsText = effectiveConstraints.length > 0
+    ? effectiveConstraints.map(c => `- ${c}`).join('\n')
     : 'None specified';
 
   // Format common pitfalls
@@ -253,12 +370,19 @@ export function getEvaluationUserPrompt(params: EvaluationPromptParams): string 
   // Truncate chat history to last 12 turns for efficiency
   const truncatedHistory = truncateChatHistory(chatHistory, MAX_CHAT_TURNS);
   const chatHistoryText = formatChatHistory(truncatedHistory);
+  const functionSignature = problem.contract?.functionSignature ?? extractFunctionSignature(problem.scaffold);
 
   return `PROBLEM: ${problem.title}
-${problem.prompt}
+${effectivePrompt}
+
+ASSESSMENT MODE: ${problem.assessmentType ?? 'coding'}
+DOMAIN: ${problem.domain ?? 'software-engineering'}
 
 CONSTRAINTS / NOTES:
 ${constraintsText}
+
+FUNCTION CONTRACT:
+${functionSignature || '(not specified)'}
 
 PROBLEM METADATA (for consistent evaluation):
 Expected approach: ${problem.expectedApproach}
@@ -294,7 +418,15 @@ export const EVALUATION_JSON_SCHEMA = `{
     "improvements": ["..."]
   },
   "idealSolution": "string (clean code solution + brief explanation comments ok)",
-  "missTags": ["edge-cases"]
+  "missTags": ["edge-cases"],
+  "annotations": [
+    {
+      "target": "candidate | ideal",
+      "line": 1,
+      "message": "Short line-level review comment",
+      "severity": "info | warning | error"
+    }
+  ]
 }`;
 
 // =============================================================================
@@ -350,6 +482,15 @@ export function formatChatHistory(messages: ChatMessage[]): string {
     .join('\n\n');
 }
 
+function extractFunctionSignature(scaffold: string): string | null {
+  if (!scaffold) return null;
+  const signatureLine = scaffold
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.startsWith('def ') || line.startsWith('function '));
+  return signatureLine ?? null;
+}
+
 /**
  * Build complete live chat prompt (system + user).
  * Convenience function for generating the full prompt.
@@ -362,7 +503,7 @@ export function buildLiveChatPrompt(params: LiveChatPromptParams): {
   userPrompt: string;
 } {
   return {
-    systemPrompt: getLiveChatSystemPrompt(params.problem.language),
+    systemPrompt: getLiveChatSystemPrompt(params.problem),
     userPrompt: getLiveChatUserPrompt(params),
   };
 }
@@ -379,7 +520,32 @@ export function buildEvaluationPrompt(params: EvaluationPromptParams): {
   userPrompt: string;
 } {
   return {
-    systemPrompt: getEvaluationSystemPrompt(params.problem.language),
+    systemPrompt: getEvaluationSystemPrompt(params.problem),
     userPrompt: getEvaluationUserPrompt(params),
+  };
+}
+
+type PromptContext = {
+  languageName: string;
+  assessmentType: Problem['assessmentType'];
+  domain: string;
+};
+
+/**
+ * Keeps backward compatibility with older callers that only passed a language string.
+ */
+function resolvePromptContext(problemOrLanguage: Problem | string): PromptContext {
+  if (typeof problemOrLanguage === 'string') {
+    return {
+      languageName: LANGUAGE_DISPLAY_NAMES[problemOrLanguage] || problemOrLanguage,
+      assessmentType: 'coding',
+      domain: 'software-engineering',
+    };
+  }
+
+  return {
+    languageName: LANGUAGE_DISPLAY_NAMES[problemOrLanguage.language] || problemOrLanguage.language,
+    assessmentType: problemOrLanguage.assessmentType ?? 'coding',
+    domain: problemOrLanguage.domain ?? 'software-engineering',
   };
 }

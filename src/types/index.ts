@@ -18,9 +18,80 @@ export interface Example {
 }
 
 /**
+ * Structured content blocks for a problem statement.
+ * Keeps presentation stable across coding and non-coding modes.
+ */
+export interface ProblemContent {
+  description: string;
+  constraints: string[];
+  examples: Example[];
+}
+
+/**
+ * Expected response contract for a problem.
+ * responseMode controls whether the editor expects code or a narrative response.
+ */
+export interface ProblemContract {
+  responseMode: 'code' | 'narrative';
+  starterTemplate: string;
+  functionSignature?: string;
+  inputSummary?: string;
+  outputSummary?: string;
+}
+
+/**
+ * FAQ entry for deterministic tutoring responses.
+ */
+export interface TutorFAQEntry {
+  triggers: string[];
+  response: string;
+}
+
+/**
+ * Hint ladder step. Higher levels are more explicit.
+ */
+export interface TutorHintStep {
+  level: 1 | 2 | 3 | 4;
+  hint: string;
+}
+
+/**
+ * Proactive coaching nudge while the candidate is drafting.
+ */
+export interface TutorNudgeRule {
+  id: string;
+  when: 'no-progress' | 'likely-inefficient' | 'missing-structure';
+  message: string;
+  cooldownSeconds: number;
+}
+
+/**
+ * Tutor guidance bundle that enables local-first conversational support.
+ */
+export interface TutorPlan {
+  openingPrompt: string;
+  clarifications: TutorFAQEntry[];
+  hintLadder: TutorHintStep[];
+  selfCheckPrompts: string[];
+  nudgeRules: TutorNudgeRule[];
+  approachKeywords: string[];
+  complexityTarget?: 'O(1)' | 'O(log n)' | 'O(n)' | 'O(n log n)' | 'O(n^2)';
+  llmPolicy?: {
+    localFirst: boolean;
+    maxDeterministicTurns: number;
+  };
+}
+
+/**
  * Supported programming languages
  */
-export type ProgrammingLanguage = 'javascript' | 'python' | 'typescript';
+export type ProgrammingLanguage = 'javascript' | 'python' | 'typescript' | 'sql' | 'yaml' | 'dockerfile';
+
+/**
+ * Assessment format for a problem.
+ * Keeps evaluation adaptable across coding, quantitative, and interview-style prompts.
+ */
+export type AssessmentType = 'coding' | 'math' | 'behavioral' | 'system-design';
 
 /**
  * Problem difficulty levels
@@ -45,6 +116,26 @@ export interface Problem {
   commonPitfalls: string[];
   idealSolutionOutline: string;
   evaluationNotes: string;
+  assessmentType?: AssessmentType;
+  domain?: string;
+  competencyTags?: string[];
+  problemSetId?: string;
+  content?: ProblemContent;
+  contract?: ProblemContract;
+  tutorPlan?: TutorPlan;
+}
+
+/**
+ * Problem set metadata shown in Settings.
+ */
+export interface ProblemSetOption {
+  id: string;
+  label: string;
+  description: string;
+  assessmentType: AssessmentType;
+  domain: string;
+  questionCount: number;
+  defaultSelected?: boolean;
 }
 
 // =============================================================================
@@ -157,6 +248,34 @@ export interface EvaluationFeedback {
   improvements: string[];
 }
 
+export type EvaluationAnnotationTarget = 'candidate' | 'ideal';
+
+export type EvaluationAnnotationSeverity = 'info' | 'warning' | 'error';
+
+export interface EvaluationAnnotation {
+  target: EvaluationAnnotationTarget;
+  line: number;
+  message: string;
+  severity: EvaluationAnnotationSeverity;
+}
+
+export interface SessionProblemSnapshot {
+  id: string;
+  title: string;
+  language: ProgrammingLanguage;
+  difficulty: Difficulty;
+  timeLimit: number;
+  prompt: string;
+  constraints: string[];
+  examples: Example[];
+  assessmentType?: AssessmentType;
+  domain?: string;
+  competencyTags?: string[];
+  problemSetId?: string;
+  content?: ProblemContent;
+  contract?: ProblemContract;
+}
+
 /**
  * Complete evaluation result
  * Requirements: 4.2, 4.3, 4.6, 4.7
@@ -167,6 +286,7 @@ export interface EvaluationResult {
   feedback: EvaluationFeedback;
   idealSolution: string;
   missTags: MissTag[];
+  annotations?: EvaluationAnnotation[];
 }
 
 // =============================================================================
@@ -187,6 +307,7 @@ export interface SessionRecord {
   finalCode: string;
   chatTranscript: ChatMessage[];
   evaluation: EvaluationResult;
+  problemSnapshot?: SessionProblemSnapshot;
 }
 
 // =============================================================================
@@ -196,7 +317,7 @@ export interface SessionRecord {
 /**
  * Application view states
  */
-export type AppView = 'home' | 'session' | 'review' | 'history';
+export type AppView = 'home' | 'session' | 'review' | 'history' | 'campaign';
 
 /**
  * Application state
@@ -222,6 +343,8 @@ export interface ProctorService {
     question: string,
     context: SessionContext
   ): Promise<string>;
+  getLastInteractionMode(): ProctorInteractionMode;
+  getProactiveNudge(context: SessionContext): string | null;
   evaluate(
     code: string,
     problem: Problem,
@@ -229,13 +352,16 @@ export interface ProctorService {
   ): Promise<EvaluationResult>;
 }
 
+export type ProctorInteractionMode = 'idle' | 'llm' | 'fallback';
+
 /**
  * Problem service interface for managing problem bank
  */
 export interface ProblemServiceInterface {
-  loadProblems(): Promise<Problem[]>;
+  loadProblems(problemSetIds?: string[]): Promise<Problem[]>;
   getRandomProblem(excludeIds?: string[]): Problem;
   getProblemById(id: string): Problem | null;
+  getAvailableProblemSets(): ProblemSetOption[];
 }
 
 /**
@@ -336,8 +462,8 @@ export interface CodeEditorPanelProps {
  */
 export interface ChatPanelProps {
   messages: ChatMessage[];
-  onSendMessage: (message: string) => void;
-  isDisabled: boolean;
+  onSendMessage?: (message: string) => void;
+  isDisabled?: boolean;
 }
 
 /**
@@ -347,6 +473,11 @@ export interface ReviewPanelProps {
   evaluation: EvaluationResult | null;
   onNextProblem: () => void;
   onViewHistory: () => void;
+  candidateCode?: string;
+  problemSnapshot?: SessionProblemSnapshot | null;
+  onCopyContext?: () => void;
+  copyStatus?: 'idle' | 'copied' | 'error';
+  nextActionLabel?: string;
 }
 
 /**

@@ -1,0 +1,642 @@
+[
+  {
+    "id": "cfo-cfo-drill-1",
+    "title": "CFO Drill 1",
+    "difficulty": "hard",
+    "timeLimit": 18,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "You are given channel spend, sales overhead, and new paying customers. Compute per-channel CAC and blended CAC, identify the highest-CAC channel, and give one action to improve efficiency.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD/customer)",
+      "Include one sensitivity check (best/worst case)",
+      "Round money to 2 decimals"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Conclusion (highest CAC channel + action):",
+    "examples": [
+      {
+        "input": "Paid=$1200 for 20 users, Content=$500 for 15 users, Sales overhead=$800, Total new users=35",
+        "output": "Paid CAC=$60.00, Content CAC=$33.33, Blended CAC=(1200+500+800)/35=$71.43, Worst channel=Paid",
+        "explanation": "overhead increases blended CAC beyond channel-only CAC."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-2",
+    "title": "CFO Drill 2",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Estimate CLTV from ARPU, gross margin, and churn assumptions. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "ARPU=$50/mo, Gross Margin=80%, Monthly Churn=5%; downside churn=7%, upside churn=3%",
+        "output": "Base CLTV=(50*0.80)/0.05=$800.00; Downside CLTV=$571.43; Upside CLTV=$1333.33; Suggested CAC ceiling at 3:1 LTV:CAC is $266.67",
+        "explanation": "Same formula across scenarios shows churn is the dominant CLTV driver."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-3",
+    "title": "CFO Drill 3",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Model MRR growth for next 6 months using conversion funnel assumptions. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Start MRR=$10000, Leads=1000/mo, Trial Rate=10%, Trial->Paid=20%, ARPU=$30, Monthly Churn=3%",
+        "output": "New paid/month=20, New MRR/month=$600; 6-month ending MRR approximately $11670.28",
+        "explanation": "Use MRR_next = MRR_current*(1-churn) + new_paid*ARPU each month."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-4",
+    "title": "CFO Drill 4",
+    "difficulty": "medium",
+    "timeLimit": 24,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Convert monthly churn to annual churn and discuss why this matters for fundraising narratives. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Monthly churn=5%",
+        "output": "Annual retention=(1-0.05)^12=54.04%; Annual churn=45.96%",
+        "explanation": "Compounding turns a seemingly small monthly churn into a large annual loss."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-5",
+    "title": "CFO Drill 5",
+    "difficulty": "medium",
+    "timeLimit": 18,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Estimate TAM/SAM/SOM for a prosumer AI presentation product with transparent assumptions. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Potential users=1000000, Price=$300/year, Reachable segment=20%, 3-year capture of SAM=2%",
+        "output": "TAM=$300000000/year; SAM=$60000000/year; SOM=$1200000/year",
+        "explanation": "Bottom-up segmentation gives a defensible TAM->SAM->SOM narrative."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-6",
+    "title": "CFO Drill 6",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Build an LTV:CAC dashboard from supplied assumptions and flag if growth is sustainable. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "CAC=$300, ARPU=$50/mo, Gross Margin=80%, Monthly Churn=4%",
+        "output": "LTV=(50*0.80)/0.04=$1000.00; LTV:CAC=3.33; Payback=300/(50*0.80)=7.50 months; Sustainability flag=Green",
+        "explanation": "Ratios clear common thresholds (LTV:CAC >= 3 and payback < 12 months)."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-7",
+    "title": "CFO Drill 7",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Calculate payback period from CAC and monthly gross profit per account. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "CAC=$600, ARPU=$60/mo, Gross Margin=75%",
+        "output": "Monthly gross profit/account=$45.00; Payback=600/45=13.33 months",
+        "explanation": "Payback beyond 12 months usually signals cash-efficiency risk."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-8",
+    "title": "CFO Drill 8",
+    "difficulty": "medium",
+    "timeLimit": 24,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Given pricing tiers, estimate weighted average ARPU and expected gross margin. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Basic=$20 (60% mix, 70% GM), Pro=$50 (30% mix, 80% GM), Team=$120 (10% mix, 85% GM)",
+        "output": "Weighted ARPU=$39.00; Customer-mix blended gross margin=74.50%",
+        "explanation": "Compute weighted averages directly from tier mix assumptions."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-9",
+    "title": "CFO Drill 9",
+    "difficulty": "medium",
+    "timeLimit": 18,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Evaluate break-even month based on fixed burn, variable costs, and projected MRR ramp. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Fixed burn=$80000/mo, Starting MRR=$20000, Net new MRR/month=$10000, Gross Margin=80%",
+        "output": "Break-even target MRR=$100000 because 0.80*MRR >= 80000; Break-even reached in month 8",
+        "explanation": "Contribution-margin break-even occurs when gross profit covers fixed burn."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-10",
+    "title": "CFO Drill 10",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Create a board-ready metric summary using CAC, LTV, churn, MRR, runway, and growth. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "CAC=$250, LTV=$900, Monthly churn=3.5%, MRR=$120000, MRR growth=8% MoM, Runway=14 months",
+        "output": "Board summary: Efficiency healthy (LTV:CAC=3.6), growth solid (8% MoM), runway moderate (14 months); Risks: churn still elevated and CAC creep risk; Action: prioritize retention and channel mix optimization",
+        "explanation": "Strong answers convert raw metrics into clear decisions, risks, and next actions."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-11",
+    "title": "CFO Drill 11",
+    "difficulty": "hard",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Assess impact of a 20% price increase on churn and net revenue using elasticity assumptions. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Current customers=1000, ARPU=$50/mo, Proposed price increase=20%, Monthly churn rises from 4% to 6%",
+        "output": "Before: retained revenue=1000*(1-0.04)*50=$48000; After: 1000*(1-0.06)*60=$56400; Net impact=+17.5%",
+        "explanation": "Even with churn increase, higher ARPU can improve net retained revenue."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-12",
+    "title": "CFO Drill 12",
+    "difficulty": "medium",
+    "timeLimit": 24,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Compute cohort retention and logo retention from monthly customer snapshots. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Cohort logos: Month0=100, Month1=92, Month2=88, Month3=83",
+        "output": "Logo retention: M1=92.00%, M2=88.00%, M3=83.00%; 3-month cumulative churn=17.00%",
+        "explanation": "Retention should be measured from original cohort baseline for consistency."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-13",
+    "title": "CFO Drill 13",
+    "difficulty": "medium",
+    "timeLimit": 18,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Estimate runway extension if hiring plan is delayed by one quarter. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Cash=$1200000, Current burn=$150000/mo, Planned hires add $60000/mo, delay hires by 3 months",
+        "output": "Runway if hire now=1200000/210000=5.71 months; With 3-month delay total runway approximately 6.57 months; Extension approximately 0.86 months",
+        "explanation": "Staging hiring changes burn timing and extends runway without changing total cash."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-14",
+    "title": "CFO Drill 14",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Rank three GTM experiments by expected ROI and confidence intervals. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Experiment A: spend $20000, expected GP $50000, confidence 60%; B: $15000->$30000, 80%; C: $10000->$18000, 70%",
+        "output": "Raw ROI: A=2.5x, B=2.0x, C=1.8x; Confidence-adjusted ROI: A=1.50x, B=1.60x, C=1.26x; Rank: B, A, C",
+        "explanation": "Combining ROI and confidence avoids over-prioritizing high-variance bets."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-15",
+    "title": "CFO Drill 15",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Calculate gross-to-net revenue after discounts, refunds, and failed payments. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Gross revenue=$100000, Discounts=$10000, Refunds=$3000, Failed payments=$2000",
+        "output": "Net revenue=$85000; Net/Gross=85.00%",
+        "explanation": "Gross-to-net quantifies leakage from commercial and billing friction."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-16",
+    "title": "CFO Drill 16",
+    "difficulty": "hard",
+    "timeLimit": 24,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Translate top-of-funnel metrics into expected paid conversions and MRR contribution. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Visits=50000, Signup rate=2%, Trial rate=40%, Paid conversion=25%, ARPU=$30/mo",
+        "output": "Signups=1000, Trials=400, New paid=100, New MRR contribution=$3000/mo",
+        "explanation": "Sequential funnel math turns traffic into forecasted paid revenue."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-17",
+    "title": "CFO Drill 17",
+    "difficulty": "medium",
+    "timeLimit": 18,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Perform unit economics check for annual plan vs monthly plan mix. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Monthly plan=$30, Annual plan=$300, New-customer mix=60% monthly/40% annual, Monthly churn=4%, Annual renewal=80%",
+        "output": "Blended recognized ARPU=0.6*30 + 0.4*(300/12) = $28.00/mo; First-month blended cash collected=0.6*30 + 0.4*300 = $138.00/customer",
+        "explanation": "Annual plans lower recognized monthly ARPU but improve upfront cash and retention profile."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-18",
+    "title": "CFO Drill 18",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Build a simple forecast for finance KPI targets required for next funding milestone. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Current MRR=$80000, Growth=7% MoM, Churn=4%, CAC=$220, Cash=$900000, Burn=$90000/mo, Milestone target MRR=$150000 in 6 months",
+        "output": "6-month MRR forecast approximately $120056; Gap to target approximately $29944; Runway=10.0 months; Status=Off-track without faster growth",
+        "explanation": "Forecast, target gap, and runway together define whether milestone plan is credible."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-19",
+    "title": "CFO Drill 19",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Evaluate whether modeled assumptions appear investor-credible and identify weak points. Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Modeled assumptions: Monthly churn=2%, CAC=$50 on cold paid social, Lead->paid conversion=15%, Payback=2 months",
+        "output": "Credibility flags: assumptions likely too optimistic; Revised working ranges: churn 4-8%, CAC $150-$300, conversion 2-5%, payback 6-12 months",
+        "explanation": "Investor-grade review calls out weak assumptions and replaces them with testable ranges."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  },
+  {
+    "id": "cfo-cfo-drill-20",
+    "title": "CFO Drill 20",
+    "difficulty": "medium",
+    "timeLimit": 24,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "startup-finance",
+    "prompt": "Draft an executive response to a CFO question: why are early CAC/LTV estimates still useful? Provide a clear numeric model, assumptions, and an executive recommendation.",
+    "constraints": [
+      "Show formulas before final values",
+      "Keep units explicit (USD, %, months)",
+      "Include one downside/upside sensitivity",
+      "Round outputs to practical precision"
+    ],
+    "scaffold": "# Assumptions:\n# Formulas:\n# Calculations:\n# Sensitivity:\n# Recommendation:",
+    "examples": [
+      {
+        "input": "Pre-revenue startup assumptions: ARPU=$25/mo, Gross Margin=85%, Monthly churn=8%, early paid tests limited",
+        "output": "Example executive answer: Early CAC/LTV estimates are directional guardrails; with modeled LTV=(25*0.85)/0.08=$265.63, we target CAC <= $88.54 at 3:1 while running experiments to replace assumptions with cohort data",
+        "explanation": "Useful early models guide channel, pricing, and runway decisions before full data maturity."
+      }
+    ],
+    "expectedApproach": "List assumptions, compute step-by-step, sanity-check ranges, and summarize implications.",
+    "commonPitfalls": [
+      "Mixing monthly and annual rates",
+      "Missing units (USD, %, months)",
+      "No sensitivity analysis"
+    ],
+    "idealSolutionOutline": "Assumptions -> formulas -> calculation -> interpretation -> risk caveats.",
+    "evaluationNotes": "Score for correctness, assumptions quality, and executive-ready communication."
+  }
+]

@@ -5,8 +5,8 @@ import { defaultKeymap, indentWithTab, history, historyKeymap } from '@codemirro
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
-import { vim } from '@replit/codemirror-vim';
+import { syntaxHighlighting, defaultHighlightStyle, bracketMatching, indentUnit } from '@codemirror/language';
+import { vim, Vim } from '@replit/codemirror-vim';
 import type { CodeEditorPanelProps } from '../types';
 
 /**
@@ -105,6 +105,14 @@ const styles: Record<string, React.CSSProperties> = {
 const languageCompartment = new Compartment();
 const readOnlyCompartment = new Compartment();
 const vimCompartment = new Compartment();
+let vimMappingsInitialized = false;
+
+function initVimMappings() {
+  if (vimMappingsInitialized) return;
+  // Common insert-mode shortcut: type "jj" to exit insert mode.
+  Vim.map('jj', '<Esc>', 'insert');
+  vimMappingsInitialized = true;
+}
 
 /**
  * Detect language from code content and return the appropriate CM extension
@@ -147,12 +155,17 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
   // Create the editor once on mount
   useEffect(() => {
     if (!editorRef.current) return;
+    initVimMappings();
 
     const langExt = language === 'python'
       ? python()
       : language === 'typescript'
         ? javascript({ typescript: true })
-        : detectLanguage(code);
+        : language === 'javascript'
+          ? javascript()
+          : language
+            ? []
+            : detectLanguage(code);
 
     const startState = EditorState.create({
       doc: code,
@@ -165,6 +178,8 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         history(),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         oneDark,
+        EditorState.tabSize.of(4),
+        indentUnit.of('    '),
         languageCompartment.of(langExt),
         readOnlyCompartment.of(EditorState.readOnly.of(isDisabled)),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
@@ -182,7 +197,7 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         EditorView.theme({
           '&': {
             height: '100%',
-            fontSize: '14px',
+            fontSize: '30px',
           },
           '.cm-scroller': {
             fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
@@ -229,7 +244,14 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
 
     viewRef.current = view;
 
+    // Add ResizeObserver to re-measure when container size changes
+    const ro = new ResizeObserver(() => {
+      view.requestMeasure();
+    });
+    ro.observe(editorRef.current);
+
     return () => {
+      ro.disconnect();
       view.destroy();
       viewRef.current = null;
     };

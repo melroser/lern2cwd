@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "neet-contains-duplicate",
+    "title": "Contains Duplicate",
+    "difficulty": "easy",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given an integer array `nums`, return `True` if any value appears at least twice; otherwise return `False`.",
+    "constraints": [
+      "0 <= len(nums) <= 100000",
+      "Values can be negative or positive integers",
+      "Target O(n) time using a hash set"
+    ],
+    "scaffold": "def contains_duplicate(nums: list[int]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,1]",
+        "output": "True",
+        "explanation": "1 appears more than once."
+      },
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "False",
+        "explanation": "All values are unique."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-valid-anagram",
+    "title": "Valid Anagram",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given strings `s` and `t`, return `True` if `t` is an anagram of `s`, otherwise return `False`.",
+    "constraints": [
+      "0 <= len(s), len(t) <= 100000",
+      "Assume lowercase English letters unless stated otherwise",
+      "Target O(n) time with frequency counting"
+    ],
+    "scaffold": "def valid_anagram(s: str, t: str) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "output": "True",
+        "explanation": "Both strings have the same character counts."
+      },
+      {
+        "input": "s = \"rat\", t = \"car\"",
+        "output": "False",
+        "explanation": "Character frequencies differ."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-two-sum",
+    "title": "Two Sum",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given an array `nums` and integer `target`, return indices of the two numbers that add up to `target`.",
+    "constraints": [
+      "2 <= len(nums) <= 100000",
+      "Exactly one valid answer exists",
+      "You may not use the same element twice"
+    ],
+    "scaffold": "def two_sum(nums: list[int], target: int) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]",
+        "explanation": "nums[0] + nums[1] = 9."
+      },
+      {
+        "input": "nums = [3,2,4], target = 6",
+        "output": "[1,2]",
+        "explanation": "2 + 4 = 6."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-group-anagrams",
+    "title": "Group Anagrams",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a list of strings, group the anagrams together. Return groups in any order.",
+    "constraints": [
+      "0 <= len(strs) <= 10000",
+      "0 <= len(strs[i]) <= 100",
+      "Use a character-count signature or sorted key for grouping"
+    ],
+    "scaffold": "def group_anagrams(strs: list[str]) -> list[list[str]]:\n    pass",
+    "examples": [
+      {
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "output": "[[\"eat\",\"tea\",\"ate\"],[\"tan\",\"nat\"],[\"bat\"]]",
+        "explanation": "Words with identical letter frequencies are grouped together."
+      },
+      {
+        "input": "strs = [\"\"]",
+        "output": "[[\"\"]]",
+        "explanation": "A single empty string forms one anagram group."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-top-k-frequent-elements",
+    "title": "Top K Frequent Elements",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given an integer array `nums` and integer `k`, return the `k` most frequent elements.",
+    "constraints": [
+      "1 <= len(nums) <= 100000",
+      "1 <= k <= number of distinct elements",
+      "Prefer O(n) bucket approach or O(n log k) heap approach"
+    ],
+    "scaffold": "def top_k_frequent_elements(nums: list[int], k: int) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "output": "[1,2]",
+        "explanation": "1 appears 3 times, 2 appears 2 times."
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]",
+        "explanation": "Single element list."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-product-of-array-except-self",
+    "title": "Product of Array Except Self",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return an array `answer` where `answer[i]` is the product of all numbers in `nums` except `nums[i]`.",
+    "constraints": [
+      "2 <= len(nums) <= 100000",
+      "Do not use division",
+      "Target O(n) time"
+    ],
+    "scaffold": "def product_of_array_except_self(nums: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [1,2,3,4]",
+        "output": "[24,12,8,6]",
+        "explanation": "Use prefix and suffix products."
+      },
+      {
+        "input": "nums = [-1,1,0,-3,3]",
+        "output": "[0,0,9,0,0]",
+        "explanation": "Zeros must be handled correctly."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-valid-sudoku",
+    "title": "Valid Sudoku",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Determine if a 9x9 Sudoku board is valid. Only filled cells need validation.",
+    "constraints": [
+      "Board is always 9x9",
+      "Cells contain '.' or digits '1'..'9'",
+      "No duplicate digit in any row, column, or 3x3 sub-box"
+    ],
+    "scaffold": "def valid_sudoku(board: list[list[str]]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "board = valid_9x9_board",
+        "output": "True",
+        "explanation": "No rule violations in rows, columns, or boxes."
+      },
+      {
+        "input": "board = row_with_duplicate_5",
+        "output": "False",
+        "explanation": "A duplicate in a row makes the board invalid."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-encode-and-decode-strings",
+    "title": "Encode and Decode Strings",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Design reversible `encode` and `decode` functions so `decode(encode(strs)) == strs` for arbitrary strings.",
+    "constraints": [
+      "Strings may contain any characters including delimiters",
+      "Handle empty strings and empty lists",
+      "Round-trip must be lossless"
+    ],
+    "scaffold": "def encode(strs: list[str]) -> str:\n    pass\n\ndef decode(s: str) -> list[str]:\n    pass",
+    "examples": [
+      {
+        "input": "strs = [\"lint\",\"code\",\"love\",\"you\"]",
+        "output": "decode(encode(strs)) == [\"lint\",\"code\",\"love\",\"you\"]",
+        "explanation": "Basic round-trip case."
+      },
+      {
+        "input": "strs = [\"\",\":\",\"12#34\"]",
+        "output": "decode(encode(strs)) == [\"\",\":\",\"12#34\"]",
+        "explanation": "Delimiters inside values must still decode correctly."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-longest-consecutive-sequence",
+    "title": "Longest Consecutive Sequence",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given an unsorted integer array, return the length of the longest consecutive elements sequence.",
+    "constraints": [
+      "0 <= len(nums) <= 100000",
+      "Target O(n) time",
+      "Use a hash set and start only from sequence heads"
+    ],
+    "scaffold": "def longest_consecutive_sequence(nums: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [100,4,200,1,3,2]",
+        "output": "4",
+        "explanation": "The longest streak is 1,2,3,4."
+      },
+      {
+        "input": "nums = []",
+        "output": "0",
+        "explanation": "Empty input has no consecutive streak."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-valid-palindrome",
+    "title": "Valid Palindrome",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return `True` if string `s` is a palindrome after lowercasing and removing non-alphanumeric characters.",
+    "constraints": [
+      "0 <= len(s) <= 200000",
+      "Ignore punctuation and spaces",
+      "Target O(n) time with two pointers"
+    ],
+    "scaffold": "def valid_palindrome(s: str) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"A man, a plan, a canal: Panama\"",
+        "output": "True",
+        "explanation": "Normalized string reads the same forward/backward."
+      },
+      {
+        "input": "s = \"race a car\"",
+        "output": "False",
+        "explanation": "Normalized string is not a palindrome."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-two-sum-ii-input-array-sorted",
+    "title": "Two Sum II Input Array Sorted",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a sorted array `numbers` and an integer `target`, return the 1-indexed positions `[i, j]` of the two values whose sum is `target`. In Python, access `numbers` normally with 0-based indexing; only the returned positions are 1-indexed.",
+    "constraints": [
+      "2 <= len(numbers) <= 100000",
+      "Input array is sorted in non-decreasing order",
+      "Exactly one solution exists; return 1-indexed positions, not 0-indexed Python offsets"
+    ],
+    "scaffold": "def two_sum_ii_input_array_sorted(numbers: list[int], target: int) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "numbers = [2,7,11,15], target = 9",
+        "output": "[1,2]",
+        "explanation": "2 + 7 = 9, so return positions 1 and 2."
+      },
+      {
+        "input": "numbers = [2,3,4], target = 6",
+        "output": "[1,3]",
+        "explanation": "2 + 4 = 6, so return positions 1 and 3."
+      }
+    ],
+    "expectedApproach": "Use two pointers: start one index at the left end and one at the right end. Because the array is sorted, move the left index rightward when the sum is too small and the right index leftward when the sum is too large. Return 1-indexed positions after finding the pair.",
+    "commonPitfalls": [
+      "Mixing up 0-based Python indexing with 1-based returned positions",
+      "Using a nested loop instead of the sorted-array two-pointer approach",
+      "Forgetting to justify why sorting lets you move one side at a time"
+    ],
+    "idealSolutionOutline": "Explain the two-pointer invariant, implement one while-loop scan, return `[left + 1, right + 1]`, and summarize O(n) time / O(1) extra space.",
+    "evaluationNotes": "Reward candidates who keep list access 0-based in Python, return 1-indexed positions, and clearly explain why the sorted order makes two pointers optimal."
+  },
+  {
+    "id": "neet-3sum",
+    "title": "3Sum",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return all unique triplets `[a,b,c]` where `a + b + c = 0`.",
+    "constraints": [
+      "0 <= len(nums) <= 3000",
+      "Triplets must be unique (no duplicates)",
+      "Target O(n^2) after sorting"
+    ],
+    "scaffold": "def three_sum(nums: list[int]) -> list[list[int]]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [-1,0,1,2,-1,-4]",
+        "output": "[[ -1,-1,2],[-1,0,1]]",
+        "explanation": "Sort and use two pointers per fixed index."
+      },
+      {
+        "input": "nums = [0,0,0]",
+        "output": "[[0,0,0]]",
+        "explanation": "Only one unique triplet."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-container-with-most-water",
+    "title": "Container With Most Water",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given vertical line heights, return the maximum water area formed by two lines and the x-axis.",
+    "constraints": [
+      "2 <= len(height) <= 100000",
+      "0 <= height[i] <= 10000",
+      "Target O(n) with two pointers"
+    ],
+    "scaffold": "def container_with_most_water(height: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "height = [1,8,6,2,5,4,8,3,7]",
+        "output": "49",
+        "explanation": "Best area uses heights 8 and 7 at distance 7."
+      },
+      {
+        "input": "height = [1,1]",
+        "output": "1",
+        "explanation": "Only one possible container."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-trapping-rain-water",
+    "title": "Trapping Rain Water",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given elevation heights, compute total rainwater trapped after raining.",
+    "constraints": [
+      "0 <= len(height) <= 200000",
+      "0 <= height[i] <= 100000",
+      "Target O(n) time"
+    ],
+    "scaffold": "def trapping_rain_water(height: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+        "output": "6",
+        "explanation": "Water accumulates between taller boundaries."
+      },
+      {
+        "input": "height = [4,2,0,3,2,5]",
+        "output": "9",
+        "explanation": "Sum trapped water at each index."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-best-time-to-buy-and-sell-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Choose one buy day and one later sell day to maximize profit. Return 0 if no profitable trade exists.",
+    "constraints": [
+      "At most one transaction (buy once, sell once)",
+      "Sell day must be after buy day",
+      "Target O(n) scan"
+    ],
+    "scaffold": "def best_time_to_buy_and_sell_stock(prices: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "prices = [7,1,5,3,6,4]",
+        "output": "5",
+        "explanation": "Buy at 1, sell at 6."
+      },
+      {
+        "input": "prices = [7,6,4,3,1]",
+        "output": "0",
+        "explanation": "Prices only decline."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-longest-substring-without-repeating-characters",
+    "title": "Longest Substring Without Repeating Characters",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return the length of the longest substring with no repeated characters.",
+    "constraints": [
+      "0 <= len(s) <= 200000",
+      "Use sliding window with last-seen indices",
+      "Target O(n) time"
+    ],
+    "scaffold": "def longest_substring_without_repeat(s: str) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"abcabcbb\"",
+        "output": "3",
+        "explanation": "Longest substring is \"abc\"."
+      },
+      {
+        "input": "s = \"bbbbb\"",
+        "output": "1",
+        "explanation": "Longest substring is \"b\"."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-longest-repeating-character-replacement",
+    "title": "Longest Repeating Character Replacement",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given `s` and `k`, return the maximum length substring that can be made of one repeated character with at most `k` replacements.",
+    "constraints": [
+      "1 <= len(s) <= 200000",
+      "0 <= k <= len(s)",
+      "Use sliding window and track highest frequency in the window"
+    ],
+    "scaffold": "def longest_repeating_character_repl(s: str, k: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"ABAB\", k = 2",
+        "output": "4",
+        "explanation": "Replace two chars to make all As or all Bs."
+      },
+      {
+        "input": "s = \"AABABBA\", k = 1",
+        "output": "4",
+        "explanation": "Longest valid window length is 4."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-permutation-in-string",
+    "title": "Permutation in String",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return `True` if any permutation of `s1` appears as a contiguous substring in `s2`.",
+    "constraints": [
+      "0 <= len(s1) <= 10000",
+      "0 <= len(s2) <= 100000",
+      "Use fixed-size sliding window frequency matching"
+    ],
+    "scaffold": "def permutation_in_string(s1: str, s2: str) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "s1 = \"ab\", s2 = \"eidbaooo\"",
+        "output": "True",
+        "explanation": "Substring \"ba\" is a permutation of \"ab\"."
+      },
+      {
+        "input": "s1 = \"ab\", s2 = \"eidboaoo\"",
+        "output": "False",
+        "explanation": "No matching window exists."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-minimum-window-substring",
+    "title": "Minimum Window Substring",
+    "difficulty": "hard",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given `s` and `t`, return the shortest substring of `s` containing all characters in `t` (with multiplicity).",
+    "constraints": [
+      "0 <= len(s), len(t) <= 200000",
+      "Return empty string if no valid window exists",
+      "Target O(n) sliding-window approach"
+    ],
+    "scaffold": "def minimum_window_substring(s: str, t: str) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"ADOBECODEBANC\", t = \"ABC\"",
+        "output": "\"BANC\"",
+        "explanation": "BANC is the smallest window containing A, B, and C."
+      },
+      {
+        "input": "s = \"a\", t = \"aa\"",
+        "output": "\"\"",
+        "explanation": "Not enough characters to satisfy t."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-sliding-window-maximum",
+    "title": "Sliding Window Maximum",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return the maximum value in each sliding window of size `k`.",
+    "constraints": [
+      "1 <= len(nums) <= 200000",
+      "1 <= k <= len(nums)",
+      "Target O(n) using a monotonic deque"
+    ],
+    "scaffold": "def sliding_window_maximum(nums: list[int], k: int) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [1,3,-1,-3,5,3,6,7], k = 3",
+        "output": "[3,3,5,5,6,7]",
+        "explanation": "Deque stores indices of decreasing values."
+      },
+      {
+        "input": "nums = [1], k = 1",
+        "output": "[1]",
+        "explanation": "Single window case."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-valid-parentheses",
+    "title": "Valid Parentheses",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a string containing only brackets `()[]{}`, return whether it is a valid bracket sequence.",
+    "constraints": [
+      "0 <= len(s) <= 200000",
+      "Opening brackets must close in correct order and type",
+      "Use a stack for matching"
+    ],
+    "scaffold": "def valid_parentheses(s: str) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"()[]{}\"",
+        "output": "True",
+        "explanation": "All bracket pairs are valid and ordered."
+      },
+      {
+        "input": "s = \"([)]\"",
+        "output": "False",
+        "explanation": "Brackets are mismatched in nesting order."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-min-stack",
+    "title": "Min Stack",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Design a stack supporting `push`, `pop`, `top`, and `get_min` in O(1) time.",
+    "constraints": [
+      "All operations must be O(1)",
+      "Values may be negative",
+      "Assume `pop`, `top`, and `get_min` are called on non-empty stack"
+    ],
+    "scaffold": "class MinStack:\n    def __init__(self):\n        pass\n\n    def push(self, val: int) -> None:\n        pass\n\n    def pop(self) -> None:\n        pass\n\n    def top(self) -> int:\n        pass\n\n    def get_min(self) -> int:\n        pass",
+    "examples": [
+      {
+        "input": "push(2), push(0), push(3), push(0), get_min(), pop(), get_min()",
+        "output": "0 then 0",
+        "explanation": "Minimum updates correctly after pops."
+      },
+      {
+        "input": "push(-2), push(0), push(-3), get_min(), pop(), top(), get_min()",
+        "output": "-3, 0, -2",
+        "explanation": "Minimum tracking stays correct after pops."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-evaluate-reverse-polish-notation",
+    "title": "Evaluate Reverse Polish Notation",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Evaluate an arithmetic expression in Reverse Polish Notation (postfix).",
+    "constraints": [
+      "1 <= len(tokens) <= 100000",
+      "Valid operators: +, -, *, /",
+      "Division should truncate toward zero"
+    ],
+    "scaffold": "def evaluate_reverse_polish_notation(tokens: list[str]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"]",
+        "output": "9",
+        "explanation": "(2 + 1) * 3 = 9."
+      },
+      {
+        "input": "tokens = [\"4\",\"13\",\"5\",\"/\", \"+\"]",
+        "output": "6",
+        "explanation": "13 / 5 truncates to 2, then 4 + 2 = 6."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-generate-parentheses",
+    "title": "Generate Parentheses",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Generate all combinations of `n` pairs of well-formed parentheses.",
+    "constraints": [
+      "0 <= n <= 12",
+      "Only return valid combinations",
+      "Use backtracking with open/close counters"
+    ],
+    "scaffold": "def generate_parentheses(n: int) -> list[str]:\n    pass",
+    "examples": [
+      {
+        "input": "n = 3",
+        "output": "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]",
+        "explanation": "These are all valid combinations for n=3."
+      },
+      {
+        "input": "n = 1",
+        "output": "[\"()\"]",
+        "explanation": "Only one valid combination exists for one pair."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-daily-temperatures",
+    "title": "Daily Temperatures",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "For each day, return how many days you must wait until a warmer temperature. If none, return 0.",
+    "constraints": [
+      "1 <= len(temperatures) <= 200000",
+      "30 <= temperatures[i] <= 100",
+      "Use monotonic decreasing stack of indices"
+    ],
+    "scaffold": "def daily_temperatures(temperatures: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "output": "[1,1,4,2,1,1,0,0]",
+        "explanation": "Each value is distance to next warmer day."
+      },
+      {
+        "input": "temperatures = [30, 40, 50, 60]",
+        "output": "[1, 1, 1, 0]",
+        "explanation": "Each day waits one day except the last."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-car-fleet",
+    "title": "Car Fleet",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given target position and arrays `position` and `speed`, return the number of car fleets reaching the target.",
+    "constraints": [
+      "1 <= n <= 100000",
+      "0 <= position[i] < target and speed[i] > 0",
+      "Cars cannot pass once they catch up; they form a fleet"
+    ],
+    "scaffold": "def car_fleet(target: int, position: list[int], speed: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]",
+        "output": "3",
+        "explanation": "Sort by position descending and compare arrival times."
+      },
+      {
+        "input": "target = 10, position = [6, 8], speed = [3, 2]",
+        "output": "2",
+        "explanation": "Cars reach target separately and never merge into one fleet."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-largest-rectangle-in-histogram",
+    "title": "Largest Rectangle in Histogram",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given bar heights of a histogram, return the area of the largest rectangle.",
+    "constraints": [
+      "1 <= len(heights) <= 200000",
+      "0 <= heights[i] <= 100000",
+      "Use a monotonic increasing stack for O(n) time"
+    ],
+    "scaffold": "def largest_rectangle_in_histogram(heights: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "heights = [2,1,5,6,2,3]",
+        "output": "10",
+        "explanation": "Max rectangle is width 2 with height 5 (bars 5 and 6)."
+      },
+      {
+        "input": "heights = [2,4]",
+        "output": "4",
+        "explanation": "Best area is 4."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-binary-search",
+    "title": "Binary Search",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a sorted array and target value, return the target index or `-1` if not found.",
+    "constraints": [
+      "0 <= len(nums) <= 100000",
+      "Array is sorted ascending",
+      "Target O(log n) time"
+    ],
+    "scaffold": "def binary_search(nums: list[int], target: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "output": "4",
+        "explanation": "Target appears at index 4."
+      },
+      {
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "output": "-1",
+        "explanation": "Target is absent."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-search-a-2d-matrix",
+    "title": "Search a 2D Matrix",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Search a matrix where rows are sorted and each row starts after the previous row ends.",
+    "constraints": [
+      "1 <= m, n <= 1000",
+      "Treat matrix as a flattened sorted array",
+      "Target O(log(m*n)) time"
+    ],
+    "scaffold": "def search_a_2d_matrix(matrix: list[list[int]], target: int) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3",
+        "output": "True",
+        "explanation": "3 exists in the matrix."
+      },
+      {
+        "input": "same matrix, target = 13",
+        "output": "False",
+        "explanation": "13 is not present."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-koko-eating-bananas",
+    "title": "Koko Eating Bananas",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Koko must eat all banana piles within `h` hours; return the minimum integer eating speed `k`.",
+    "constraints": [
+      "1 <= len(piles) <= 100000",
+      "1 <= piles[i] <= 10^9",
+      "Use binary search over speed range [1, max(piles)]"
+    ],
+    "scaffold": "def koko_eating_bananas(piles: list[int], h: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "piles = [3,6,7,11], h = 8",
+        "output": "4",
+        "explanation": "Speed 4 completes in 8 hours."
+      },
+      {
+        "input": "piles = [30,11,23,4,20], h = 5",
+        "output": "30",
+        "explanation": "Needs max pile speed under tight deadline."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-find-minimum-in-rotated-sorted-array",
+    "title": "Find Minimum in Rotated Sorted Array",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a rotated sorted array with unique values, return its minimum element.",
+    "constraints": [
+      "1 <= len(nums) <= 100000",
+      "Values are unique",
+      "Target O(log n) binary search"
+    ],
+    "scaffold": "def find_minimum_in_rotated_sorted_array(nums: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [3,4,5,1,2]",
+        "output": "1",
+        "explanation": "Rotation pivot splits around minimum 1."
+      },
+      {
+        "input": "nums = [11,13,15,17]",
+        "output": "11",
+        "explanation": "Not rotated; first element is minimum."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-search-in-rotated-sorted-array",
+    "title": "Search in Rotated Sorted Array",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Search for `target` in a rotated sorted array of unique values. Return index or `-1`.",
+    "constraints": [
+      "1 <= len(nums) <= 100000",
+      "Values are unique",
+      "Target O(log n) modified binary search"
+    ],
+    "scaffold": "def search_in_rotated_sorted_array(nums: list[int], target: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "output": "4",
+        "explanation": "Target is at index 4."
+      },
+      {
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "output": "-1",
+        "explanation": "Target not found."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-time-based-key-value-store",
+    "title": "Time Based Key-Value Store",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Design a key-value store supporting timestamped `set` and `get` where `get` returns value at largest timestamp <= query.",
+    "constraints": [
+      "Up to 200000 operations",
+      "For each key, set timestamps are non-decreasing",
+      "Use per-key arrays plus binary search for get"
+    ],
+    "scaffold": "class TimeMap:\n    def __init__(self):\n        pass\n\n    def set(self, key: str, value: str, timestamp: int) -> None:\n        pass\n\n    def get(self, key: str, timestamp: int) -> str:\n        pass",
+    "examples": [
+      {
+        "input": "set(\"foo\",\"bar\",1), get(\"foo\",1), get(\"foo\",3), set(\"foo\",\"bar2\",4), get(\"foo\",4), get(\"foo\",5)",
+        "output": "[\"bar\",\"bar\",\"bar2\",\"bar2\"]",
+        "explanation": "Each get returns latest value at or before timestamp."
+      },
+      {
+        "input": "set(\"foo\",\"bar\",1), get(\"foo\",0)",
+        "output": "\"\"",
+        "explanation": "No timestamp <= 0 exists for key \"foo\"."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-median-of-two-sorted-arrays",
+    "title": "Median of Two Sorted Arrays",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given two sorted arrays, return the median of the combined sorted order in O(log(min(m,n))) time.",
+    "constraints": [
+      "0 <= len(nums1), len(nums2) <= 100000",
+      "Arrays are individually sorted",
+      "Do not fully merge arrays"
+    ],
+    "scaffold": "def median_of_two_sorted_arrays(nums1: list[int], nums2: list[int]) -> float:\n    pass",
+    "examples": [
+      {
+        "input": "nums1 = [1,3], nums2 = [2]",
+        "output": "2.0",
+        "explanation": "Combined sorted array is [1,2,3]."
+      },
+      {
+        "input": "nums1 = [1,2], nums2 = [3,4]",
+        "output": "2.5",
+        "explanation": "Median is average of middle two values."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-reverse-linked-list",
+    "title": "Reverse Linked List",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Reverse a singly linked list. For this simulator, input/output use list values representation.",
+    "constraints": [
+      "0 <= len(values) <= 100000",
+      "Target O(n) time and O(1) extra pointer space",
+      "Handle empty input"
+    ],
+    "scaffold": "def reverse_linked_list(values: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "values = [1,2,3,4,5]",
+        "output": "[5,4,3,2,1]",
+        "explanation": "List order is fully reversed."
+      },
+      {
+        "input": "values = []",
+        "output": "[]",
+        "explanation": "Empty list remains empty."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-merge-two-sorted-lists",
+    "title": "Merge Two Sorted Lists",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Merge two sorted linked lists into one sorted list. In this simulator, use list value representation.",
+    "constraints": [
+      "0 <= len(list1), len(list2) <= 50000",
+      "Values may be negative",
+      "Target O(m+n) merge"
+    ],
+    "scaffold": "def merge_two_sorted_lists(list1: list[int], list2: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "output": "[1,1,2,3,4,4]",
+        "explanation": "Standard two-list merge."
+      },
+      {
+        "input": "list1 = [], list2 = [0]",
+        "output": "[0]",
+        "explanation": "Handle empty left list."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-reorder-list",
+    "title": "Reorder List",
+    "difficulty": "medium",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Reorder list as `L0 -> Ln -> L1 -> Ln-1 ...`. In this simulator, input/output are list values.",
+    "constraints": [
+      "1 <= len(values) <= 100000",
+      "Use middle + reverse + merge approach",
+      "Target O(n) time"
+    ],
+    "scaffold": "def reorder_list(values: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "values = [1,2,3,4]",
+        "output": "[1,4,2,3]",
+        "explanation": "Take from front, then back, alternating."
+      },
+      {
+        "input": "values = [1,2,3,4,5]",
+        "output": "[1,5,2,4,3]",
+        "explanation": "Middle element remains last."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-remove-nth-node-from-end-of-list",
+    "title": "Remove Nth Node From End of List",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given list values and integer `n`, remove the nth node from the end and return resulting values.",
+    "constraints": [
+      "1 <= n <= len(values)",
+      "Single pass two-pointer gap approach is preferred",
+      "Return updated list values"
+    ],
+    "scaffold": "def remove_nth_node_from_end_of_list(values: list[int], n: int) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "values = [1,2,3,4,5], n = 2",
+        "output": "[1,2,3,5]",
+        "explanation": "Remove the 2nd element from the end (4)."
+      },
+      {
+        "input": "values = [1], n = 1",
+        "output": "[]",
+        "explanation": "Removing the only node yields empty list."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-copy-list-with-random-pointer",
+    "title": "Copy List with Random Pointer",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Deep-copy a linked list where each node has `next` and `random` pointers. In this simulator, random pointers are represented by indices.",
+    "constraints": [
+      "0 <= n <= 100000",
+      "Copied nodes must not reference original nodes",
+      "Preserve next/random relationships exactly"
+    ],
+    "scaffold": "def copy_list_with_random_pointer(values: list[int], random: list[int | None]) -> tuple[list[int], list[int | None]]:\n    pass",
+    "examples": [
+      {
+        "input": "values = [7,13,11], random = [None,0,1]",
+        "output": "([7,13,11], [None,0,1])",
+        "explanation": "Copied structure matches original random mapping."
+      },
+      {
+        "input": "values = [], random = []",
+        "output": "([], [])",
+        "explanation": "Empty structure should deep-copy to empty output."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-add-two-numbers",
+    "title": "Add Two Numbers",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Add two non-negative integers represented by reversed linked lists. In this simulator, lists are digit arrays.",
+    "constraints": [
+      "1 <= len(l1), len(l2) <= 100000",
+      "Digits are 0..9",
+      "Handle carry propagation through full length"
+    ],
+    "scaffold": "def add_two_numbers(l1: list[int], l2: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "l1 = [2,4,3], l2 = [5,6,4]",
+        "output": "[7,0,8]",
+        "explanation": "342 + 465 = 807, stored in reverse."
+      },
+      {
+        "input": "l1 = [9,9,9], l2 = [1]",
+        "output": "[0,0,0,1]",
+        "explanation": "Carry creates a new most-significant digit."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-linked-list-cycle",
+    "title": "Linked List Cycle",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Determine whether a linked list has a cycle. In this simulator, `pos` indicates where tail points (`-1` means no cycle).",
+    "constraints": [
+      "0 <= len(values) <= 100000",
+      "pos is -1 or a valid index in values",
+      "Use Floyd tortoise-hare in O(1) extra space"
+    ],
+    "scaffold": "def linked_list_cycle(values: list[int], pos: int) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "values = [3,2,0,-4], pos = 1",
+        "output": "True",
+        "explanation": "Tail links back to index 1."
+      },
+      {
+        "input": "values = [1], pos = -1",
+        "output": "False",
+        "explanation": "No cycle."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-find-the-duplicate-number",
+    "title": "Find the Duplicate Number",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given `n+1` integers where each value is in `[1, n]`, return the duplicated number without modifying the array.",
+    "constraints": [
+      "len(nums) = n + 1",
+      "Values are in [1, n]",
+      "Use constant extra space (Floyd cycle detection)"
+    ],
+    "scaffold": "def find_the_duplicate_number(nums: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [1,3,4,2,2]",
+        "output": "2",
+        "explanation": "2 appears more than once."
+      },
+      {
+        "input": "nums = [3,1,3,4,2]",
+        "output": "3",
+        "explanation": "3 is the duplicate value."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-lru-cache",
+    "title": "LRU Cache",
+    "difficulty": "hard",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Design an LRU cache supporting `get` and `put` in O(1) average time.",
+    "constraints": [
+      "1 <= capacity <= 100000",
+      "get returns -1 when key is missing",
+      "Use hashmap + doubly linked list"
+    ],
+    "scaffold": "class LRUCache:\n    def __init__(self, capacity: int):\n        pass\n\n    def get(self, key: int) -> int:\n        pass\n\n    def put(self, key: int, value: int) -> None:\n        pass",
+    "examples": [
+      {
+        "input": "capacity=2, put(1,1), put(2,2), get(1), put(3,3), get(2)",
+        "output": "1 then -1",
+        "explanation": "Key 2 is evicted as least recently used."
+      },
+      {
+        "input": "capacity=2, put(2,1), put(2,2), get(2), put(1,1), put(4,1), get(2)",
+        "output": "2, -1",
+        "explanation": "Updating a key refreshes recency before later eviction."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-invert-binary-tree",
+    "title": "Invert Binary Tree",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Invert a binary tree by swapping left and right children at every node. In this simulator, trees use level-order arrays with `None`.",
+    "constraints": [
+      "0 <= node count <= 100000",
+      "Return inverted tree in same level-order representation",
+      "DFS or BFS both acceptable"
+    ],
+    "scaffold": "def invert_binary_tree(root: list[int | None]) -> list[int | None]:\n    pass",
+    "examples": [
+      {
+        "input": "root = [4,2,7,1,3,6,9]",
+        "output": "[4,7,2,9,6,3,1]",
+        "explanation": "Each node swaps left/right children."
+      },
+      {
+        "input": "root = []",
+        "output": "[]",
+        "explanation": "Empty tree remains empty."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-maximum-depth-of-binary-tree",
+    "title": "Maximum Depth of Binary Tree",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return the maximum depth (longest root-to-leaf path length in nodes) of a binary tree.",
+    "constraints": [
+      "0 <= node count <= 100000",
+      "Use DFS or BFS traversal",
+      "Handle empty tree"
+    ],
+    "scaffold": "def maximum_depth_of_binary_tree(root: list[int | None]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "root = [3,9,20,None,None,15,7]",
+        "output": "3",
+        "explanation": "Longest path has 3 nodes."
+      },
+      {
+        "input": "root = []",
+        "output": "0",
+        "explanation": "Empty tree has depth 0."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-diameter-of-binary-tree",
+    "title": "Diameter of Binary Tree",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return the diameter of a binary tree (number of edges on the longest path between any two nodes).",
+    "constraints": [
+      "0 <= node count <= 100000",
+      "Diameter may or may not pass through root",
+      "Use postorder DFS to track subtree heights"
+    ],
+    "scaffold": "def diameter_of_binary_tree(root: list[int | None]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "root = [1,2,3,4,5]",
+        "output": "3",
+        "explanation": "Longest path is 4 -> 2 -> 1 -> 3 with 3 edges."
+      },
+      {
+        "input": "root = [1,2]",
+        "output": "1",
+        "explanation": "Longest path has one edge between nodes 1 and 2."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-balanced-binary-tree",
+    "title": "Balanced Binary Tree",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return `True` if every node in the tree has left/right subtree height difference at most 1.",
+    "constraints": [
+      "0 <= node count <= 100000",
+      "Target O(n) with postorder height check",
+      "Early exit on imbalance is recommended"
+    ],
+    "scaffold": "def balanced_binary_tree(root: list[int | None]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "root = [3,9,20,None,None,15,7]",
+        "output": "True",
+        "explanation": "Tree is height-balanced."
+      },
+      {
+        "input": "root = [1,2,2,3,3,None,None,4,4]",
+        "output": "False",
+        "explanation": "Left branch is too deep."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-same-tree",
+    "title": "Same Tree",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given two binary trees `p` and `q`, return `True` if they are structurally identical and have equal node values.",
+    "constraints": [
+      "0 <= node count <= 100000",
+      "Compare both structure and values",
+      "DFS or BFS comparison is acceptable"
+    ],
+    "scaffold": "def same_tree(p: list[int | None], q: list[int | None]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "p = [1,2,3], q = [1,2,3]",
+        "output": "True",
+        "explanation": "Same structure and values."
+      },
+      {
+        "input": "p = [1,2], q = [1,None,2]",
+        "output": "False",
+        "explanation": "Different structure."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-subtree-of-another-tree",
+    "title": "Subtree of Another Tree",
+    "difficulty": "easy",
+    "timeLimit": 30,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Return `True` if `sub_root` is a subtree of `root`.",
+    "constraints": [
+      "0 <= node count <= 200000",
+      "Subtree must match both structure and values",
+      "Use recursive matching or tree serialization approach"
+    ],
+    "scaffold": "def subtree_of_another_tree(root: list[int | None], sub_root: list[int | None]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "root = [3,4,5,1,2], sub_root = [4,1,2]",
+        "output": "True",
+        "explanation": "Matching subtree exists under root node 4."
+      },
+      {
+        "input": "root = [3,4,5,1,2,None,None,None,None,0], sub_root = [4,1,2]",
+        "output": "False",
+        "explanation": "Extra node prevents exact subtree match."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "neet-lowest-common-ancestor-of-bst",
+    "title": "Lowest Common Ancestor of BST",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "neetcode-50",
+    "prompt": "Given a BST and values `p` and `q`, return the lowest common ancestor value.",
+    "constraints": [
+      "1 <= node count <= 100000",
+      "BST ordering property holds",
+      "p and q exist in the tree"
+    ],
+    "scaffold": "def lowest_common_ancestor_of_bst(root: list[int | None], p: int, q: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "root = [6,2,8,0,4,7,9,None,None,3,5], p = 2, q = 8",
+        "output": "6",
+        "explanation": "p and q split at node 6."
+      },
+      {
+        "input": "same root, p = 2, q = 4",
+        "output": "2",
+        "explanation": "2 is ancestor of 4."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  }
+]

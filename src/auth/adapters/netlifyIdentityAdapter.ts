@@ -12,6 +12,7 @@ import type {
 const REDIRECT_STORAGE_KEY = 'auth:netlify:redirect';
 
 let widgetPromise: Promise<NetlifyIdentityWidget> | null = null;
+const NETLIFY_LOCALHOST_SITE_URL_KEY = 'netlifySiteURL';
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter((value) => value.trim().length > 0))];
@@ -51,6 +52,20 @@ function applyPendingRedirectIfNeeded(user: NetlifyIdentityUser | null): void {
   applyRedirect(redirectTarget);
 }
 
+function isLocalhost(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  return ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+}
+
+function seedLocalNetlifySiteURL(): void {
+  if (typeof window === 'undefined' || !isLocalhost() || !authConfig.netlify.siteURL) {
+    return;
+  }
+
+  window.localStorage.setItem(NETLIFY_LOCALHOST_SITE_URL_KEY, authConfig.netlify.siteURL);
+}
+
 function readRoles(user: NetlifyIdentityUser): string[] {
   const appMetadataRoles = Array.isArray(user.app_metadata?.roles) ? user.app_metadata.roles : [];
   const authorizationRoles = Array.isArray(user.app_metadata?.authorization?.roles)
@@ -68,6 +83,10 @@ function readDisplayName(user: NetlifyIdentityUser): string | null {
 }
 
 async function loadWidget(): Promise<NetlifyIdentityWidget> {
+  // The widget auto-initializes as soon as the module is imported, so local
+  // development needs the site URL seeded before the import happens.
+  seedLocalNetlifySiteURL();
+
   if (!widgetPromise) {
     widgetPromise = import('netlify-identity-widget').then((module) => module.default);
   }
@@ -107,7 +126,6 @@ export function createNetlifyIdentityAdapter(): AuthAdapter {
       const widget = await loadWidget();
       if (!initialized) {
         widget.init({
-          APIUrl: authConfig.netlify.apiURL,
           locale: authConfig.netlify.locale,
           namePlaceholder: authConfig.netlify.namePlaceholder,
           logo: true,

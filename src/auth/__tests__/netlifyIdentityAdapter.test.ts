@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NetlifyIdentityWidget } from 'netlify-identity-widget';
-import { createNetlifyIdentityAdapter, normalizeNetlifyIdentityUser } from '../adapters/netlifyIdentityAdapter';
 
 const widgetMock = {
   init: vi.fn(),
@@ -20,11 +19,17 @@ vi.mock('netlify-identity-widget', () => ({
 
 describe('netlifyIdentityAdapter', () => {
   beforeEach(() => {
+    vi.resetModules();
+    vi.unstubAllEnvs();
     vi.clearAllMocks();
     widgetMock.currentUser.mockReturnValue(null);
+    window.localStorage.clear();
+    window.history.replaceState({}, '', '/');
   });
 
-  it('normalizes a Netlify user into the app user shape', () => {
+  it('normalizes a Netlify user into the app user shape', async () => {
+    const { normalizeNetlifyIdentityUser } = await import('../adapters/netlifyIdentityAdapter');
+
     const normalized = normalizeNetlifyIdentityUser({
       id: 'abc123',
       email: 'engineer@example.com',
@@ -42,6 +47,8 @@ describe('netlifyIdentityAdapter', () => {
   });
 
   it('initializes the widget and returns an authenticated session', async () => {
+    const { createNetlifyIdentityAdapter } = await import('../adapters/netlifyIdentityAdapter');
+
     widgetMock.currentUser.mockReturnValue({
       id: 'user-1',
       email: 'invitee@example.com',
@@ -58,5 +65,28 @@ describe('netlifyIdentityAdapter', () => {
     expect(session.isAuthenticated).toBe(true);
     expect(session.user?.email).toBe('invitee@example.com');
     expect(accessToken).toBe('token-123');
+  });
+
+  it('seeds the Netlify site URL on localhost without forcing an APIUrl override', async () => {
+    vi.stubEnv('VITE_NETLIFY_SITE_URL', 'https://lern2cwd.netlify.app');
+    const { createNetlifyIdentityAdapter } = await import('../adapters/netlifyIdentityAdapter');
+
+    const adapter = createNetlifyIdentityAdapter();
+    await adapter.init();
+
+    expect(window.localStorage.getItem('netlifySiteURL')).toBe('https://lern2cwd.netlify.app');
+
+    const initOptions = widgetMock.init.mock.calls[0]?.[0];
+    expect(initOptions).not.toHaveProperty('APIUrl');
+  });
+
+  it('accepts the legacy identity URL env var and converts it to a site URL', async () => {
+    vi.stubEnv('VITE_NETLIFY_IDENTITY_API_URL', 'https://lern2cwd.netlify.app/.netlify/identity');
+    const { createNetlifyIdentityAdapter } = await import('../adapters/netlifyIdentityAdapter');
+
+    const adapter = createNetlifyIdentityAdapter();
+    await adapter.init();
+
+    expect(window.localStorage.getItem('netlifySiteURL')).toBe('https://lern2cwd.netlify.app');
   });
 });

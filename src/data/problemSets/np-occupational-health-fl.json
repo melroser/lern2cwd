@@ -1,0 +1,642 @@
+[
+  {
+    "id": "np-occupational-health-case-1",
+    "title": "Occupational Health Case 1",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Evaluate return-to-work recommendation after low-back strain in a warehouse worker. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Evaluate return-to-work recommendation after low-back strain in a warehouse worker.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-2",
+    "title": "Occupational Health Case 2",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Interpret occupational exposure history for suspected work-related asthma case. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Interpret occupational exposure history for suspected work-related asthma case.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-3",
+    "title": "Occupational Health Case 3",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Create follow-up plan after needlestick exposure in outpatient clinic setting. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Create follow-up plan after needlestick exposure in outpatient clinic setting.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-4",
+    "title": "Occupational Health Case 4",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Develop fitness-for-duty assessment summary for safety-sensitive employee. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Develop fitness-for-duty assessment summary for safety-sensitive employee.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-5",
+    "title": "Occupational Health Case 5",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Assess hearing conservation program compliance from audiometry trends. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Assess hearing conservation program compliance from audiometry trends.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-6",
+    "title": "Occupational Health Case 6",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Recommend post-exposure management after bloodborne pathogen incident. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Recommend post-exposure management after bloodborne pathogen incident.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-7",
+    "title": "Occupational Health Case 7",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Outline documentation required for workers comp visit in Florida. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Outline documentation required for workers comp visit in Florida.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-8",
+    "title": "Occupational Health Case 8",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Determine when to escalate to emergency care in heat stress presentation. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Determine when to escalate to emergency care in heat stress presentation.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-9",
+    "title": "Occupational Health Case 9",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Create work restriction plan after repetitive strain upper-extremity injury. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Create work restriction plan after repetitive strain upper-extremity injury.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-10",
+    "title": "Occupational Health Case 10",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Counsel employee on respirator medical clearance decision points. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Counsel employee on respirator medical clearance decision points.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-11",
+    "title": "Occupational Health Case 11",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Review vaccination and immunity documentation for healthcare onboarding. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Review vaccination and immunity documentation for healthcare onboarding.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-12",
+    "title": "Occupational Health Case 12",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Assess dermatitis case for potential occupational triggers and controls. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Assess dermatitis case for potential occupational triggers and controls.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-13",
+    "title": "Occupational Health Case 13",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Build plan for hypertension follow-up in DOT-like safety context. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Build plan for hypertension follow-up in DOT-like safety context.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-14",
+    "title": "Occupational Health Case 14",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Interpret spirometry trend and advise on occupational follow-up. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Interpret spirometry trend and advise on occupational follow-up.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-15",
+    "title": "Occupational Health Case 15",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Develop protocol response for suspected chemical inhalation event. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Develop protocol response for suspected chemical inhalation event.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-16",
+    "title": "Occupational Health Case 16",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Evaluate whether modified duty is appropriate after concussion symptoms. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Evaluate whether modified duty is appropriate after concussion symptoms.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-17",
+    "title": "Occupational Health Case 17",
+    "difficulty": "hard",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Create concise SOAP-style occupational clinic note with legal defensibility. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Create concise SOAP-style occupational clinic note with legal defensibility.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-18",
+    "title": "Occupational Health Case 18",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Prioritize interventions after cluster of workplace musculoskeletal complaints. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Prioritize interventions after cluster of workplace musculoskeletal complaints.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-19",
+    "title": "Occupational Health Case 19",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Assess fit-for-duty concerns related to sedating medications. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Assess fit-for-duty concerns related to sedating medications.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "np-occupational-health-case-20",
+    "title": "Occupational Health Case 20",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "nurse-practitioner-occupational-health-fl",
+    "prompt": "Draft patient education for injury prevention and safe return to work. Provide a Florida occupational-health NP response with assessment, safety/legal considerations, and return-to-work plan.",
+    "constraints": [
+      "Identify key clinical risk flags and immediate escalation criteria",
+      "Provide concrete restrictions or disposition with rationale",
+      "Include follow-up timing and documentation steps",
+      "Keep recommendation practical for employer and patient safety"
+    ],
+    "scaffold": "# Clinical assessment:\n# Recommendation:\n# Work restrictions / clearance:\n# Follow-up plan:\n# Documentation / legal considerations:",
+    "examples": [
+      {
+        "input": "Draft patient education for injury prevention and safe return to work.",
+        "output": "assessment + recommendation + restrictions + follow-up",
+        "explanation": "response should balance safety, regulation, and operational feasibility."
+      }
+    ],
+    "expectedApproach": "Use context, decision, action, result, and reflection.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concise context, explicit decision, concrete actions, measurable outcome, and lessons learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  }
+]

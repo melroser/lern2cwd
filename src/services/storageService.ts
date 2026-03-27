@@ -20,6 +20,8 @@ import type {
   Verdict,
   MissTag,
   EvaluationResult,
+  EvaluationAnnotation,
+  SessionProblemSnapshot,
 } from '../types';
 
 // Storage key for sessions array
@@ -88,6 +90,50 @@ function isValidMissTags(tags: unknown): tags is MissTag[] {
   return tags.every(tag => typeof tag === 'string' && validTags.includes(tag));
 }
 
+function isValidEvaluationAnnotations(annotations: unknown): annotations is EvaluationAnnotation[] {
+  if (annotations === undefined) return true;
+  if (!Array.isArray(annotations)) return false;
+
+  return annotations.every((annotation) => {
+    if (!annotation || typeof annotation !== 'object') return false;
+    const a = annotation as Record<string, unknown>;
+    return (
+      (a.target === 'candidate' || a.target === 'ideal') &&
+      typeof a.line === 'number' &&
+      Number.isInteger(a.line) &&
+      a.line >= 1 &&
+      typeof a.message === 'string' &&
+      a.message.trim().length > 0 &&
+      (a.severity === 'info' || a.severity === 'warning' || a.severity === 'error')
+    );
+  });
+}
+
+function isValidProblemSnapshot(snapshot: unknown): snapshot is SessionProblemSnapshot {
+  if (snapshot === undefined) return true;
+  if (!snapshot || typeof snapshot !== 'object') return false;
+
+  const s = snapshot as Record<string, unknown>;
+  return (
+    typeof s.id === 'string' &&
+    typeof s.title === 'string' &&
+    (
+      s.language === 'javascript' ||
+      s.language === 'python' ||
+      s.language === 'typescript' ||
+      s.language === 'sql' ||
+      s.language === 'yaml' ||
+      s.language === 'dockerfile'
+    ) &&
+    (s.difficulty === 'easy' || s.difficulty === 'medium' || s.difficulty === 'hard') &&
+    typeof s.timeLimit === 'number' &&
+    typeof s.prompt === 'string' &&
+    Array.isArray(s.constraints) &&
+    s.constraints.every((value) => typeof value === 'string') &&
+    Array.isArray(s.examples)
+  );
+}
+
 /**
  * Validates that a value is a valid EvaluationResult
  */
@@ -106,6 +152,7 @@ function isValidEvaluationResult(eval_: unknown): eval_ is EvaluationResult {
   
   if (typeof e.idealSolution !== 'string') return false;
   if (!isValidMissTags(e.missTags)) return false;
+  if (!isValidEvaluationAnnotations(e.annotations)) return false;
   
   return true;
 }
@@ -135,6 +182,7 @@ function isValidSessionRecord(record: unknown): record is SessionRecord {
   
   // Check evaluation
   if (!isValidEvaluationResult(r.evaluation)) return false;
+  if (!isValidProblemSnapshot(r.problemSnapshot)) return false;
   
   return true;
 }

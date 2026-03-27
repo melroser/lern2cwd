@@ -1,0 +1,200 @@
+[
+  {
+    "id": "synthbee-conversational-screen-1",
+    "title": "SynthBee Conversational Screen 1",
+    "difficulty": "medium",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-ai-systems",
+    "prompt": "Tell me about yourself and what kind of engineer you are. Answer naturally and make clear where you are strongest, what kinds of systems you have built, and why this role is interesting to you.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Keep the answer grounded in real work.",
+      "Be specific about your strengths and technical direction.",
+      "Do not overstate machine learning depth if that is not your background.",
+      "Close with why the role feels relevant now."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover background, strengths, recent direction, and role fit.",
+    "examples": [
+      {
+        "input": "\"Tell me about yourself and what kind of engineer you are.\"",
+        "output": "Strong conversational response that is clear, credible, and role relevant.",
+        "explanation": "Strong answers are specific, grounded, and easy to follow."
+      }
+    ],
+    "expectedApproach": "Give a concise narrative of your engineering background, your current strengths, and why you are interested in this overlap role.",
+    "commonPitfalls": [
+      "Resume recitation without a point",
+      "Too generic",
+      "Overclaiming ML depth"
+    ],
+    "idealSolutionOutline": "Background, strengths, recent direction, and why this role fits.",
+    "evaluationNotes": "Score for clarity, credibility, role alignment, and communication quality."
+  },
+  {
+    "id": "synthbee-conversational-screen-2",
+    "title": "SynthBee Conversational Screen 2",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-system-design",
+    "prompt": "Tell me about a system you built end to end that you understand deeply. Answer naturally and explain the problem, your role, the architecture, the tradeoffs, and the result.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Use a real project you can explain deeply.",
+      "Include specific design choices and tradeoffs.",
+      "Mention what was difficult and how you handled it.",
+      "Include outcome and what you learned."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover problem, role, architecture, tradeoffs, outcome, and learning.",
+    "examples": [
+      {
+        "input": "\"Tell me about a system you built end to end that you understand deeply.\"",
+        "output": "Strong response with concrete architecture, ownership, and thoughtful tradeoffs.",
+        "explanation": "Strong answers show engineering judgment, not just implementation detail."
+      }
+    ],
+    "expectedApproach": "Choose a project where you can speak clearly about architecture, ownership, and why certain decisions were made.",
+    "commonPitfalls": [
+      "Too vague about architecture",
+      "No clear tradeoffs",
+      "Cannot separate your role from the team"
+    ],
+    "idealSolutionOutline": "Context, role, architecture, tradeoffs, impact, reflection.",
+    "evaluationNotes": "Score for depth, ownership, architecture clarity, and practical judgment."
+  },
+  {
+    "id": "synthbee-conversational-screen-3",
+    "title": "SynthBee Conversational Screen 3",
+    "difficulty": "medium",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-ai-systems",
+    "prompt": "How have you worked with AI systems so far? Answer naturally and explain what you have actually built, what parts you owned, and where your strengths are today.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about real systems, not just tools you tried.",
+      "Distinguish AI product engineering from deep ML training work.",
+      "Be honest about your current strengths and limits.",
+      "Mention where you want to grow."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover what you built, what you owned, where you are strongest, and what comes next.",
+    "examples": [
+      {
+        "input": "\"How have you worked with AI systems so far?\"",
+        "output": "Strong answer focused on real AI-enabled systems and clear self-awareness.",
+        "explanation": "Strong answers are concrete, honest, and technically grounded."
+      }
+    ],
+    "expectedApproach": "Position yourself as a software engineer who has been building useful systems around AI rather than pretending to be a pure ML researcher.",
+    "commonPitfalls": [
+      "Buzzword heavy answer",
+      "No concrete examples",
+      "Overstating ML experience"
+    ],
+    "idealSolutionOutline": "Actual projects, owned components, strengths, limits, and growth direction.",
+    "evaluationNotes": "Score for honesty, technical grounding, and fit for an overlap engineering role."
+  },
+  {
+    "id": "synthbee-conversational-screen-4",
+    "title": "SynthBee Conversational Screen 4",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-reliability",
+    "prompt": "How do you think about reliability when AI is part of the workflow? Answer naturally and explain how you reduce bad outputs, ambiguity, and production risk.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Discuss reliability in practical engineering terms.",
+      "Include validation, guardrails, monitoring, and human review where relevant.",
+      "Mention tradeoffs between speed and correctness.",
+      "Use concrete examples when possible."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover failure modes, safeguards, monitoring, and tradeoffs.",
+    "examples": [
+      {
+        "input": "\"How do you think about reliability when AI is part of the workflow?\"",
+        "output": "Strong answer about guardrails, monitoring, fallback behavior, and human review.",
+        "explanation": "Strong answers treat AI as a probabilistic component inside a broader system."
+      }
+    ],
+    "expectedApproach": "Explain how you make the overall system dependable rather than assuming the model itself will be dependable.",
+    "commonPitfalls": [
+      "Treating AI output as inherently trustworthy",
+      "No operational safeguards",
+      "No fallback plan"
+    ],
+    "idealSolutionOutline": "Failure modes, safeguards, observability, human review, and tradeoffs.",
+    "evaluationNotes": "Score for realism, production judgment, and reliability thinking."
+  },
+  {
+    "id": "synthbee-conversational-screen-5",
+    "title": "SynthBee Conversational Screen 5",
+    "difficulty": "medium",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-fundamentals",
+    "prompt": "What software fundamentals matter most when building AI products? Answer naturally and explain which engineering fundamentals become more important when AI is involved.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Focus on practical software engineering fundamentals.",
+      "Include interfaces, data flow, validation, observability, latency, or testing where relevant.",
+      "Keep the answer grounded in real systems.",
+      "Tie your answer to actual engineering work."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover the fundamentals and why they matter even more with AI.",
+    "examples": [
+      {
+        "input": "\"What software fundamentals matter most when building AI products?\"",
+        "output": "Strong practical answer linking core engineering discipline to AI-enabled systems.",
+        "explanation": "Strong answers emphasize systems thinking and operational rigor."
+      }
+    ],
+    "expectedApproach": "Show that AI products still depend heavily on strong software engineering and often need more discipline, not less.",
+    "commonPitfalls": [
+      "Only talking about prompts",
+      "Ignoring interfaces and system boundaries",
+      "No link to real systems"
+    ],
+    "idealSolutionOutline": "Key fundamentals, why they matter more with AI, and practical examples.",
+    "evaluationNotes": "Score for engineering maturity, judgment, and connection to modern systems."
+  },
+  {
+    "id": "synthbee-conversational-screen-6",
+    "title": "SynthBee Conversational Screen 6",
+    "difficulty": "medium",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-human-in-the-loop",
+    "prompt": "Why does human in the loop matter in AI systems? Answer naturally and explain when people should stay involved and when automation is appropriate.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Make the answer practical rather than abstract only.",
+      "Discuss trust, correctness, accountability, and workflow design.",
+      "Mention tradeoffs between speed and confidence.",
+      "Tie the answer to product usefulness."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Cover why human review matters, where it matters most, and when automation is enough.",
+    "examples": [
+      {
+        "input": "\"Why does human in the loop matter in AI systems?\"",
+        "output": "Strong answer about risk, trust, control, and practical workflow design.",
+        "explanation": "Strong answers show judgment about where people must remain involved."
+      }
+    ],
+    "expectedApproach": "Explain that human involvement is a design choice based on risk, ambiguity, accountability, and usefulness.",
+    "commonPitfalls": [
+      "Speaking only in slogans",
+      "No practical examples",
+      "No distinction between high and low risk workflows"
+    ],
+    "idealSolutionOutline": "Why it matters, where it matters most, when to automate, and tradeoffs.",
+    "evaluationNotes": "Score for judgment, product thinking, and risk awareness."
+  }
+]

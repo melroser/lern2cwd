@@ -1,0 +1,669 @@
+[
+  {
+    "id": "pr-q01",
+    "title": "Tell me about yourself for a platform reliability role",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Tell me about yourself.",
+    "constraints": [
+      "Cover past.",
+      "Cover present.",
+      "Cover why this role now.",
+      "Keep it grounded: Lead with engineering identity.",
+      "Keep it grounded: Emphasize production systems, debugging, or shipping under ambiguity."
+    ],
+    "scaffold": "# Write your response here.\n# Past.\n# Present.\n# Why this role now.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Tell me about yourself.\"",
+        "output": "I am a software engineer who tends to gravitate toward systems that have to work in the real world, not just look good in a demo. The common thread in my work has been shipping useful software while tightening reliability, debugging hard issues, and improving how teams learn from production behavior. I like roles where engineering quality shows up directly in customer trust and delivery speed, which is why platform and reliability work is especially interesting to me right now.",
+        "explanation": "Assess narrative clarity and whether you naturally frame yourself as someone who protects production quality, reliability, and delivery velocity."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Past, Present, Why this role now.",
+    "commonPitfalls": [
+      "Reading the resume chronologically",
+      "Talking only about frameworks",
+      "Sounding generic",
+      "Ignoring production impact"
+    ],
+    "idealSolutionOutline": "Open with your engineering identity; State the kinds of systems problems you solve best; Mention reliability or observability; Close with why this role fits",
+    "evaluationNotes": "Assess narrative clarity and whether you naturally frame yourself as someone who protects production quality, reliability, and delivery velocity."
+  },
+  {
+    "id": "pr-q02",
+    "title": "Why platform reliability",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Why are you interested in platform reliability or production systems work?",
+    "constraints": [
+      "Cover why it matters.",
+      "Cover what excites you.",
+      "Cover why you fit.",
+      "Keep it grounded: Talk about trust, delivery speed, and leverage.",
+      "Keep it grounded: Show that you like removing recurring pain."
+    ],
+    "scaffold": "# Write your response here.\n# Why it matters.\n# What excites you.\n# Why you fit.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Why are you interested in platform reliability or production systems work?\"",
+        "output": "I like platform and reliability work because it compounds. A good improvement in deploy safety, observability, or failure recovery can help every product team move faster and with more confidence. I enjoy that mix of technical depth and practical leverage, where the work is not just elegant internally but changes how reliably customers experience the product.",
+        "explanation": "Check whether your motivation is grounded in real engineering outcomes rather than vague love of infrastructure."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Why it matters, What excites you, Why you fit.",
+    "commonPitfalls": [
+      "Calling it back office work",
+      "Focusing only on tooling",
+      "Sounding like you want to avoid product",
+      "No mention of user or business impact"
+    ],
+    "idealSolutionOutline": "Name the value of platform work; Explain what kind of problems you enjoy; Connect it to your experience",
+    "evaluationNotes": "Check whether your motivation is grounded in real engineering outcomes rather than vague love of infrastructure."
+  },
+  {
+    "id": "pr-q03",
+    "title": "Production incident ownership",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Tell me about a difficult production incident you handled.",
+    "constraints": [
+      "Cover symptom.",
+      "Cover investigation.",
+      "Cover root cause.",
+      "Cover fix.",
+      "Cover prevention."
+    ],
+    "scaffold": "# Write your response here.\n# Symptom.\n# Investigation.\n# Root cause.\n# Fix.\n# Prevention.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Tell me about a difficult production incident you handled.\"",
+        "output": "One of the strongest incident lessons for me was that the immediate fix is only half the job. I try to start with the user visible symptom, narrow the search space with the best available signals, confirm the actual failure mode, and then fix both the issue and the visibility gap that made it hard to diagnose in the first place. The best outcome is not just recovery, but making the same class of incident easier to detect and resolve next time.",
+        "explanation": "Assess debugging discipline, calmness, and whether you improve systems after incidents."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Symptom, Investigation, Root cause, Fix, Prevention.",
+    "commonPitfalls": [
+      "Hero story with no method",
+      "Blaming others",
+      "No prevention step",
+      "No impact"
+    ],
+    "idealSolutionOutline": "State the symptom; Explain how you narrowed the problem; Name the root cause; Describe the fix and prevention",
+    "evaluationNotes": "Assess debugging discipline, calmness, and whether you improve systems after incidents."
+  },
+  {
+    "id": "pr-q04",
+    "title": "Designing observability",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you think about logs, metrics, and traces when designing observability for a system?",
+    "constraints": [
+      "Cover use case.",
+      "Cover signal type.",
+      "Cover correlation.",
+      "Cover actionability.",
+      "Keep it grounded: Explain different jobs of logs, metrics, and traces."
+    ],
+    "scaffold": "# Write your response here.\n# Use case.\n# Signal type.\n# Correlation.\n# Actionability.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you think about logs, metrics, and traces when designing observability for a system?\"",
+        "output": "I think of observability as part of system design. Metrics tell me when the system is drifting, logs help with detailed forensics, and traces help explain cross service behavior and latency across a path. The key is not collecting everything blindly but making it possible to answer operational questions quickly, especially which users were affected, where the failure occurred, and whether an issue is getting better or worse.",
+        "explanation": "Evaluate whether you understand observability as a design concern rather than an afterthought."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Use case, Signal type, Correlation, Actionability.",
+    "commonPitfalls": [
+      "Treating observability as just logging more",
+      "No distinction between signal types",
+      "No link to actionability"
+    ],
+    "idealSolutionOutline": "Define the purpose of each signal type; Explain how they fit together; Mention context propagation; Close on actionability",
+    "evaluationNotes": "Evaluate whether you understand observability as a design concern rather than an afterthought."
+  },
+  {
+    "id": "pr-q05",
+    "title": "Release gates and deployment safety",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How would you design release gates for a customer facing AI workflow system?",
+    "constraints": [
+      "Cover critical paths.",
+      "Cover pre deploy checks.",
+      "Cover rollout strategy.",
+      "Cover rollback criteria.",
+      "Keep it grounded: Mention smoke tests, canaries, contract tests, migration safety."
+    ],
+    "scaffold": "# Write your response here.\n# Critical paths.\n# Pre deploy checks.\n# Rollout strategy.\n# Rollback criteria.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How would you design release gates for a customer facing AI workflow system?\"",
+        "output": "I would start by identifying the customer critical paths that must not regress, then gate release on checks that exercise those paths end to end. That usually means smoke tests, contract checks for external dependencies, migration safety, and some form of canary or staged rollout with clear rollback criteria. For AI workflows I would also want representative regression cases for the most important paths so we are not just validating that the system runs, but that it behaves acceptably.",
+        "explanation": "Test whether you can think through pre deployment validation and controlled rollout."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Critical paths, Pre deploy checks, Rollout strategy, Rollback criteria.",
+    "commonPitfalls": [
+      "Shipping with no gates",
+      "Only talking about unit tests",
+      "No rollback plan",
+      "Ignoring integrations"
+    ],
+    "idealSolutionOutline": "Define what cannot break; List the release gates; Explain rollout; State rollback rules",
+    "evaluationNotes": "Test whether you can think through pre deployment validation and controlled rollout."
+  },
+  {
+    "id": "pr-q06",
+    "title": "Detection before customers notice",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How would you reduce time to detection for subtle failures in a high volume workflow system?",
+    "constraints": [
+      "Cover failure classes.",
+      "Cover leading indicators.",
+      "Cover alert routing.",
+      "Cover feedback loop.",
+      "Keep it grounded: Separate hard failures from quality failures."
+    ],
+    "scaffold": "# Write your response here.\n# Failure classes.\n# Leading indicators.\n# Alert routing.\n# Feedback loop.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How would you reduce time to detection for subtle failures in a high volume workflow system?\"",
+        "output": "I would separate obvious system failures from softer quality failures. Hard failures are things like tool errors, timeouts, or transfer failures. Softer failures are strange conversation loops, abnormal abandonment, repeated clarifications, or patterns that correlate with bad outcomes. Then I would tune the system for high value detection with acceptable reviewer load, because the goal is not just more alerts, it is faster recognition of meaningful problems.",
+        "explanation": "Assess how you reason about monitoring, anomaly detection, and operational triage."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Failure classes, Leading indicators, Alert routing, Feedback loop.",
+    "commonPitfalls": [
+      "Only discussing dashboards",
+      "No triage design",
+      "Ignoring rare event detection",
+      "No feedback loop"
+    ],
+    "idealSolutionOutline": "Split the problem into classes; Name leading indicators; Explain routing and escalation; Mention tuning over time",
+    "evaluationNotes": "Assess how you reason about monitoring, anomaly detection, and operational triage."
+  },
+  {
+    "id": "pr-q07",
+    "title": "Handling noisy alerts",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Tell me about a time alerting was too noisy. What did you change?",
+    "constraints": [
+      "Cover noise problem.",
+      "Cover diagnosis.",
+      "Cover change.",
+      "Cover result.",
+      "Keep it grounded: Show how you measured alert usefulness."
+    ],
+    "scaffold": "# Write your response here.\n# Noise problem.\n# Diagnosis.\n# Change.\n# Result.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Tell me about a time alerting was too noisy. What did you change?\"",
+        "output": "I have learned that noisy alerting is not just annoying, it degrades response quality. The right move is usually to understand which alerts are actionable, which are duplicates, and which lack enough context to be useful. From there I would tune thresholds, grouping, ownership, and runbook links so fewer alerts get sent but the ones that remain are more meaningful.",
+        "explanation": "See whether you can improve signal quality without creating blind spots."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Noise problem, Diagnosis, Change, Result.",
+    "commonPitfalls": [
+      "Turning alerts off with no replacement",
+      "No measure of improvement",
+      "Ignoring on call pain"
+    ],
+    "idealSolutionOutline": "State why the alerting was noisy; Explain what made it noisy; Describe the change; Share the result",
+    "evaluationNotes": "See whether you can improve signal quality without creating blind spots."
+  },
+  {
+    "id": "pr-q08",
+    "title": "SLO thinking",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you decide what should have an SLO and what should not?",
+    "constraints": [
+      "Cover user journey.",
+      "Cover criticality.",
+      "Cover measurability.",
+      "Cover actionability.",
+      "Keep it grounded: Tie SLOs to user experience or business outcomes."
+    ],
+    "scaffold": "# Write your response here.\n# User journey.\n# Criticality.\n# Measurability.\n# Actionability.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you decide what should have an SLO and what should not?\"",
+        "output": "I would reserve SLOs for behaviors that matter materially to users or core business outcomes and that the team is willing to act on. If a signal is not tied to a real experience or does not influence engineering decisions, it is probably a dashboard metric, not an SLO. The point of an SLO is to create a shared decision boundary, not just another number on a screen.",
+        "explanation": "Test whether you understand SLOs as a product of user impact and engineering tradeoffs."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: User journey, Criticality, Measurability, Actionability.",
+    "commonPitfalls": [
+      "Making every metric an SLO",
+      "No user impact framing",
+      "No actionability"
+    ],
+    "idealSolutionOutline": "Name the user critical behavior; Explain the measurable signal; Describe how the SLO would influence decisions",
+    "evaluationNotes": "Test whether you understand SLOs as a product of user impact and engineering tradeoffs."
+  },
+  {
+    "id": "pr-q09",
+    "title": "Third party dependency risk",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you design for reliability when critical workflows depend on vendors or external APIs?",
+    "constraints": [
+      "Cover failure modes.",
+      "Cover protection.",
+      "Cover fallbacks.",
+      "Cover visibility.",
+      "Keep it grounded: Mention retries, circuit breakers, idempotency, timeouts, backoff."
+    ],
+    "scaffold": "# Write your response here.\n# Failure modes.\n# Protection.\n# Fallbacks.\n# Visibility.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you design for reliability when critical workflows depend on vendors or external APIs?\"",
+        "output": "When external dependencies are in the critical path, I try to assume they will fail in different ways and design accordingly. That means timeouts, bounded retries, idempotency where needed, clear fallback behavior, and visibility that distinguishes our failures from vendor failures. I also want deployment and contract checks that catch integration drift before customers are exposed to it.",
+        "explanation": "Evaluate your ability to engineer around uncertainty outside your control."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Failure modes, Protection, Fallbacks, Visibility.",
+    "commonPitfalls": [
+      "Blind trust in vendors",
+      "Infinite retries",
+      "No degraded mode",
+      "No visibility"
+    ],
+    "idealSolutionOutline": "List the key failure modes; Explain protective patterns; Describe degraded behavior; Mention monitoring",
+    "evaluationNotes": "Evaluate your ability to engineer around uncertainty outside your control."
+  },
+  {
+    "id": "pr-q10",
+    "title": "Balancing speed and safety",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you balance moving fast with maintaining production safety?",
+    "constraints": [
+      "Cover must not fail.",
+      "Cover reduce scope.",
+      "Cover stage risk.",
+      "Cover learn and tighten.",
+      "Keep it grounded: Protect trust critical paths."
+    ],
+    "scaffold": "# Write your response here.\n# Must not fail.\n# Reduce scope.\n# Stage risk.\n# Learn and tighten.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you balance moving fast with maintaining production safety?\"",
+        "output": "I try to move fast by reducing scope and staging risk, not by gambling on the parts that would damage trust if they fail. Usually that means being strict about the surfaces that are customer critical while allowing more flexibility in reversible or lower impact areas. That approach preserves momentum without treating production as a test environment.",
+        "explanation": "Check whether you can be pragmatic without being reckless."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Must not fail, Reduce scope, Stage risk, Learn and tighten.",
+    "commonPitfalls": [
+      "Quality is not important early",
+      "Build it perfectly first try",
+      "No tradeoff framework"
+    ],
+    "idealSolutionOutline": "Define what cannot break; Explain how you reduce scope elsewhere; Describe staged exposure",
+    "evaluationNotes": "Check whether you can be pragmatic without being reckless."
+  },
+  {
+    "id": "pr-q11",
+    "title": "Ambiguity in systems work",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Describe a time you had to improve a system without clear requirements.",
+    "constraints": [
+      "Cover outcome.",
+      "Cover constraints.",
+      "Cover first step.",
+      "Cover iteration.",
+      "Keep it grounded: Clarify the actual pain."
+    ],
+    "scaffold": "# Write your response here.\n# Outcome.\n# Constraints.\n# First step.\n# Iteration.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Describe a time you had to improve a system without clear requirements.\"",
+        "output": "When systems problems are ambiguous, I try to define the operational outcome first and work backward from there. Instead of asking for perfect requirements, I look for the pain that is already visible, choose a small leverage point, and instrument the change so we can learn quickly. That helps turn a fuzzy reliability problem into a series of concrete decisions.",
+        "explanation": "Test startup fit and whether you can create clarity in technical operations work."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Outcome, Constraints, First step, Iteration.",
+    "commonPitfalls": [
+      "Waiting for perfect requirements",
+      "Pure speculation",
+      "No measurement loop"
+    ],
+    "idealSolutionOutline": "Define success; Choose a first slice; Measure the result; Iterate",
+    "evaluationNotes": "Test startup fit and whether you can create clarity in technical operations work."
+  },
+  {
+    "id": "pr-q12",
+    "title": "Postmortem quality",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "What makes a good postmortem?",
+    "constraints": [
+      "Cover facts.",
+      "Cover impact.",
+      "Cover root causes.",
+      "Cover follow through.",
+      "Keep it grounded: Blameless but accountable."
+    ],
+    "scaffold": "# Write your response here.\n# Facts.\n# Impact.\n# Root causes.\n# Follow through.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"What makes a good postmortem?\"",
+        "output": "A good postmortem should make it easier to prevent or handle the next incident, not just document the last one. That means being clear about impact, timeline, contributing factors, and the difference between the immediate trigger and the deeper system weaknesses. The most important part is having concrete follow up actions with owners so the learning actually changes how the system operates.",
+        "explanation": "Assess whether you learn from failure in a durable and blameless way."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Facts, Impact, Root causes, Follow through.",
+    "commonPitfalls": [
+      "Blame oriented answers",
+      "Only a timeline with no learning",
+      "No owners or follow through"
+    ],
+    "idealSolutionOutline": "State what happened; Separate trigger from deeper causes; Define follow ups",
+    "evaluationNotes": "Assess whether you learn from failure in a durable and blameless way."
+  },
+  {
+    "id": "pr-q13",
+    "title": "On call and ownership",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you think about on call responsibility?",
+    "constraints": [
+      "Cover responsibility.",
+      "Cover sustainability.",
+      "Cover improvement.",
+      "Keep it grounded: Own the user experience.",
+      "Keep it grounded: Use on call pain as product feedback."
+    ],
+    "scaffold": "# Write your response here.\n# Responsibility.\n# Sustainability.\n# Improvement.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you think about on call responsibility?\"",
+        "output": "I think on call is part of owning a production system, but it should also be a signal about where the system or process needs work. Good on call practices are not just about fast response, they are about clear runbooks, useful alerts, sane rotations, and reducing repeat pain over time. The goal is reliable operations, not heroics.",
+        "explanation": "See whether you treat operational ownership seriously and sustainably."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Responsibility, Sustainability, Improvement.",
+    "commonPitfalls": [
+      "Glorifying firefighting",
+      "Treating on call as punishment",
+      "Ignoring burnout"
+    ],
+    "idealSolutionOutline": "Frame on call as ownership; Mention sustainability; Connect incidents to improvement work",
+    "evaluationNotes": "See whether you treat operational ownership seriously and sustainably."
+  },
+  {
+    "id": "pr-q14",
+    "title": "Working with product on reliability",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How do you work with product or customer teams when a reliability issue competes with feature work?",
+    "constraints": [
+      "Cover shared outcome.",
+      "Cover risk translation.",
+      "Cover decision options.",
+      "Cover alignment.",
+      "Keep it grounded: Translate reliability into user and business terms."
+    ],
+    "scaffold": "# Write your response here.\n# Shared outcome.\n# Risk translation.\n# Decision options.\n# Alignment.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How do you work with product or customer teams when a reliability issue competes with feature work?\"",
+        "output": "I try to translate reliability work into the customer and business terms that product teams already care about, like failed workflows, conversion loss, support burden, or trust erosion. That makes it easier to have an honest prioritization discussion instead of a values clash between features and operations. The best conversations usually involve clear options with tradeoffs rather than a vague request to slow down.",
+        "explanation": "Evaluate whether you can communicate operational tradeoffs across functions."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Shared outcome, Risk translation, Decision options, Alignment.",
+    "commonPitfalls": [
+      "Us versus them framing",
+      "Only saying no",
+      "Talking only in engineering jargon"
+    ],
+    "idealSolutionOutline": "Name the shared outcome; Translate the risk; Offer choices",
+    "evaluationNotes": "Evaluate whether you can communicate operational tradeoffs across functions."
+  },
+  {
+    "id": "pr-q15",
+    "title": "Designing runbooks",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "What makes a runbook actually useful during an incident?",
+    "constraints": [
+      "Cover fast orientation.",
+      "Cover decision points.",
+      "Cover safe actions.",
+      "Cover escalation.",
+      "Keep it grounded: Actionable, not verbose."
+    ],
+    "scaffold": "# Write your response here.\n# Fast orientation.\n# Decision points.\n# Safe actions.\n# Escalation.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"What makes a runbook actually useful during an incident?\"",
+        "output": "A useful runbook should help someone under pressure orient quickly, check the right signals, take safe first actions, and know when to escalate. It should be short enough to use in the moment and concrete enough to prevent guesswork. If a runbook only makes sense when you already know the system well, it is not doing its job.",
+        "explanation": "Check whether you understand operational documentation under pressure."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Fast orientation, Decision points, Safe actions, Escalation.",
+    "commonPitfalls": [
+      "Long wiki pages",
+      "No decision points",
+      "Missing escalation",
+      "Outdated docs"
+    ],
+    "idealSolutionOutline": "Describe what the runbook must answer first; List the decision points; Mention ownership and freshness",
+    "evaluationNotes": "Check whether you understand operational documentation under pressure."
+  },
+  {
+    "id": "pr-q16",
+    "title": "Service decomposition tradeoffs",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "When does splitting a system into more services improve reliability, and when does it make reliability worse?",
+    "constraints": [
+      "Cover local benefits.",
+      "Cover distributed costs.",
+      "Cover context.",
+      "Cover decision rule.",
+      "Keep it grounded: Mention isolation and independent scaling."
+    ],
+    "scaffold": "# Write your response here.\n# Local benefits.\n# Distributed costs.\n# Context.\n# Decision rule.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"When does splitting a system into more services improve reliability, and when does it make reliability worse?\"",
+        "output": "Service boundaries can improve reliability when they isolate blast radius, ownership, or scaling characteristics in a meaningful way. But they can also make reliability worse by increasing network failure modes, deployment coordination, and observability complexity. I would choose boundaries based on real operational and organizational pressure, not architecture fashion.",
+        "explanation": "Assess tradeoff thinking around system boundaries and operational complexity."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Local benefits, Distributed costs, Context, Decision rule.",
+    "commonPitfalls": [
+      "Microservices are always better",
+      "Monoliths are always better",
+      "No operational tradeoffs"
+    ],
+    "idealSolutionOutline": "Describe when decomposition helps; Describe when it hurts; Give a decision rule",
+    "evaluationNotes": "Assess tradeoff thinking around system boundaries and operational complexity."
+  },
+  {
+    "id": "pr-q17",
+    "title": "AI workflow reliability",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "How is reliability different for AI driven workflows versus more deterministic software?",
+    "constraints": [
+      "Cover deterministic failures.",
+      "Cover behavioral drift.",
+      "Cover evaluation.",
+      "Cover fallbacks.",
+      "Keep it grounded: Mention non deterministic outputs."
+    ],
+    "scaffold": "# Write your response here.\n# Deterministic failures.\n# Behavioral drift.\n# Evaluation.\n# Fallbacks.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"How is reliability different for AI driven workflows versus more deterministic software?\"",
+        "output": "AI workflows add a second reliability layer beyond basic system uptime. The system can be available but still behave poorly because output quality, retrieval quality, or decision quality has drifted. That means I would monitor both hard system signals and behavioral signals, and I would use representative evals, guardrails, and fallback paths so reliability is not reduced to whether the API returned a 200.",
+        "explanation": "Test whether you understand probabilistic behavior and evaluation challenges."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Deterministic failures, Behavioral drift, Evaluation, Fallbacks.",
+    "commonPitfalls": [
+      "Only talking about model choice",
+      "Ignoring evaluation",
+      "Treating AI as standard CRUD"
+    ],
+    "idealSolutionOutline": "Separate infrastructure reliability from workflow quality; Explain how you would evaluate each; Mention fallback paths",
+    "evaluationNotes": "Test whether you understand probabilistic behavior and evaluation challenges."
+  },
+  {
+    "id": "pr-q18",
+    "title": "Reliability metrics that matter",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "system-design",
+    "domain": "platform-reliability-engineering",
+    "prompt": "What metrics would you track for a platform team supporting customer critical workflows?",
+    "constraints": [
+      "Cover customer experience.",
+      "Cover system health.",
+      "Cover delivery safety.",
+      "Cover recovery.",
+      "Keep it grounded: Mention availability or success rate."
+    ],
+    "scaffold": "# Write your response here.\n# Customer experience.\n# System health.\n# Delivery safety.\n# Recovery.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"What metrics would you track for a platform team supporting customer critical workflows?\"",
+        "output": "I would want a mix of customer visible success metrics, core system health signals, and delivery safety metrics. For example workflow success rate, latency and failure classes, deployment change failure rate, rollback frequency, and incident detection and resolution time. The exact set depends on the product, but the principle is that the metrics should help us protect customer experience and improve engineering decision making.",
+        "explanation": "Evaluate metric selection and whether you understand leading and lagging indicators."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Customer experience, System health, Delivery safety, Recovery.",
+    "commonPitfalls": [
+      "Vanity metrics only",
+      "No customer linkage",
+      "No recovery metrics"
+    ],
+    "idealSolutionOutline": "List the metric categories; Give examples; Tie them back to decisions",
+    "evaluationNotes": "Evaluate metric selection and whether you understand leading and lagging indicators."
+  },
+  {
+    "id": "pr-q19",
+    "title": "A time you improved leverage",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "Tell me about a time you improved developer or team leverage rather than shipping a customer feature directly.",
+    "constraints": [
+      "Cover pain point.",
+      "Cover leverage improvement.",
+      "Cover adoption.",
+      "Cover result.",
+      "Keep it grounded: Choose a meaningful internal improvement."
+    ],
+    "scaffold": "# Write your response here.\n# Pain point.\n# Leverage improvement.\n# Adoption.\n# Result.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"Tell me about a time you improved developer or team leverage rather than shipping a customer feature directly.\"",
+        "output": "One of the rewarding parts of engineering is improving the system around the team, not just the user facing surface. The strongest examples are usually things like better deployment safety, better local workflows, stronger observability, or tools that reduce repeated manual work. I try to describe those in terms of what changed for the team, not just what I built technically.",
+        "explanation": "See whether you understand internal platform value and can articulate it well."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Pain point, Leverage improvement, Adoption, Result.",
+    "commonPitfalls": [
+      "Describing a tiny script as transformational",
+      "No real impact",
+      "No users of the improvement"
+    ],
+    "idealSolutionOutline": "State the team pain point; Explain the solution; Show adoption; Describe the result",
+    "evaluationNotes": "See whether you understand internal platform value and can articulate it well."
+  },
+  {
+    "id": "pr-q20",
+    "title": "Questions for a platform interviewer",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "platform-reliability-engineering",
+    "prompt": "What questions do you have for me?",
+    "constraints": [
+      "Cover reliability pain.",
+      "Cover success in role.",
+      "Cover operating model.",
+      "Keep it grounded: Ask about the hardest current reliability problem.",
+      "Keep it grounded: Ask what strong first 90 days looks like."
+    ],
+    "scaffold": "# Write your response here.\n# Reliability pain.\n# Success in role.\n# Operating model.\n# Close with the outcome, recommendation, or operational lesson.",
+    "examples": [
+      {
+        "input": "\"What questions do you have for me?\"",
+        "output": "Yes. I would want to understand where the biggest reliability pain is today, whether it is detection, deployment safety, integration drift, or operational noise. I would also want to know what success in the first 90 days looks like for this role and how platform work interacts with product teams when live workflows need to change quickly.",
+        "explanation": "Evaluate curiosity, ownership, and whether you think like someone joining an operationally complex system."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Reliability pain, Success in role, Operating model.",
+    "commonPitfalls": [
+      "No questions",
+      "Only asking about perks",
+      "Generic filler questions"
+    ],
+    "idealSolutionOutline": "Ask about current pain; Ask about role success; Ask about cross functional dynamics",
+    "evaluationNotes": "Evaluate curiosity, ownership, and whether you think like someone joining an operationally complex system."
+  }
+]

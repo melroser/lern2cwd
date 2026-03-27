@@ -1,0 +1,714 @@
+[
+  {
+    "id": "codesignal-first-duplicate",
+    "title": "First Duplicate",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Given array `a` with values in `[1, len(a)]`, return the first duplicated value whose second occurrence appears earliest. Return `-1` if no duplicate exists.",
+    "constraints": [
+      "1 <= len(a) <= 100000",
+      "1 <= a[i] <= len(a)",
+      "Return -1 if no duplicate exists"
+    ],
+    "scaffold": "def first_duplicate(a: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "a = [2, 1, 3, 5, 3, 2]",
+        "output": "3",
+        "explanation": "3 repeats at index 4 before 2 repeats at index 5."
+      },
+      {
+        "input": "a = [2, 4, 3, 5, 1]",
+        "output": "-1",
+        "explanation": "No value appears twice."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-rotate-image",
+    "title": "Rotate Image",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Rotate an `n x n` matrix 90 degrees clockwise in place.",
+    "constraints": [
+      "a is square",
+      "Aim for O(1) extra space using transpose + reverse"
+    ],
+    "scaffold": "def rotate_image(a: list[list[int]]) -> list[list[int]]:\n    pass",
+    "examples": [
+      {
+        "input": "a = [[1,2,3],[4,5,6],[7,8,9]]",
+        "output": "[[7,4,1],[8,5,2],[9,6,3]]",
+        "explanation": "Transpose then reverse each row."
+      },
+      {
+        "input": "a = [[1]]",
+        "output": "[[1]]",
+        "explanation": "A 1x1 matrix is unchanged by rotation."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-sudoku2",
+    "title": "Sudoku2",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Given a partially filled Sudoku board, return whether it is valid (no duplicate digits in any row, column, or 3x3 box).",
+    "constraints": [
+      "Grid is always 9x9",
+      "'.' means empty cell"
+    ],
+    "scaffold": "def sudoku2(grid: list[str]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "grid = ['.87654321','2........','3........','4........','5........','6........','7........','8........','9........']",
+        "output": "True",
+        "explanation": "No duplicates in any row, column, or box."
+      },
+      {
+        "input": "grid = ['53..7....','6..195...','.98....6.','8...6...3','4..8.3..1','7...2...6','.6....28.','...419..5','....8..79']",
+        "output": "True",
+        "explanation": "No digit is duplicated in any row, column, or 3x3 box."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-is-crypt-solution",
+    "title": "Is Crypt Solution",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Given three words and a letter-to-digit mapping, return whether the cryptarithm is valid and has no illegal leading zeros.",
+    "constraints": [
+      "All mapped digits are unique",
+      "No leading zero for multi-char words"
+    ],
+    "scaffold": "def is_crypt_solution(crypt: list[str], solution: list[list[str]]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "crypt = ['SEND','MORE','MONEY'], solution = [['O','0'],['M','1'],['Y','2'],['E','5'],['N','6'],['D','7'],['R','8'],['S','9']]",
+        "output": "True",
+        "explanation": "9567 + 1085 = 10652 and no invalid leading zeros."
+      },
+      {
+        "input": "crypt = ['A','A','B'], solution = [['A','0'],['B','0']]",
+        "output": "True",
+        "explanation": "0 + 0 = 0 is valid for single-character words."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-sort-by-height",
+    "title": "Sort by Height",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Sort people heights while keeping `-1` tree positions fixed.",
+    "constraints": [
+      "Preserve index positions of -1 values",
+      "-1 values represent immovable trees and must remain at original indices"
+    ],
+    "scaffold": "def sort_by_height(a: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "a = [-1, 150, 190, 170, -1, -1, 160, 180]",
+        "output": "[-1, 150, 160, 170, -1, -1, 180, 190]",
+        "explanation": "Only non -1 values are sorted and reinserted."
+      },
+      {
+        "input": "a = [-1, -1, -1]",
+        "output": "[-1, -1, -1]",
+        "explanation": "No movable heights exist, so output is unchanged."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-are-similar",
+    "title": "Are Similar",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return `True` if arrays `a` and `b` are already equal or can be made equal with at most one swap.",
+    "constraints": [
+      "Compare mismatch positions directly",
+      "Arrays must have the same length"
+    ],
+    "scaffold": "def are_similar(a: list[int], b: list[int]) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "a = [1, 2, 3], b = [1, 3, 2]",
+        "output": "True",
+        "explanation": "Swap positions 1 and 2 in b."
+      },
+      {
+        "input": "a = [1, 2, 2], b = [2, 1, 1]",
+        "output": "False",
+        "explanation": "More than one valid mismatch pair is required."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-array-change",
+    "title": "Array Change",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return the minimum number of increment operations needed to make the array strictly increasing.",
+    "constraints": [
+      "Only increment operations are allowed",
+      "Return the total count of +1 operations"
+    ],
+    "scaffold": "def array_change(input_array: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "input_array = [1, 1, 1]",
+        "output": "3",
+        "explanation": "Transform to [1,2,3] with 1 + 2 increments."
+      },
+      {
+        "input": "input_array = [1, 2, 1]",
+        "output": "2",
+        "explanation": "Raise final 1 to 3 with two increments."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-palindrome-rearranging",
+    "title": "Palindrome Rearranging",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return whether characters of `s` can be rearranged to form a palindrome.",
+    "constraints": [
+      "1 <= len(s) <= 100000",
+      "Use frequency counting",
+      "At most one character may have an odd count"
+    ],
+    "scaffold": "def palindrome_rearranging(s: str) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "s = \"aabb\"",
+        "output": "True",
+        "explanation": "all counts are even."
+      },
+      {
+        "input": "s = \"abcad\"",
+        "output": "False",
+        "explanation": "three odd-count characters."
+      },
+      {
+        "input": "s = \"a\"",
+        "output": "True",
+        "explanation": "single char is always a palindrome."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-avoid-obstacles",
+    "title": "Avoid Obstacles",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Find the smallest jump length that avoids every obstacle position.",
+    "constraints": [
+      "Jump length must be positive integer",
+      "Test jump lengths incrementally"
+    ],
+    "scaffold": "def avoid_obstacles(input_array: list[int]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "input_array = [5, 3, 6, 7, 9]",
+        "output": "4",
+        "explanation": "Multiples of 4 avoid all obstacle positions."
+      },
+      {
+        "input": "input_array = [1, 4, 10, 6, 2]",
+        "output": "7",
+        "explanation": "Jump length 7 avoids all obstacle positions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-box-blur",
+    "title": "Box Blur",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Apply a box blur: each output cell is floor(average of a 3x3 window).",
+    "constraints": [
+      "Use integer division/floor",
+      "Output dimensions are (h-2) x (w-2)"
+    ],
+    "scaffold": "def box_blur(image: list[list[int]]) -> list[list[int]]:\n    pass",
+    "examples": [
+      {
+        "input": "image = [[1,1,1],[1,7,1],[1,1,1]]",
+        "output": "[[1]]",
+        "explanation": "Sum is 15; floor(15/9) = 1."
+      },
+      {
+        "input": "image = [[7,4,0,1],[5,6,2,2],[6,10,7,8],[1,4,2,0]]",
+        "output": "[[5,4],[4,4]]",
+        "explanation": "Each value is floor(sum of 3x3 window / 9)."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-minesweeper",
+    "title": "Minesweeper",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Given mine positions, return the count of adjacent mines for each cell.",
+    "constraints": [
+      "Count all 8 neighbors",
+      "Bounds-check each neighbor"
+    ],
+    "scaffold": "def minesweeper(matrix: list[list[bool]]) -> list[list[int]]:\n    pass",
+    "examples": [
+      {
+        "input": "matrix = [[True,False,False],[False,True,False],[False,False,False]]",
+        "output": "[[1,2,1],[2,1,1],[1,1,1]]",
+        "explanation": "Each output cell counts nearby True cells."
+      },
+      {
+        "input": "matrix = [[False,False,False],[False,False,False]]",
+        "output": "[[0,0,0],[0,0,0]]",
+        "explanation": "No mines means every adjacent-mine count is zero."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-array-max-consecutive-sum",
+    "title": "Array Max Consecutive Sum",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return the maximum sum of any contiguous subarray of length `k`.",
+    "constraints": [
+      "1 <= k <= len(input_array)",
+      "Prefer O(n) sliding window"
+    ],
+    "scaffold": "def array_max_consecutive_sum(input_array: list[int], k: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "input_array = [2, 3, 5, 1, 6], k = 2",
+        "output": "8",
+        "explanation": "Max window is [3,5]."
+      },
+      {
+        "input": "input_array = [-1, -2, -3, -4], k = 2",
+        "output": "-3",
+        "explanation": "Best window is [-1,-2] with sum -3."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-digits-product",
+    "title": "Digits Product",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return the smallest positive integer whose digits multiply to `product`, or `-1` if impossible.",
+    "constraints": [
+      "Handle product = 0 and product = 1 carefully",
+      "If product is 0, the answer is 10"
+    ],
+    "scaffold": "def digits_product(product: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "product = 12",
+        "output": "26",
+        "explanation": "2 * 6 = 12 and 26 is the smallest valid integer."
+      },
+      {
+        "input": "product = 19",
+        "output": "-1",
+        "explanation": "19 cannot be factored into digits 2..9."
+      },
+      {
+        "input": "product = 0",
+        "output": "10",
+        "explanation": "1 * 0 = 0 and 10 is the smallest such integer."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-file-naming",
+    "title": "File Naming",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Ensure all file names are unique by appending the smallest available `(k)` suffix when needed.",
+    "constraints": [
+      "Must preserve order",
+      "Suffix search must avoid collisions"
+    ],
+    "scaffold": "def file_naming(names: list[str]) -> list[str]:\n    pass",
+    "examples": [
+      {
+        "input": "names = ['doc','doc','image','doc(1)','doc']",
+        "output": "['doc','doc(1)','image','doc(1)(1)','doc(2)']",
+        "explanation": "Each duplicate gets the smallest unused suffix."
+      },
+      {
+        "input": "names = ['a','a','a']",
+        "output": "['a','a(1)','a(2)']",
+        "explanation": "Suffixes increase to preserve uniqueness with minimal k."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-delete-digit",
+    "title": "Delete Digit",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Return the largest number obtainable by deleting exactly one digit from `n`.",
+    "constraints": [
+      "Delete one and only one digit",
+      "n has at least two digits"
+    ],
+    "scaffold": "def delete_digit(n: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "n = 152",
+        "output": "52",
+        "explanation": "Deleting 1 yields maximum value."
+      },
+      {
+        "input": "n = 1001",
+        "output": "101",
+        "explanation": "Deleting one 0 yields the maximum value 101."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-build-palindrome",
+    "title": "Build Palindrome",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Append the fewest characters to the end of `st` so the result becomes a palindrome.",
+    "constraints": [
+      "Append minimum number of chars",
+      "Keep original prefix unchanged"
+    ],
+    "scaffold": "def build_palindrome(st: str) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "st = \"abcdc\"",
+        "output": "\"abcdcba\"",
+        "explanation": "Append \"ba\" to mirror earliest prefix."
+      },
+      {
+        "input": "st = \"abba\"",
+        "output": "\"abba\"",
+        "explanation": "Already a palindrome, so no characters are appended."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-map-decoding",
+    "title": "Map Decoding",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Count how many ways a digit string can be decoded with mapping `1->A` ... `26->Z`.",
+    "constraints": [
+      "0 cannot appear alone",
+      "Use DP to avoid exponential recursion"
+    ],
+    "scaffold": "def map_decoding(message: str) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "message = \"123\"",
+        "output": "3",
+        "explanation": "Decodings: \"ABC\", \"LC\", \"AW\"."
+      },
+      {
+        "input": "message = \"100\"",
+        "output": "0",
+        "explanation": "No valid decoding because trailing 0 cannot stand alone."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-compose-ranges",
+    "title": "Compose Ranges",
+    "difficulty": "easy",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Compress sorted distinct numbers into range strings like `a->b`.",
+    "constraints": [
+      "Single values should be rendered as \"x\"",
+      "Input array is sorted and contains distinct values"
+    ],
+    "scaffold": "def compose_ranges(nums: list[int]) -> list[str]:\n    pass",
+    "examples": [
+      {
+        "input": "nums = [0, 1, 2, 4, 5, 7]",
+        "output": "['0->2', '4->5', '7']",
+        "explanation": "Consecutive runs collapse into start->end notation."
+      },
+      {
+        "input": "nums = []",
+        "output": "[]",
+        "explanation": "Empty input yields no ranges."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-delivery-time",
+    "title": "Delivery Time",
+    "difficulty": "hard",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Given a weighted road network, return the shortest travel time from start to target (`-1` if unreachable).",
+    "constraints": [
+      "Weights are non-negative",
+      "Use Dijkstra for efficiency"
+    ],
+    "scaffold": "def delivery_time(n: int, roads: list[tuple[int, int, int]], start: int, target: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "n = 5, roads = [(0,1,4),(1,2,3),(0,3,10),(2,4,2),(3,4,1)], start = 0, target = 4",
+        "output": "9",
+        "explanation": "Best path is 0->1->2->4 with total 9."
+      },
+      {
+        "input": "n = 3, roads = [(0,1,5)], start = 0, target = 2",
+        "output": "-1",
+        "explanation": "Target node is unreachable from start."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "codesignal-feature-deployment-batches",
+    "title": "Feature Deployment Batches",
+    "difficulty": "medium",
+    "timeLimit": 22,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "codesignal-tech-force",
+    "prompt": "Group feature deployments by completion day while preserving original release order.",
+    "constraints": [
+      "Features deploy in original order",
+      "Later faster feature waits for earlier unfinished feature"
+    ],
+    "scaffold": "def feature_deployment_batches(progress: list[int], speed: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "progress = [93, 30, 55], speed = [1, 30, 5]",
+        "output": "[2, 1]",
+        "explanation": "First two finish by day 7; third deploys later alone."
+      },
+      {
+        "input": "progress = [95, 90, 99, 99, 80, 99], speed = [1, 1, 1, 1, 1, 1]",
+        "output": "[1, 3, 2]",
+        "explanation": "Features deploy in ordered batches by completion day thresholds."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  }
+]

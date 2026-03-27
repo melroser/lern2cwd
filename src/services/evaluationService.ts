@@ -18,6 +18,7 @@
  */
 
 import type {
+  EvaluationAnnotation,
   EvaluationResult,
   EvaluationServiceInterface,
   MissTag,
@@ -88,6 +89,29 @@ function firstNonEmpty(arr: string[], maxItems: number): string[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .slice(0, maxItems);
+}
+
+function parseEvaluationAnnotations(value: unknown): EvaluationAnnotation[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const annotations: EvaluationAnnotation[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object') continue;
+    const raw = entry as Record<string, unknown>;
+    const target = raw.target === 'candidate' || raw.target === 'ideal' ? raw.target : null;
+    const severity = raw.severity === 'info' || raw.severity === 'warning' || raw.severity === 'error'
+      ? raw.severity
+      : 'info';
+    const line = clampInt(raw.line, 1, 5000, 1);
+    const message = typeof raw.message === 'string' ? raw.message.trim() : '';
+
+    if (!target || !message) continue;
+    annotations.push({ target, line, message, severity });
+  }
+
+  return annotations.slice(0, 12);
 }
 
 /**
@@ -178,6 +202,7 @@ export class EvaluationService implements EvaluationServiceInterface {
     const missTags: MissTag[] = Array.from(
       new Set(rawTags.filter((t) => MISS_TAG_SET.has(t)).slice(0, 4))
     ) as MissTag[];
+    const annotations = parseEvaluationAnnotations(parsed?.annotations);
 
     // Enforce minimum useful payload (so we can retry once)
     if (!idealSolution) {
@@ -193,6 +218,7 @@ export class EvaluationService implements EvaluationServiceInterface {
       feedback: { strengths, improvements },
       idealSolution,
       missTags,
+      annotations,
     };
   }
 
@@ -245,6 +271,25 @@ export class EvaluationService implements EvaluationServiceInterface {
     }
     if (!result.missTags.every(tag => MISS_TAG_SET.has(tag))) {
       return false;
+    }
+
+    if (result.annotations !== undefined) {
+      if (!Array.isArray(result.annotations)) {
+        return false;
+      }
+
+      const validAnnotations = result.annotations.every((annotation) => (
+        (annotation.target === 'candidate' || annotation.target === 'ideal') &&
+        Number.isInteger(annotation.line) &&
+        annotation.line >= 1 &&
+        typeof annotation.message === 'string' &&
+        annotation.message.trim().length > 0 &&
+        (annotation.severity === 'info' || annotation.severity === 'warning' || annotation.severity === 'error')
+      ));
+
+      if (!validAnnotations) {
+        return false;
+      }
     }
 
     return true;

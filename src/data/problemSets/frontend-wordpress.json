@@ -1,0 +1,642 @@
+[
+  {
+    "id": "wp-wordpress-frontend-scenario-1",
+    "title": "WordPress Frontend Scenario 1",
+    "difficulty": "hard",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement a WordPress-style hero block renderer that outputs accessible, responsive HTML from a config object (title, subtitle, CTA, image).",
+    "constraints": [
+      "Use semantic structure (section, heading, nav/button/link as appropriate)",
+      "Include accessibility attributes for image and CTA",
+      "Handle missing optional fields without breaking layout",
+      "Keep output deterministic for same input"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_1(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "{\"title\":\"Launch\",\"subtitle\":\"Ship faster\",\"ctaText\":\"Get Started\",\"ctaHref\":\"/start\",\"imageAlt\":\"Dashboard\"}",
+        "output": "semantic hero markup string containing heading, supporting text, CTA link, and accessible image metadata",
+        "explanation": "baseline render path."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-2",
+    "title": "WordPress Frontend Scenario 2",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Build a custom Gutenberg block form UI with validation and submit states. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_2(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-3",
+    "title": "WordPress Frontend Scenario 3",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Create a dynamic pricing table component with reusable props and clean CSS architecture. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_3(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-4",
+    "title": "WordPress Frontend Scenario 4",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement lazy-loaded hero media with fallback content and skeleton states. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_4(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-5",
+    "title": "WordPress Frontend Scenario 5",
+    "difficulty": "hard",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Build an accessible navigation menu with keyboard support and aria state handling. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_5(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-6",
+    "title": "WordPress Frontend Scenario 6",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Refactor legacy jQuery interactions into modern vanilla JS modules. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_6(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-7",
+    "title": "WordPress Frontend Scenario 7",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Create a reusable modal component with focus trapping and escape handling. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_7(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-8",
+    "title": "WordPress Frontend Scenario 8",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement client-side search filtering for large post lists with debounce. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_8(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-9",
+    "title": "WordPress Frontend Scenario 9",
+    "difficulty": "hard",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Optimize CSS bundle strategy for a WordPress theme with minimal render-blocking. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_9(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-10",
+    "title": "WordPress Frontend Scenario 10",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Build a testimonial carousel with touch and keyboard controls. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_10(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-11",
+    "title": "WordPress Frontend Scenario 11",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Create robust form error UI integrated with backend validation messages. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_11(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-12",
+    "title": "WordPress Frontend Scenario 12",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement dark/light theme toggle with persisted user preference. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_12(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-13",
+    "title": "WordPress Frontend Scenario 13",
+    "difficulty": "hard",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Design an A/B test component wrapper for CTA variants and event tracking. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_13(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-14",
+    "title": "WordPress Frontend Scenario 14",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Build dynamic FAQ accordion with semantic headings and screen-reader support. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_14(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-15",
+    "title": "WordPress Frontend Scenario 15",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement server-rendered pagination controls with client enhancement. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_15(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-16",
+    "title": "WordPress Frontend Scenario 16",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Create image component with srcset sizes and low-quality placeholders. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_16(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-17",
+    "title": "WordPress Frontend Scenario 17",
+    "difficulty": "hard",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Add analytics-safe click tracking abstraction for reusable components. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_17(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-18",
+    "title": "WordPress Frontend Scenario 18",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Build reusable table component that is responsive and keyboard-navigable. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_18(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-19",
+    "title": "WordPress Frontend Scenario 19",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Implement robust empty/loading/error states for async content blocks. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_19(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "wp-wordpress-frontend-scenario-20",
+    "title": "WordPress Frontend Scenario 20",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "javascript",
+    "assessmentType": "coding",
+    "domain": "frontend-wordpress",
+    "prompt": "Migrate theme UI token values into CSS custom properties with fallback. Produce accessible, responsive frontend output with clear state handling.",
+    "constraints": [
+      "Use semantic HTML and accessible patterns",
+      "Handle loading/error/empty states where relevant",
+      "Keep behavior deterministic and testable",
+      "Preserve responsive behavior"
+    ],
+    "scaffold": "def wordpress_frontend_scenario_20(config: dict) -> str:\n    pass",
+    "examples": [
+      {
+        "input": "scenario config + user interaction",
+        "output": "component markup/logic specification",
+        "explanation": "demonstrates accessibility and robust UX behavior."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  }
+]

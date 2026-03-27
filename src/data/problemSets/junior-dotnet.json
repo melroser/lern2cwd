@@ -1,0 +1,647 @@
+[
+  {
+    "id": "dotnet-junior-net-scenario-1",
+    "title": "Junior .NET Scenario 1",
+    "difficulty": "hard",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Design a POST endpoint for creating a resource with request validation, DTO mapping, and correct HTTP status codes.",
+    "constraints": [
+      "Validate required fields and formats before persistence",
+      "Return 400 for validation errors with field-level messages",
+      "Return 201 with resource location on success",
+      "Keep domain model and response DTO separated"
+    ],
+    "scaffold": "def junior_net_scenario_1(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "POST body {\"email\":\"a@b.com\",\"name\":\"Ana\"}",
+        "output": "201 Created with response DTO and Location header.",
+        "explanation": ""
+      },
+      {
+        "input": "POST body {\"email\":\"bad-email\",\"name\":\"\"}",
+        "output": "400 with validation errors",
+        "explanation": "format and required-field failures."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-2",
+    "title": "Junior .NET Scenario 2",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement async repository query with cancellation token and pagination. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_2(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-3",
+    "title": "Junior .NET Scenario 3",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Refactor service layer to separate domain logic from transport concerns. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_3(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-4",
+    "title": "Junior .NET Scenario 4",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement optimistic concurrency handling for update endpoint. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_4(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-5",
+    "title": "Junior .NET Scenario 5",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Write middleware for structured error responses and correlation IDs. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_5(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-6",
+    "title": "Junior .NET Scenario 6",
+    "difficulty": "hard",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement background job scheduling with retry and dead-letter handling. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_6(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-7",
+    "title": "Junior .NET Scenario 7",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Create unit tests for business rules with dependency injection mocks. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_7(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-8",
+    "title": "Junior .NET Scenario 8",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Build role-based authorization policy for sensitive operations. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_8(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-9",
+    "title": "Junior .NET Scenario 9",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement caching strategy for expensive aggregate queries. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_9(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-10",
+    "title": "Junior .NET Scenario 10",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Design idempotent command handler for payment webhook ingestion. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_10(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-11",
+    "title": "Junior .NET Scenario 11",
+    "difficulty": "hard",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Refactor LINQ query for performance and SQL translation safety. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_11(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-12",
+    "title": "Junior .NET Scenario 12",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement file upload endpoint with validation and streaming. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_12(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-13",
+    "title": "Junior .NET Scenario 13",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Create resilient external API client with timeout and circuit breaker. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_13(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-14",
+    "title": "Junior .NET Scenario 14",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Design event-driven workflow with outbox pattern. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_14(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-15",
+    "title": "Junior .NET Scenario 15",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement partial update (PATCH) endpoint with field-level validation. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_15(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-16",
+    "title": "Junior .NET Scenario 16",
+    "difficulty": "hard",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Debug memory leak symptoms in long-running .NET web process. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_16(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-17",
+    "title": "Junior .NET Scenario 17",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement audit logging without polluting domain entities. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_17(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-18",
+    "title": "Junior .NET Scenario 18",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Add tenant isolation checks in repository and service layers. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_18(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-19",
+    "title": "Junior .NET Scenario 19",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Design migration plan for schema change with zero-downtime constraints. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_19(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  },
+  {
+    "id": "dotnet-junior-net-scenario-20",
+    "title": "Junior .NET Scenario 20",
+    "difficulty": "medium",
+    "timeLimit": 28,
+    "language": "typescript",
+    "assessmentType": "coding",
+    "domain": "junior-dotnet",
+    "prompt": "Implement secure authentication flow with refresh token rotation. Focus on API contract correctness, validation, and production-safe behavior.",
+    "constraints": [
+      "Use clear request/response contracts",
+      "Apply validation and proper status codes",
+      "Keep concerns separated (controller/service/repository)",
+      "Include reliability/error-handling notes"
+    ],
+    "scaffold": "def junior_net_scenario_20(request_body: dict) -> dict:\n    pass",
+    "examples": [
+      {
+        "input": "API/service scenario request",
+        "output": "expected response behavior with status codes",
+        "explanation": "demonstrates pragmatic backend engineering decisions."
+      }
+    ],
+    "expectedApproach": "State the data structure/algorithm choice, justify tradeoffs, then implement cleanly.",
+    "commonPitfalls": [
+      "Missing edge cases",
+      "Unclear complexity analysis",
+      "Choosing an unnecessarily expensive approach"
+    ],
+    "idealSolutionOutline": "Describe optimal strategy, implement, validate with edge cases, and summarize complexity.",
+    "evaluationNotes": "Reward correct logic, clear tradeoffs, and interview communication."
+  }
+]

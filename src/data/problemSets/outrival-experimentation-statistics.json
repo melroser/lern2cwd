@@ -1,0 +1,658 @@
+[
+  {
+    "id": "st-q01",
+    "title": "Base rates versus accuracy",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "A bad interaction occurs in 0.01% of 200000 daily interactions. A detector is 99% accurate. Why can that still be operationally weak?",
+    "constraints": [
+      "Cover state the base rate.",
+      "Cover convert rates to counts.",
+      "Cover compare false positives to true positives.",
+      "Cover discuss operational impact.",
+      "Keep the answer practical: Focus on prevalence first."
+    ],
+    "scaffold": "# Write your response here.\n# State the base rate.\n# Convert rates to counts.\n# Compare false positives to true positives.\n# Discuss operational impact.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"A bad interaction occurs in 0.01% of 200000 daily interactions. A detector is 99% accurate. Why can that still be operationally weak?\"",
+        "output": "With only about 20 bad interactions in 200000, even a detector that looks impressive on paper can generate many more false positives than true positives. In a rare event setting the real question is not whether the model is accurate overall, but whether the alerted set is useful enough to review and whether the misses are acceptable.",
+        "explanation": "Test whether you understand class imbalance and why headline accuracy can mislead."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: State the base rate, Convert rates to counts, Compare false positives to true positives, Discuss operational impact.",
+    "commonPitfalls": [
+      "Answering with accuracy alone",
+      "Never converting to counts",
+      "Ignoring review burden"
+    ],
+    "idealSolutionOutline": "State expected bad events; Explain why most traffic is healthy; Show how false positives can dominate; Close on operational usefulness",
+    "evaluationNotes": "Test whether you understand class imbalance and why headline accuracy can mislead."
+  },
+  {
+    "id": "st-q02",
+    "title": "Precision versus recall tradeoff",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "You can tune a detector to higher recall or higher precision. How do you choose?",
+    "constraints": [
+      "Cover cost of misses.",
+      "Cover cost of false alarms.",
+      "Cover human review capacity.",
+      "Cover decision threshold.",
+      "Keep the answer practical: Tie the choice to business risk."
+    ],
+    "scaffold": "# Write your response here.\n# Cost of misses.\n# Cost of false alarms.\n# Human review capacity.\n# Decision threshold.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"You can tune a detector to higher recall or higher precision. How do you choose?\"",
+        "output": "I would choose based on the cost asymmetry. If missing a bad event is very expensive, I would bias toward recall and then manage reviewer burden downstream. If review cost is very high and false alarms are damaging, I would push precision higher. The right answer depends on what the organization can tolerate operationally and what kind of failure is worse for the product.",
+        "explanation": "See whether you can connect statistical tradeoffs to product and operations decisions."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Cost of misses, Cost of false alarms, Human review capacity, Decision threshold.",
+    "commonPitfalls": [
+      "Saying one metric is always better",
+      "Ignoring operational capacity",
+      "No product context"
+    ],
+    "idealSolutionOutline": "Define the two error costs; Explain the capacity constraint; Recommend a threshold direction",
+    "evaluationNotes": "See whether you can connect statistical tradeoffs to product and operations decisions."
+  },
+  {
+    "id": "st-q03",
+    "title": "Canary rollout decision",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "A canary serves 5% of traffic. Error rate in control is 0.4% and canary is 1.1%. What do you want to know before deciding to continue or roll back?",
+    "constraints": [
+      "Cover absolute difference.",
+      "Cover volume and confidence.",
+      "Cover severity.",
+      "Cover rollback rule.",
+      "Keep the answer practical: Compute the lift in errors."
+    ],
+    "scaffold": "# Write your response here.\n# Absolute difference.\n# Volume and confidence.\n# Severity.\n# Rollback rule.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"A canary serves 5% of traffic. Error rate in control is 0.4% and canary is 1.1%. What do you want to know before deciding to continue or roll back?\"",
+        "output": "I would first note that the canary error rate is materially worse than control, but I still need traffic volume, confidence, and severity context before deciding. If the errors affect a customer critical path or violate a predefined threshold, I would roll back quickly. If the sample is tiny and the errors are low impact, I might pause and investigate rather than make a purely reactive call.",
+        "explanation": "Assess release judgment rather than blind arithmetic."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Absolute difference, Volume and confidence, Severity, Rollback rule.",
+    "commonPitfalls": [
+      "Making a call with no context",
+      "Ignoring severity",
+      "Treating all errors equally"
+    ],
+    "idealSolutionOutline": "Compare rates; Ask for sample size; Assess impact severity; Choose continue, pause, or rollback",
+    "evaluationNotes": "Assess release judgment rather than blind arithmetic."
+  },
+  {
+    "id": "st-q04",
+    "title": "Practical significance",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "An experiment improves conversion from 8.0% to 8.3%. How do you judge whether that matters?",
+    "constraints": [
+      "Cover absolute lift.",
+      "Cover relative lift.",
+      "Cover volume impact.",
+      "Cover downstream value.",
+      "Keep the answer practical: Compute absolute and relative lift."
+    ],
+    "scaffold": "# Write your response here.\n# Absolute lift.\n# Relative lift.\n# Volume impact.\n# Downstream value.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"An experiment improves conversion from 8.0% to 8.3%. How do you judge whether that matters?\"",
+        "output": "I would start with the absolute lift of 0.3 percentage points and then translate that into incremental conversions at actual traffic volume. Then I would ask whether that improvement survives statistical scrutiny and whether the downstream value justifies the complexity or risk of shipping it. A small percentage lift can matter a lot at scale, but it can also be noise or not worth the tradeoffs.",
+        "explanation": "Test whether you separate statistical significance from business significance."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Absolute lift, Relative lift, Volume impact, Downstream value.",
+    "commonPitfalls": [
+      "Calling it good or bad with no context",
+      "Ignoring baseline volume",
+      "Confusing significance with importance"
+    ],
+    "idealSolutionOutline": "Compute lift; Convert to business impact; Check significance; Recommend based on value",
+    "evaluationNotes": "Test whether you separate statistical significance from business significance."
+  },
+  {
+    "id": "st-q05",
+    "title": "Sample size intuition",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "Why does a low baseline conversion rate usually require a larger sample to detect a small lift?",
+    "constraints": [
+      "Cover signal size.",
+      "Cover noise.",
+      "Cover detectable difference.",
+      "Cover patience cost.",
+      "Keep the answer practical: Explain smaller absolute effects."
+    ],
+    "scaffold": "# Write your response here.\n# Signal size.\n# Noise.\n# Detectable difference.\n# Patience cost.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"Why does a low baseline conversion rate usually require a larger sample to detect a small lift?\"",
+        "output": "When the baseline rate is low, a small relative improvement often translates into a very small absolute difference, which is harder to distinguish from normal randomness. That means you need more observations before you can credibly separate signal from noise. In practice the smaller the effect you care about, the more patient and disciplined the experiment needs to be.",
+        "explanation": "Assess statistical intuition, not memorized formulas."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Signal size, Noise, Detectable difference, Patience cost.",
+    "commonPitfalls": [
+      "Reciting formulas only",
+      "No intuition",
+      "Confusing baseline with traffic"
+    ],
+    "idealSolutionOutline": "Explain effect size in absolute terms; Explain why noise dominates small effects; Connect to sample size",
+    "evaluationNotes": "Assess statistical intuition, not memorized formulas."
+  },
+  {
+    "id": "st-q06",
+    "title": "Sequential peeking risk",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "What is the danger of checking an A B test every hour and stopping when it looks good?",
+    "constraints": [
+      "Cover repeated looks.",
+      "Cover false positive inflation.",
+      "Cover decision discipline.",
+      "Cover alternatives.",
+      "Keep the answer practical: Explain p hacking risk."
+    ],
+    "scaffold": "# Write your response here.\n# Repeated looks.\n# False positive inflation.\n# Decision discipline.\n# Alternatives.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"What is the danger of checking an A B test every hour and stopping when it looks good?\"",
+        "output": "If you keep checking and stop the first time the result looks good, you increase the chance of convincing yourself that noise is a real effect. The problem is not looking often by itself, it is making stop decisions without a method that accounts for repeated looks. That is why it helps to predefine stopping rules or use a framework built for sequential monitoring.",
+        "explanation": "Test understanding of sequential testing pitfalls."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Repeated looks, False positive inflation, Decision discipline, Alternatives.",
+    "commonPitfalls": [
+      "Saying more checking is always better",
+      "No mention of inflated false positives"
+    ],
+    "idealSolutionOutline": "State the risk; Explain why it happens; Give a safer alternative",
+    "evaluationNotes": "Test understanding of sequential testing pitfalls."
+  },
+  {
+    "id": "st-q07",
+    "title": "Guardrail metrics",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "You launch a change that improves conversion but increases support contacts. How do you reason about that?",
+    "constraints": [
+      "Cover primary metric.",
+      "Cover guardrail metric.",
+      "Cover net impact.",
+      "Cover decision.",
+      "Keep the answer practical: Acknowledge mixed results."
+    ],
+    "scaffold": "# Write your response here.\n# Primary metric.\n# Guardrail metric.\n# Net impact.\n# Decision.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"You launch a change that improves conversion but increases support contacts. How do you reason about that?\"",
+        "output": "I would not treat the conversion lift as a free win if it pushes cost or customer friction somewhere else. I would want to know how large the support increase is, whether it affects a valuable segment, and whether the added burden cancels out the conversion gain. Good experimentation means optimizing the system, not just a single headline metric.",
+        "explanation": "Assess tradeoff thinking across primary and guardrail metrics."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Primary metric, Guardrail metric, Net impact, Decision.",
+    "commonPitfalls": [
+      "Ignoring the guardrail",
+      "Optimizing only conversion",
+      "No net impact reasoning"
+    ],
+    "idealSolutionOutline": "State the tradeoff; Quantify both sides; Recommend based on net impact",
+    "evaluationNotes": "Assess tradeoff thinking across primary and guardrail metrics."
+  },
+  {
+    "id": "st-q08",
+    "title": "Bayesian style intuition",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "If you hear that a test is 95% significant, why is that not the same as saying there is a 95% chance the idea is true?",
+    "constraints": [
+      "Cover what significance is.",
+      "Cover what it is not.",
+      "Cover why confusion happens.",
+      "Cover how to communicate better.",
+      "Keep the answer practical: Explain that significance is about data under a null model."
+    ],
+    "scaffold": "# Write your response here.\n# What significance is.\n# What it is not.\n# Why confusion happens.\n# How to communicate better.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"If you hear that a test is 95% significant, why is that not the same as saying there is a 95% chance the idea is true?\"",
+        "output": "That statement is tempting but not correct. Statistical significance does not directly tell you the probability that the idea is true. It tells you something about how surprising the observed data would be under a specific null assumption. In practice I would communicate results more carefully by combining evidence strength with effect size and business context.",
+        "explanation": "Test whether you can avoid a common interpretation error."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: What significance is, What it is not, Why confusion happens, How to communicate better.",
+    "commonPitfalls": [
+      "Saying significance equals probability of truth",
+      "Overcomplicating with jargon"
+    ],
+    "idealSolutionOutline": "State what significance means; State what it does not mean; Give a better communication pattern",
+    "evaluationNotes": "Test whether you can avoid a common interpretation error."
+  },
+  {
+    "id": "st-q09",
+    "title": "Rare event review burden",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "A detector flags 500 interactions per day, precision is 4%, and reviewers can only check 50. What do you do?",
+    "constraints": [
+      "Cover expected true positives.",
+      "Cover capacity gap.",
+      "Cover triage strategy.",
+      "Cover longer term fix.",
+      "Keep the answer practical: Convert precision to expected true positives."
+    ],
+    "scaffold": "# Write your response here.\n# Expected true positives.\n# Capacity gap.\n# Triage strategy.\n# Longer term fix.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"A detector flags 500 interactions per day, precision is 4%, and reviewers can only check 50. What do you do?\"",
+        "output": "At 4% precision, 500 alerts only contain about 20 likely true positives, and the team cannot review them all. So I would need a triage strategy immediately, like ranking, severity filters, or a second stage classifier, while also deciding whether to retune the threshold or improve the detector. The right answer is not just a better metric, it is an operating model that fits real review capacity.",
+        "explanation": "Assess whether you can connect model quality to operational constraints."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Expected true positives, Capacity gap, Triage strategy, Longer term fix.",
+    "commonPitfalls": [
+      "Saying review everything",
+      "Ignoring capacity",
+      "No operating plan"
+    ],
+    "idealSolutionOutline": "Estimate true positives; Show the capacity problem; Propose triage; Name longer term improvement",
+    "evaluationNotes": "Assess whether you can connect model quality to operational constraints."
+  },
+  {
+    "id": "st-q10",
+    "title": "Choosing experiment metrics",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "How would you choose a primary metric for an onboarding experiment?",
+    "constraints": [
+      "Cover user goal.",
+      "Cover business value.",
+      "Cover sensitivity.",
+      "Cover manipulation risk.",
+      "Keep the answer practical: Tie to the user journey."
+    ],
+    "scaffold": "# Write your response here.\n# User goal.\n# Business value.\n# Sensitivity.\n# Manipulation risk.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"How would you choose a primary metric for an onboarding experiment?\"",
+        "output": "I would start with the user outcome the onboarding is supposed to create, then pick the closest measurable behavior that captures meaningful progress toward that outcome. I also want the metric to move quickly enough to learn from and to be hard to game accidentally. Usually that means one primary completion metric supported by guardrails for confusion, drop off, or support burden.",
+        "explanation": "Test metric design and product judgment."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: User goal, Business value, Sensitivity, Manipulation risk.",
+    "commonPitfalls": [
+      "Choosing only page views",
+      "No business linkage",
+      "No guardrails"
+    ],
+    "idealSolutionOutline": "Define the onboarding goal; Choose the closest useful metric; Add guardrails",
+    "evaluationNotes": "Test metric design and product judgment."
+  },
+  {
+    "id": "st-q11",
+    "title": "Segment effects",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "Overall results are neutral, but one high value segment improves a lot. What now?",
+    "constraints": [
+      "Cover segment validity.",
+      "Cover business importance.",
+      "Cover sample caution.",
+      "Cover decision path.",
+      "Keep the answer practical: Ask whether the segment was preplanned."
+    ],
+    "scaffold": "# Write your response here.\n# Segment validity.\n# Business importance.\n# Sample caution.\n# Decision path.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"Overall results are neutral, but one high value segment improves a lot. What now?\"",
+        "output": "I would take the segment seriously but carefully. If it was a preplanned segment and the business value is high, targeted rollout could make sense even if the global average is neutral. If it is a post hoc discovery, I would treat it as a strong hypothesis and validate it before making a broad claim.",
+        "explanation": "Assess whether you think beyond averages."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Segment validity, Business importance, Sample caution, Decision path.",
+    "commonPitfalls": [
+      "Ignoring the segment",
+      "Overreacting to a tiny subgroup",
+      "No caution about post hoc analysis"
+    ],
+    "idealSolutionOutline": "Check whether the segment was planned; Assess business value; Recommend validate or target",
+    "evaluationNotes": "Assess whether you think beyond averages."
+  },
+  {
+    "id": "st-q12",
+    "title": "Before and after trap",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "Why can a simple before and after comparison be misleading after a product change?",
+    "constraints": [
+      "Cover confounders.",
+      "Cover seasonality.",
+      "Cover selection.",
+      "Cover need for control.",
+      "Keep the answer practical: Mention external shifts and composition changes."
+    ],
+    "scaffold": "# Write your response here.\n# Confounders.\n# Seasonality.\n# Selection.\n# Need for control.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"Why can a simple before and after comparison be misleading after a product change?\"",
+        "output": "A before and after comparison can be misleading because many things may have changed besides the product itself, including traffic mix, seasonality, demand, or operational conditions. Without a control or some stronger design, it is easy to attribute a change to the release when the environment actually moved underneath you.",
+        "explanation": "Test causal reasoning."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Confounders, Seasonality, Selection, Need for control.",
+    "commonPitfalls": [
+      "Treating before and after as causal proof",
+      "No mention of confounders"
+    ],
+    "idealSolutionOutline": "State why it is tempting; Explain the confounding risk; Suggest a better approach",
+    "evaluationNotes": "Test causal reasoning."
+  },
+  {
+    "id": "st-q13",
+    "title": "Designing a synthetic monitor",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "What makes a good synthetic monitor for a customer critical workflow?",
+    "constraints": [
+      "Cover critical path.",
+      "Cover representative behavior.",
+      "Cover failure signal.",
+      "Cover cost of drift.",
+      "Keep the answer practical: Choose a meaningful path."
+    ],
+    "scaffold": "# Write your response here.\n# Critical path.\n# Representative behavior.\n# Failure signal.\n# Cost of drift.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"What makes a good synthetic monitor for a customer critical workflow?\"",
+        "output": "A good synthetic monitor exercises a path that customers really depend on, fails clearly when that path breaks, and stays stable enough that people trust it. It should be representative enough to catch meaningful regressions without becoming so complex that it creates its own noise. The point is to learn quickly when a customer critical path has degraded.",
+        "explanation": "Blend product thinking with measurement and reliability."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Critical path, Representative behavior, Failure signal, Cost of drift.",
+    "commonPitfalls": [
+      "Monitoring something nobody cares about",
+      "Too synthetic to reflect reality",
+      "No clear failure condition"
+    ],
+    "idealSolutionOutline": "Define the path; Describe the check; Define the failure signal",
+    "evaluationNotes": "Blend product thinking with measurement and reliability."
+  },
+  {
+    "id": "st-q14",
+    "title": "Regression suite coverage",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "You cannot test every possible natural language path in an AI workflow. How do you think about coverage?",
+    "constraints": [
+      "Cover most valuable paths.",
+      "Cover failure classes.",
+      "Cover representative cases.",
+      "Cover live feedback.",
+      "Keep the answer practical: Focus on top workflows and failure modes."
+    ],
+    "scaffold": "# Write your response here.\n# Most valuable paths.\n# Failure classes.\n# Representative cases.\n# Live feedback.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"You cannot test every possible natural language path in an AI workflow. How do you think about coverage?\"",
+        "output": "I would not aim for exhaustive path coverage because the space is too large. Instead I would target the most valuable and risky paths, build representative eval cases for key behaviors and failure modes, and then use live monitoring to catch what the suite cannot predict. Coverage here is a risk management problem, not a claim of completeness.",
+        "explanation": "Assess reasoning under combinatorial explosion."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Most valuable paths, Failure classes, Representative cases, Live feedback.",
+    "commonPitfalls": [
+      "Claiming full coverage is possible",
+      "Testing only happy paths",
+      "No long tail strategy"
+    ],
+    "idealSolutionOutline": "Define the coverage objective; Prioritize paths and failure modes; Describe the complement of live monitoring",
+    "evaluationNotes": "Assess reasoning under combinatorial explosion."
+  },
+  {
+    "id": "st-q15",
+    "title": "False positive versus false negative severity",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "Give an example where false negatives are worse than false positives, and one where the reverse is true.",
+    "constraints": [
+      "Cover scenario one.",
+      "Cover why misses are worse.",
+      "Cover scenario two.",
+      "Cover why false alarms are worse.",
+      "Keep the answer practical: Use concrete product or operations examples."
+    ],
+    "scaffold": "# Write your response here.\n# Scenario one.\n# Why misses are worse.\n# Scenario two.\n# Why false alarms are worse.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"Give an example where false negatives are worse than false positives, and one where the reverse is true.\"",
+        "output": "In fraud or safety detection, a false negative can be much worse because a dangerous event slips through. In high volume review systems where human attention is scarce, false positives can be worse because they flood the team and hide the truly important cases. The right metric emphasis always depends on what kind of error hurts the system more.",
+        "explanation": "Test whether you can reason about error costs concretely."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Scenario one, Why misses are worse, Scenario two, Why false alarms are worse.",
+    "commonPitfalls": [
+      "Abstract answer with no examples",
+      "Saying one is always worse"
+    ],
+    "idealSolutionOutline": "Give one example for each direction; Explain why the error is worse",
+    "evaluationNotes": "Test whether you can reason about error costs concretely."
+  },
+  {
+    "id": "st-q16",
+    "title": "Experiment stop or continue",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "A test is trending positive early but not yet conclusive. The team wants to ship now. How do you respond?",
+    "constraints": [
+      "Cover decision rule.",
+      "Cover risk of early ship.",
+      "Cover business urgency.",
+      "Cover compromise options.",
+      "Keep the answer practical: Refer to predefined criteria."
+    ],
+    "scaffold": "# Write your response here.\n# Decision rule.\n# Risk of early ship.\n# Business urgency.\n# Compromise options.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"A test is trending positive early but not yet conclusive. The team wants to ship now. How do you respond?\"",
+        "output": "I would anchor on the decision rule we agreed to before the test if one exists. If the evidence is still noisy, I would explain that shipping now increases the chance we lock in a false lesson, but I would also look for compromise options like a limited rollout or extended test if the business urgency is real. The key is to separate urgency from wishful interpretation of incomplete evidence.",
+        "explanation": "Assess discipline under pressure and product judgment."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Decision rule, Risk of early ship, Business urgency, Compromise options.",
+    "commonPitfalls": [
+      "Automatically blocking with no nuance",
+      "Automatically shipping on trend",
+      "No decision framework"
+    ],
+    "idealSolutionOutline": "State the rule; Explain the risk; Offer a compromise",
+    "evaluationNotes": "Assess discipline under pressure and product judgment."
+  },
+  {
+    "id": "st-q17",
+    "title": "Linking metrics to dollars",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "How do you translate an experimental lift into expected business impact?",
+    "constraints": [
+      "Cover lift.",
+      "Cover volume.",
+      "Cover value per event.",
+      "Cover confidence and caveats.",
+      "Keep the answer practical: Convert rate lift into incremental events."
+    ],
+    "scaffold": "# Write your response here.\n# Lift.\n# Volume.\n# Value per event.\n# Confidence and caveats.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"How do you translate an experimental lift into expected business impact?\"",
+        "output": "I would convert the experimental lift into incremental events at expected traffic volume, then multiply by a reasonable value per event while keeping the assumptions explicit. After that I would show a range rather than one magic number, because both the effect and the value estimate have uncertainty. Decision makers usually need the order of magnitude and the tradeoffs more than fake precision.",
+        "explanation": "Test whether you can move from percentages to decisions."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Lift, Volume, Value per event, Confidence and caveats.",
+    "commonPitfalls": [
+      "Stopping at percentages",
+      "No units",
+      "No caveats"
+    ],
+    "idealSolutionOutline": "Compute incremental events; Translate to value; State the caveats",
+    "evaluationNotes": "Test whether you can move from percentages to decisions."
+  },
+  {
+    "id": "st-q18",
+    "title": "Metric regression after launch",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "A launch improved the primary metric in test but regressed badly in production. What are your first hypotheses?",
+    "constraints": [
+      "Cover population shift.",
+      "Cover instrumentation mismatch.",
+      "Cover novel behavior.",
+      "Cover operational effects.",
+      "Keep the answer practical: Mention sample mismatch."
+    ],
+    "scaffold": "# Write your response here.\n# Population shift.\n# Instrumentation mismatch.\n# Novel behavior.\n# Operational effects.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"A launch improved the primary metric in test but regressed badly in production. What are your first hypotheses?\"",
+        "output": "My first hypotheses would be that production traffic differs from the test population, the instrumentation is not comparable, or the change introduced scaling or operational effects the experiment did not capture. I would also consider whether the metric moved in the short term for novelty reasons but created downstream friction in full deployment. The first step is to separate measurement error from real behavioral change.",
+        "explanation": "Assess whether you understand experiment to production gaps."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Population shift, Instrumentation mismatch, Novel behavior, Operational effects.",
+    "commonPitfalls": [
+      "Assuming the test was useless",
+      "Blaming one cause immediately",
+      "No structured hypotheses"
+    ],
+    "idealSolutionOutline": "List the main hypotheses; Explain what you would check first",
+    "evaluationNotes": "Assess whether you understand experiment to production gaps."
+  },
+  {
+    "id": "st-q19",
+    "title": "Designing success criteria",
+    "difficulty": "medium",
+    "timeLimit": 12,
+    "language": "python",
+    "assessmentType": "math",
+    "domain": "product-experimentation-statistics",
+    "prompt": "How would you define success criteria before running an experiment on a new AI workflow?",
+    "constraints": [
+      "Cover primary metric.",
+      "Cover guardrails.",
+      "Cover minimum effect.",
+      "Cover decision actions.",
+      "Keep the answer practical: Predefine what good looks like."
+    ],
+    "scaffold": "# Write your response here.\n# Primary metric.\n# Guardrails.\n# Minimum effect.\n# Decision actions.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"How would you define success criteria before running an experiment on a new AI workflow?\"",
+        "output": "I would define success before launch by choosing the primary metric, the guardrails, and the minimum effect size that would justify shipping. I would also define what happens for the likely result bands, such as ship, iterate, extend, or roll back. That avoids turning the interpretation step into a negotiation after the data arrives.",
+        "explanation": "Test disciplined experiment planning."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Primary metric, Guardrails, Minimum effect, Decision actions.",
+    "commonPitfalls": [
+      "Starting with no decision rule",
+      "Only one metric",
+      "No action plan"
+    ],
+    "idealSolutionOutline": "Define the metrics; Define meaningful lift; Define the decision paths",
+    "evaluationNotes": "Test disciplined experiment planning."
+  },
+  {
+    "id": "st-q20",
+    "title": "Questions for a stats heavy interviewer",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "product-experimentation-statistics",
+    "prompt": "What questions do you have for me?",
+    "constraints": [
+      "Cover current pain.",
+      "Cover decision quality.",
+      "Cover metric culture.",
+      "Keep the answer practical: Ask about the hardest current measurement problem.",
+      "Keep the answer practical: Ask how decisions are made when data is mixed."
+    ],
+    "scaffold": "# Write your response here.\n# Current pain.\n# Decision quality.\n# Metric culture.\n# Translate the reasoning into an operational recommendation.",
+    "examples": [
+      {
+        "input": "\"What questions do you have for me?\"",
+        "output": "I would want to understand where the biggest quantitative pain is today, whether it is underpowered experiments, rare event detection, conflicting metrics, or rollout decisions under uncertainty. I would also ask how the team balances statistical rigor with product urgency and which metrics actually change decisions in practice.",
+        "explanation": "Evaluate whether you think like someone who will own experimentation and quantitative judgment."
+      }
+    ],
+    "expectedApproach": "Structure the answer around: Current pain, Decision quality, Metric culture.",
+    "commonPitfalls": [
+      "No questions",
+      "Only process trivia",
+      "No quantitative curiosity"
+    ],
+    "idealSolutionOutline": "Ask about current pain; Ask how decisions get made; Ask how measurement changes behavior",
+    "evaluationNotes": "Evaluate whether you think like someone who will own experimentation and quantitative judgment."
+  }
+]

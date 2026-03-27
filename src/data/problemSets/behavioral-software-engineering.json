@@ -1,0 +1,642 @@
+[
+  {
+    "id": "behavioral-behavioral-interview-1",
+    "title": "Behavioral Interview 1",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about a time you disagreed with a technical decision and how you handled it. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about a time you disagreed with a technical decision and how you handled it.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-2",
+    "title": "Behavioral Interview 2",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a project where requirements were ambiguous. What did you do? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a project where requirements were ambiguous. What did you do?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-3",
+    "title": "Behavioral Interview 3",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "How do you prioritize technical debt versus feature delivery? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"How do you prioritize technical debt versus feature delivery?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-4",
+    "title": "Behavioral Interview 4",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a major production incident you handled. What changed afterward? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a major production incident you handled. What changed afterward?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-5",
+    "title": "Behavioral Interview 5",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about mentoring a junior engineer through a difficult problem. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about mentoring a junior engineer through a difficult problem.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-6",
+    "title": "Behavioral Interview 6",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Explain a time you had to influence without authority. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Explain a time you had to influence without authority.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-7",
+    "title": "Behavioral Interview 7",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a decision where you traded short-term speed for long-term maintainability. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a decision where you traded short-term speed for long-term maintainability.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-8",
+    "title": "Behavioral Interview 8",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about a failed experiment and what you learned. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about a failed experiment and what you learned.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-9",
+    "title": "Behavioral Interview 9",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe how you communicate risk to non-technical stakeholders. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe how you communicate risk to non-technical stakeholders.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-10",
+    "title": "Behavioral Interview 10",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "How do you validate system design assumptions before committing? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"How do you validate system design assumptions before committing?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-11",
+    "title": "Behavioral Interview 11",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a time you reduced complexity in a system. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a time you reduced complexity in a system.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-12",
+    "title": "Behavioral Interview 12",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about receiving tough feedback and how you responded. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about receiving tough feedback and how you responded.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-13",
+    "title": "Behavioral Interview 13",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "How do you handle conflicting priorities from multiple leaders? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"How do you handle conflicting priorities from multiple leaders?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-14",
+    "title": "Behavioral Interview 14",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a time your estimate was wrong. What did you do next? Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a time your estimate was wrong. What did you do next?\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-15",
+    "title": "Behavioral Interview 15",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about a project where you improved reliability measurably. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about a project where you improved reliability measurably.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-16",
+    "title": "Behavioral Interview 16",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe how you approach onboarding onto an unfamiliar codebase quickly. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe how you approach onboarding onto an unfamiliar codebase quickly.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-17",
+    "title": "Behavioral Interview 17",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about advocating for user experience in a technical discussion. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about advocating for user experience in a technical discussion.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-18",
+    "title": "Behavioral Interview 18",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe a system design tradeoff between consistency and availability. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe a system design tradeoff between consistency and availability.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-19",
+    "title": "Behavioral Interview 19",
+    "difficulty": "hard",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Tell me about resolving conflict between product and engineering timelines. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Tell me about resolving conflict between product and engineering timelines.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  },
+  {
+    "id": "behavioral-behavioral-interview-20",
+    "title": "Behavioral Interview 20",
+    "difficulty": "medium",
+    "timeLimit": 14,
+    "language": "python",
+    "assessmentType": "behavioral",
+    "domain": "software-engineering-behavioral",
+    "prompt": "Describe how you define success metrics before building. Answer naturally (paragraph or structured format), and show ownership, decision quality, and impact.",
+    "constraints": [
+      "Any clear format is acceptable (paragraph or structured).",
+      "Be specific about what you did and why.",
+      "Include outcome and impact; measurable signals help when available.",
+      "Close with what you learned or would do differently."
+    ],
+    "scaffold": "# Write your response here.\n# Any clear format is acceptable (paragraph or structured).\n# Include decision, action, impact, and what you learned.",
+    "examples": [
+      {
+        "input": "\"Describe how you define success metrics before building.\"",
+        "output": "Strong behavioral response (clear decision, action, and outcome).",
+        "explanation": "Strong answers are concrete, credible, and reflective; STAR is optional."
+      }
+    ],
+    "expectedApproach": "Give a clear narrative with context, your decision, concrete actions, and outcome.",
+    "commonPitfalls": [
+      "Vague storytelling",
+      "No measurable result",
+      "Overly long answer without clear point"
+    ],
+    "idealSolutionOutline": "Concrete context, explicit decision, key actions, clear impact, and reflection on what you learned.",
+    "evaluationNotes": "Score for clarity, ownership, tradeoff reasoning, and stakeholder awareness."
+  }
+]

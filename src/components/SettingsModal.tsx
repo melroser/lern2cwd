@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { saveApiKey, removeApiKey } from '../utils/apiKeyStorage';
 import { storageService } from '../services/storageService';
 import { saveEditorSettings, getEditorSettings } from '../utils/editorSettings';
+import type { ProblemSetOption } from '../types';
 
 /**
  * SettingsModal - Modal for BYOK (Bring Your Own Key) API key management
@@ -27,9 +28,14 @@ export interface SettingsModalProps {
   onClose: () => void;
   onSave: (apiKey: string) => void;
   onVimModeChange?: (enabled: boolean) => void;
+  onProblemSetSelectionChange?: (problemSetIds: string[]) => void;
   initialApiKey?: string;
   isFirstLaunch?: boolean;
   vimMode?: boolean;
+  problemSetOptions?: ProblemSetOption[];
+  selectedProblemSetIds?: string[];
+  isEnvironmentApiKeyConfigured?: boolean;
+  environmentApiKeySource?: string | null;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -358,6 +364,37 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.6,
     margin: 0,
   },
+  problemSetGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '10px',
+  },
+  problemSetCard: {
+    border: '1px solid #45475a',
+    borderRadius: '8px',
+    padding: '12px',
+    backgroundColor: '#181825',
+    display: 'flex',
+    gap: '10px',
+    alignItems: 'flex-start',
+  },
+  problemSetTitle: {
+    fontSize: '0.95rem',
+    color: '#cdd6f4',
+    fontWeight: 600,
+    marginBottom: '4px',
+  },
+  problemSetMeta: {
+    fontSize: '0.8rem',
+    color: '#a6adc8',
+    lineHeight: 1.45,
+  },
+  envKeyHint: {
+    marginTop: '10px',
+    fontSize: '0.82rem',
+    color: '#89dceb',
+    lineHeight: 1.4,
+  },
 };
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -365,23 +402,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   onSave,
   onVimModeChange,
+  onProblemSetSelectionChange,
   initialApiKey = '',
   isFirstLaunch = false,
   vimMode = false,
+  problemSetOptions = [],
+  selectedProblemSetIds = [],
+  isEnvironmentApiKeyConfigured = false,
+  environmentApiKeySource = null,
 }) => {
   const [apiKey, setApiKey] = useState(initialApiKey);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showKey, setShowKey] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [localVimMode, setLocalVimMode] = useState(vimMode);
 
-  // Load vim mode from localStorage when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      const settings = getEditorSettings();
-      setLocalVimMode(settings.vimMode);
-    }
-  }, [isOpen]);
+  const effectiveVimMode = vimMode ?? getEditorSettings().vimMode;
+  const effectiveProblemSetIds = selectedProblemSetIds;
 
   // Use a key to reset state when modal opens with different initialApiKey
   const modalKey = useMemo(() => `${isOpen}-${initialApiKey}`, [isOpen, initialApiKey]);
@@ -425,8 +461,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   }, [currentApiKey, handleSave, isFirstLaunch, onClose]);
 
-  const isKeyConfigured = currentApiKey.trim().length > 0;
+  const hasLocalKey = currentApiKey.trim().length > 0;
+  const isKeyConfigured = hasLocalKey || isEnvironmentApiKeyConfigured;
   const canClose = !isFirstLaunch || isKeyConfigured;
+
+  const handleProblemSetToggle = useCallback((setId: string, checked: boolean) => {
+    const next = checked
+      ? Array.from(new Set([...effectiveProblemSetIds, setId]))
+      : effectiveProblemSetIds.filter((id) => id !== setId);
+    onProblemSetSelectionChange?.(next);
+  }, [effectiveProblemSetIds, onProblemSetSelectionChange]);
 
   if (!isOpen) return null;
 
@@ -492,6 +536,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <p style={styles.description}>
             Enter your API key to enable AI-powered interview simulation. 
             The key is sent directly from your browser to the LLM API.
+            You can also set it via environment variable (for example on Netlify).
           </p>
 
           <div style={styles.inputGroup}>
@@ -539,8 +584,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   ...(isKeyConfigured ? styles.statusDotConfigured : styles.statusDotNotConfigured),
                 }}
               />
-              {isKeyConfigured ? 'API key configured' : 'No API key configured'}
+              {hasLocalKey
+                ? 'API key configured'
+                : isEnvironmentApiKeyConfigured
+                  ? 'API key configured (environment)'
+                  : 'No API key configured'}
             </div>
+            {isEnvironmentApiKeyConfigured && !hasLocalKey && (
+              <p style={styles.envKeyHint} data-testid="environment-key-hint">
+                Using environment key source: {environmentApiKeySource ?? 'VITE_OPENAI_API_KEY'}.
+                You can still save a local key to override on this device.
+              </p>
+            )}
           </div>
         </div>
 
@@ -556,17 +611,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <button
               onClick={() => {
-                const next = !localVimMode;
-                setLocalVimMode(next);
-                saveEditorSettings({ vimMode: next });
+                const next = !effectiveVimMode;
+                const nextSettings = { vimMode: next };
+                saveEditorSettings(nextSettings);
                 onVimModeChange?.(next);
               }}
               style={{
                 padding: '6px 16px',
                 fontSize: '0.85rem',
                 fontWeight: 600,
-                color: localVimMode ? '#1e1e2e' : '#cdd6f4',
-                backgroundColor: localVimMode ? '#a6e3a1' : '#45475a',
+                color: effectiveVimMode ? '#1e1e2e' : '#cdd6f4',
+                backgroundColor: effectiveVimMode ? '#a6e3a1' : '#45475a',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
@@ -575,8 +630,40 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }}
               data-testid="vim-mode-toggle"
             >
-              {localVimMode ? 'ON' : 'OFF'}
+              {effectiveVimMode ? 'ON' : 'OFF'}
             </button>
+          </div>
+        </div>
+
+        {/* Problem Sets Section */}
+        <div style={styles.section} data-testid="problem-set-section">
+          <h3 style={styles.sectionTitle}>Problem Sets</h3>
+          <p style={styles.description}>
+            Select which banks are used for random session questions.
+          </p>
+          <div style={styles.problemSetGrid}>
+            {problemSetOptions.map((setOption) => {
+              const checked = effectiveProblemSetIds.includes(setOption.id);
+              return (
+                <label key={setOption.id} style={styles.problemSetCard}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => handleProblemSetToggle(setOption.id, e.target.checked)}
+                    data-testid={`problem-set-toggle-${setOption.id}`}
+                  />
+                  <div>
+                    <div style={styles.problemSetTitle}>{setOption.label}</div>
+                    <div style={styles.problemSetMeta}>
+                      {setOption.description}
+                    </div>
+                    <div style={styles.problemSetMeta}>
+                      {setOption.questionCount} questions • {setOption.assessmentType} • {setOption.domain}
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
           </div>
         </div>
 
@@ -650,10 +737,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <button
             style={{
               ...styles.saveButton,
-              ...(!isKeyConfigured ? styles.saveButtonDisabled : {}),
+              ...(!hasLocalKey ? styles.saveButtonDisabled : {}),
             }}
             onClick={handleSave}
-            disabled={!isKeyConfigured}
+            disabled={!hasLocalKey}
             data-testid="settings-save-button"
           >
             {isFirstLaunch ? 'Get Started' : 'Save'}

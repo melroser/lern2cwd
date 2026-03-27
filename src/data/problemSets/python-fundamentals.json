@@ -1,0 +1,403 @@
+[
+  {
+    "id": "fde-csv-min-max-scanner",
+    "title": "CSV Min Max Scanner",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["python-basics", "csv", "streaming", "narrowing"],
+    "prompt": "Given a CSV file path, return a dictionary with the minimum and maximum integer values found in the column `internal_id`. The file may be large, so avoid loading the entire file into memory.",
+    "constraints": [
+      "CSV always contains a header row",
+      "Column order may vary",
+      "Target O(n) time and O(1) extra space excluding parser overhead",
+      "Use Python standard library CSV tools"
+    ],
+    "scaffold": "def csv_min_max_scanner(file_path: str) -> dict[str, int]:\n    pass",
+    "examples": [
+      {
+        "input": "file with rows containing internal_id values 80, 23, 1048",
+        "output": "{\"min\": 23, \"max\": 1048}",
+        "explanation": "Track running min and max while streaming rows."
+      }
+    ],
+    "expectedApproach": "State exact input/output, choose DictReader instead of manual parsing, stream rows, cast once, track running min/max, return dict.",
+    "commonPitfalls": [
+      "Parsing CSV manually with split(',')",
+      "Assuming fixed column order",
+      "Forgetting values are strings and need casting",
+      "Loading the full file into memory unnecessarily"
+    ],
+    "idealSolutionOutline": "Use csv.DictReader, iterate row by row, convert row['internal_id'] to int once, update running min/max, return result.",
+    "evaluationNotes": "Reward correct CSV handling, streaming mindset, and clean explanation of memory tradeoffs."
+  },
+  {
+    "id": "fde-csv-column-extractor",
+    "title": "CSV Column Extractor",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["python-basics", "csv", "dicts", "separation-of-concerns"],
+    "prompt": "Given a CSV file path and a column name, return a list of all values in that column in row order. Raise a ValueError if the column is missing.",
+    "constraints": [
+      "CSV always contains a header row",
+      "Do not parse lines manually",
+      "Preserve row order"
+    ],
+    "scaffold": "def csv_column_extractor(file_path: str, column_name: str) -> list[str]:\n    pass",
+    "examples": [
+      {
+        "input": "file_path='products.csv', column_name='name'",
+        "output": "[\"widget\", \"gizmo\", \"bolt\"]",
+        "explanation": "Return exactly the values under the named column."
+      }
+    ],
+    "expectedApproach": "Use DictReader, validate column existence from fieldnames, iterate through rows, collect target field.",
+    "commonPitfalls": [
+      "Ignoring missing column case",
+      "Using brittle positional indexing",
+      "Mixing parsing logic with validation logic"
+    ],
+    "idealSolutionOutline": "Open file, create DictReader, validate fieldnames, loop rows, append row[column_name], return list.",
+    "evaluationNotes": "Reward clean control flow and explicit validation."
+  },
+  {
+    "id": "fde-endpoint-audit-logger",
+    "title": "Endpoint Audit Logger",
+    "difficulty": "easy",
+    "timeLimit": 25,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["python-basics", "api-shape", "separation-of-concerns", "backend-thinking"],
+    "prompt": "Implement a function that takes a min value and max value and appends a run record to an in-memory list. Each run should receive a unique incremental id and store min and max. Return the created run record.",
+    "constraints": [
+      "IDs start at 1",
+      "Use simple in-memory storage for this exercise",
+      "Focus on separating compute from persistence"
+    ],
+    "scaffold": "RUNS: list[dict[str, int]] = []\n\ndef create_run_record(min_value: int, max_value: int) -> dict[str, int]:\n    pass",
+    "examples": [
+      {
+        "input": "create_run_record(23, 1048)",
+        "output": "{\"id\": 1, \"min\": 23, \"max\": 1048}",
+        "explanation": "First run gets id 1."
+      },
+      {
+        "input": "create_run_record(5, 9)",
+        "output": "{\"id\": 2, \"min\": 5, \"max\": 9}",
+        "explanation": "IDs increment per run."
+      }
+    ],
+    "expectedApproach": "Keep the run store simple, derive next id from current count, construct dict, append, return.",
+    "commonPitfalls": [
+      "Mixing CSV parsing into this function",
+      "Recomputing values here instead of receiving them as inputs",
+      "Confusing run id with business data"
+    ],
+    "idealSolutionOutline": "Calculate next id, build dict, append to RUNS, return dict.",
+    "evaluationNotes": "Reward recognition that persistence is separate from computation."
+  },
+  {
+    "id": "fde-streaming-duplicate-detector",
+    "title": "Streaming Duplicate Detector",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["hash-set", "streaming-scan", "python-basics"],
+    "prompt": "Given an iterable of integers, return True as soon as you detect a duplicate value. Return False if no duplicates exist.",
+    "constraints": [
+      "Stop early once a duplicate is found",
+      "Target O(n) time",
+      "Use a hash set"
+    ],
+    "scaffold": "def streaming_duplicate_detector(values) -> bool:\n    pass",
+    "examples": [
+      {
+        "input": "values = [4, 8, 2, 8]",
+        "output": "True",
+        "explanation": "8 repeats, so return immediately."
+      },
+      {
+        "input": "values = [1, 2, 3]",
+        "output": "False",
+        "explanation": "All values are unique."
+      }
+    ],
+    "expectedApproach": "Track seen values in a set, check before insert, early return on repeat.",
+    "commonPitfalls": [
+      "Sorting first and losing the early exit advantage",
+      "Using nested loops",
+      "Not explaining the memory tradeoff"
+    ],
+    "idealSolutionOutline": "Initialize empty set, iterate values, if value in seen return True, else add it, finish with False.",
+    "evaluationNotes": "Reward clear O(n) vs O(n log n) tradeoff explanation."
+  },
+  {
+    "id": "fde-grid-paths-recursive",
+    "title": "Grid Paths Recursive",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["recursion", "base-cases", "problem-decomposition"],
+    "prompt": "A robot starts at the top-left of an m by n grid and can only move right or down. Return the number of unique paths to the bottom-right using a direct recursive solution.",
+    "constraints": [
+      "1 <= m, n <= 12",
+      "This version is for understanding recursion, not optimization",
+      "Use the recurrence relation directly"
+    ],
+    "scaffold": "def grid_paths_recursive(m: int, n: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "m = 3, n = 2",
+        "output": "3",
+        "explanation": "Three distinct paths exist."
+      },
+      {
+        "input": "m = 3, n = 3",
+        "output": "6",
+        "explanation": "Paths split into right-first and down-first subproblems."
+      }
+    ],
+    "expectedApproach": "State the recurrence first: f(m,n) = f(m-1,n) + f(m,n-1). Then define base case m == 1 or n == 1 => 1.",
+    "commonPitfalls": [
+      "Trying to guess a closed form before solving the structure",
+      "Missing the base case",
+      "Subtracting both dimensions at once"
+    ],
+    "idealSolutionOutline": "Base case on border, recursive split into down and right subproblems.",
+    "evaluationNotes": "Reward structural reasoning more than raw code speed."
+  },
+  {
+    "id": "fde-grid-paths-memoized",
+    "title": "Grid Paths Memoized",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["memoization", "dynamic-programming", "performance"],
+    "prompt": "Improve the recursive grid-path solution by memoizing repeated subproblems.",
+    "constraints": [
+      "1 <= m, n <= 100",
+      "Target O(m*n) time",
+      "Use a dictionary or built-in caching tool"
+    ],
+    "scaffold": "def grid_paths_memoized(m: int, n: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "m = 10, n = 10",
+        "output": "48620",
+        "explanation": "Memoization avoids exponential recomputation."
+      }
+    ],
+    "expectedApproach": "Start from the recursive recurrence, then explain repeated work and cache results by (m, n).",
+    "commonPitfalls": [
+      "Recomputing the same state repeatedly",
+      "Using a shared mutable cache carelessly across unrelated runs",
+      "Not explaining time-space tradeoff"
+    ],
+    "idealSolutionOutline": "Keep same recurrence and base case, add per-call cache keyed by coordinate pair.",
+    "evaluationNotes": "Reward candidates who can explain why caching changes complexity."
+  },
+  {
+    "id": "fde-log-window-errors",
+    "title": "Log Window Errors",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["sliding-window", "hash-map", "interview-control"],
+    "prompt": "Given a string of event codes and an integer k, return the length of the longest substring containing at most k distinct event codes.",
+    "constraints": [
+      "0 <= len(events) <= 200000",
+      "0 <= k <= 50",
+      "Target O(n) time"
+    ],
+    "scaffold": "def log_window_errors(events: str, k: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "events = \"AABACCA\", k = 2",
+        "output": "4",
+        "explanation": "Longest valid substring is \"AABA\" or \"ACCA\" depending on scan."
+      }
+    ],
+    "expectedApproach": "Use a sliding window with counts, expand right, shrink left when distinct count exceeds k.",
+    "commonPitfalls": [
+      "Restarting the scan from every index",
+      "Tracking only set membership instead of counts",
+      "Not stating window invariants clearly"
+    ],
+    "idealSolutionOutline": "Maintain left pointer, frequency map, distinct count, and best window length.",
+    "evaluationNotes": "Reward clear explanation of why the window stays valid."
+  },
+  {
+    "id": "fde-stack-expression-evaluator",
+    "title": "Stack Expression Evaluator",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["stack", "parsing", "python-basics"],
+    "prompt": "Evaluate a Reverse Polish Notation expression represented as a list of string tokens.",
+    "constraints": [
+      "Valid operators are +, -, *, /",
+      "Division truncates toward zero",
+      "Expression is guaranteed valid"
+    ],
+    "scaffold": "def stack_expression_evaluator(tokens: list[str]) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "tokens = [\"2\", \"1\", \"+\", \"3\", \"*\"]",
+        "output": "9",
+        "explanation": "Evaluate postfix using a stack."
+      }
+    ],
+    "expectedApproach": "Use a stack, push numbers, pop two operands on operator, compute, push result.",
+    "commonPitfalls": [
+      "Reversing operand order for subtraction or division",
+      "Trying to build an infix parser unnecessarily",
+      "Ignoring truncation direction"
+    ],
+    "idealSolutionOutline": "Single pass stack evaluation.",
+    "evaluationNotes": "Reward calm, mechanical problem solving."
+  },
+  {
+    "id": "fde-binary-search-on-answer",
+    "title": "Binary Search on Answer",
+    "difficulty": "medium",
+    "timeLimit": 25,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["binary-search", "pattern-recognition", "tradeoffs"],
+    "prompt": "Given a list of job durations and an integer h, return the minimum integer processing speed needed to finish all jobs within h hours. At speed k, each job of size x takes ceil(x / k) hours.",
+    "constraints": [
+      "1 <= len(jobs) <= 100000",
+      "1 <= jobs[i] <= 10^9",
+      "Use binary search over possible speeds"
+    ],
+    "scaffold": "def min_processing_speed(jobs: list[int], h: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "jobs = [3,6,7,11], h = 8",
+        "output": "4",
+        "explanation": "Speed 4 is the smallest speed that fits the hour budget."
+      }
+    ],
+    "expectedApproach": "Recognize monotonic feasibility: if speed k works, any higher speed works. Binary search that answer space.",
+    "commonPitfalls": [
+      "Searching the array instead of the answer range",
+      "Using linear scan over all possible speeds",
+      "Not explaining why monotonicity allows binary search"
+    ],
+    "idealSolutionOutline": "Set search bounds [1, max(jobs)], write feasibility helper, binary search minimum valid speed.",
+    "evaluationNotes": "Reward explicit recognition of the pattern."
+  },
+  {
+    "id": "fde-interview-plan-formatter",
+    "title": "Interview Plan Formatter",
+    "difficulty": "easy",
+    "timeLimit": 15,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["communication", "interview-control", "narrowing"],
+    "prompt": "Given a problem statement, input description, and output description, return a dictionary with keys `restate`, `approach`, and `tradeoff`. The values should be concise strings summarizing a good interview opening.",
+    "constraints": [
+      "Do not solve the actual problem",
+      "Produce concise, structured communication",
+      "Treat this as a pre-coding planning step"
+    ],
+    "scaffold": "def interview_plan_formatter(problem: str, input_desc: str, output_desc: str) -> dict[str, str]:\n    pass",
+    "examples": [
+      {
+        "input": "problem='Find duplicates', input_desc='list[int]', output_desc='bool'",
+        "output": "{\"restate\": \"...\", \"approach\": \"...\", \"tradeoff\": \"...\"}",
+        "explanation": "The function helps train the habit of narrowing before coding."
+      }
+    ],
+    "expectedApproach": "Summarize the task clearly, name one likely simple approach, name one tradeoff. Keep it structured.",
+    "commonPitfalls": [
+      "Widening into multiple possible approaches immediately",
+      "Restating without identifying exact output",
+      "Skipping tradeoffs"
+    ],
+    "idealSolutionOutline": "Build three short strings and return them in a dict.",
+    "evaluationNotes": "Reward discipline and clarity, not fancy code."
+  },
+  {
+    "id": "fde-api-health-summary",
+    "title": "API Health Summary",
+    "difficulty": "easy",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["dicts", "json-shape", "backend-thinking"],
+    "prompt": "Given a list of request records like `{status: int, latency_ms: int}`, return a summary dictionary containing total_requests, error_count, max_latency_ms, and average_latency_ms rounded down.",
+    "constraints": [
+      "0 <= len(records) <= 100000",
+      "Any status >= 400 counts as error",
+      "Average latency should be integer floor"
+    ],
+    "scaffold": "def api_health_summary(records: list[dict[str, int]]) -> dict[str, int]:\n    pass",
+    "examples": [
+      {
+        "input": "[{\"status\":200,\"latency_ms\":100},{\"status\":500,\"latency_ms\":300}]",
+        "output": "{\"total_requests\":2,\"error_count\":1,\"max_latency_ms\":300,\"average_latency_ms\":200}",
+        "explanation": "Simple aggregation exercise."
+      }
+    ],
+    "expectedApproach": "Single pass aggregation with counters and running total.",
+    "commonPitfalls": [
+      "Multiple unnecessary passes",
+      "Missing empty-input handling",
+      "Not defining error rule explicitly"
+    ],
+    "idealSolutionOutline": "Track count, errors, max, latency sum, compute final average safely.",
+    "evaluationNotes": "Reward strong basic backend fluency."
+  },
+  {
+    "id": "fde-dp-table-grid-paths",
+    "title": "Grid Paths Bottom Up",
+    "difficulty": "medium",
+    "timeLimit": 20,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "fde-core-skills",
+    "competencyTags": ["dynamic-programming", "table-building", "performance"],
+    "prompt": "Solve the unique paths problem again, this time with bottom-up dynamic programming instead of recursion.",
+    "constraints": [
+      "1 <= m, n <= 100",
+      "Target O(m*n) time",
+      "Use iterative table construction"
+    ],
+    "scaffold": "def grid_paths_bottom_up(m: int, n: int) -> int:\n    pass",
+    "examples": [
+      {
+        "input": "m = 3, n = 7",
+        "output": "28",
+        "explanation": "Each cell equals top plus left."
+      }
+    ],
+    "expectedApproach": "Define dp[r][c] as number of paths to that cell, initialize first row and column to 1, fill remainder.",
+    "commonPitfalls": [
+      "Forgetting initialization of borders",
+      "Mixing recursive and bottom-up reasoning",
+      "Using more complexity than needed"
+    ],
+    "idealSolutionOutline": "Build table row by row using local recurrence.",
+    "evaluationNotes": "Reward candidates who can contrast this with memoization."
+  }
+]

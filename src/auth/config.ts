@@ -5,6 +5,15 @@ function parseBoolean(value: string | undefined, fallback = false): boolean {
   return value === 'true';
 }
 
+function normalizeNetlifySiteURL(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+
+  const trimmed = value.trim().replace(/\/$/, '');
+  if (!trimmed) return undefined;
+
+  return trimmed.replace(/\/\.netlify\/identity$/, '');
+}
+
 function parseProvider(value: string | undefined): AuthProviderName {
   switch (value) {
     case 'clerk':
@@ -16,13 +25,17 @@ function parseProvider(value: string | undefined): AuthProviderName {
   }
 }
 
+const configuredNetlifySiteURL = normalizeNetlifySiteURL(
+  import.meta.env.VITE_NETLIFY_SITE_URL || import.meta.env.VITE_NETLIFY_IDENTITY_API_URL,
+);
+
 export const authConfig = {
   provider: parseProvider(import.meta.env.VITE_AUTH_PROVIDER),
   loginRedirectPath: import.meta.env.VITE_AUTH_LOGIN_REDIRECT_PATH ?? '/',
   logoutRedirectPath: import.meta.env.VITE_AUTH_LOGOUT_REDIRECT_PATH ?? '/',
   debugEnabled: import.meta.env.DEV && parseBoolean(import.meta.env.VITE_AUTH_DEBUG, false),
   netlify: {
-    apiURL: import.meta.env.VITE_NETLIFY_IDENTITY_API_URL || undefined,
+    siteURL: configuredNetlifySiteURL,
     locale: import.meta.env.VITE_NETLIFY_IDENTITY_LOCALE || 'en',
     namePlaceholder: import.meta.env.VITE_NETLIFY_IDENTITY_NAME_PLACEHOLDER || undefined,
     inviteOnly: !parseBoolean(import.meta.env.VITE_NETLIFY_PUBLIC_SIGNUP, false),

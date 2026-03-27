@@ -2,39 +2,58 @@ import React from 'react';
 import Prism from 'prismjs';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-sql';
 import 'prismjs/components/prism-typescript';
-import type { ReviewPanelProps, Verdict } from '../types';
-
-/**
- * ReviewPanel component - Displays evaluation results after session completion
- * 
- * Requirements:
- * - 4.3: THE Proctor SHALL provide a Verdict of "Pass", "Borderline", or "No Pass" based on the scores
- * - 4.6: THE Proctor SHALL provide 2-3 targeted improvements, not exhaustive nitpicks
- * - 4.7: WHEN feedback is complete, THE Proctor SHALL provide one ideal answer showing the improved solution
- */
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-docker';
+import 'prismjs/themes/prism-tomorrow.css';
+import type {
+  EvaluationAnnotation,
+  EvaluationAnnotationSeverity,
+  ProgrammingLanguage,
+  ReviewPanelProps,
+  SessionProblemSnapshot,
+  Verdict,
+} from '../types';
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: '#1e1e2e',
-    color: '#cdd6f4',
+    backgroundColor: '#0d1119',
+    color: '#d6e2ff',
     overflowY: 'auto',
   },
   header: {
     padding: '24px',
-    borderBottom: '1px solid #45475a',
-    backgroundColor: '#181825',
-    textAlign: 'center' as const,
+    borderBottom: '1px solid rgba(137, 180, 250, 0.2)',
+    backgroundColor: 'rgba(8, 12, 20, 0.96)',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: '16px',
+    flexWrap: 'wrap',
   },
   headerTitle: {
     margin: 0,
-    fontSize: '1.5rem',
-    fontWeight: 600,
-    color: '#89b4fa',
-    marginBottom: '16px',
+    fontSize: '1.55rem',
+    fontWeight: 700,
+    color: '#9cc4ff',
+  },
+  headerMeta: {
+    marginTop: '8px',
+    fontSize: '0.95rem',
+    color: 'rgba(214, 226, 255, 0.78)',
+    maxWidth: '780px',
+    lineHeight: 1.6,
+    whiteSpace: 'pre-wrap',
+  },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexWrap: 'wrap',
   },
   verdictContainer: {
     display: 'flex',
@@ -43,24 +62,40 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '12px',
   },
   verdictBadge: {
-    padding: '12px 32px',
-    borderRadius: '8px',
-    fontSize: '1.25rem',
+    padding: '12px 24px',
+    borderRadius: '10px',
+    fontSize: '1rem',
     fontWeight: 700,
     textTransform: 'uppercase' as const,
     letterSpacing: '1px',
   },
   verdictPass: {
     backgroundColor: '#a6e3a1',
-    color: '#1e1e2e',
+    color: '#0d1119',
   },
   verdictBorderline: {
     backgroundColor: '#f9e2af',
-    color: '#1e1e2e',
+    color: '#0d1119',
   },
   verdictNoPass: {
     backgroundColor: '#f38ba8',
-    color: '#1e1e2e',
+    color: '#0d1119',
+  },
+  copyButton: {
+    padding: '12px 18px',
+    borderRadius: '8px',
+    border: '1px solid rgba(137, 180, 250, 0.35)',
+    backgroundColor: 'rgba(24, 32, 48, 0.96)',
+    color: '#d6e2ff',
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  copyStatus: {
+    fontSize: '0.85rem',
+    color: '#94e2d5',
+  },
+  copyStatusError: {
+    color: '#f38ba8',
   },
   content: {
     flex: 1,
@@ -70,21 +105,42 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '24px',
   },
   section: {
-    backgroundColor: '#313244',
-    borderRadius: '12px',
+    backgroundColor: 'rgba(21, 28, 41, 0.94)',
+    borderRadius: '14px',
     padding: '20px',
+    border: '1px solid rgba(137, 180, 250, 0.14)',
   },
   sectionTitle: {
     margin: '0 0 16px 0',
-    fontSize: '1rem',
-    fontWeight: 600,
-    color: '#89b4fa',
+    fontSize: '0.98rem',
+    fontWeight: 700,
+    color: '#9cc4ff',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.5px',
+    letterSpacing: '0.7px',
+  },
+  recapMeta: {
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap' as const,
+    marginBottom: '12px',
+  },
+  recapPill: {
+    padding: '6px 10px',
+    borderRadius: '999px',
+    backgroundColor: 'rgba(34, 45, 68, 0.92)',
+    color: '#d6e2ff',
+    fontSize: '0.78rem',
+  },
+  recapText: {
+    fontSize: '0.98rem',
+    lineHeight: 1.7,
+    color: 'rgba(214, 226, 255, 0.9)',
+    whiteSpace: 'pre-wrap' as const,
+    margin: 0,
   },
   scoresGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
     gap: '16px',
   },
   scoreItem: {
@@ -105,19 +161,18 @@ const styles: Record<string, React.CSSProperties> = {
   scoreBar: {
     flex: 1,
     height: '8px',
-    backgroundColor: '#45475a',
+    backgroundColor: '#1f2a3a',
     borderRadius: '4px',
     overflow: 'hidden',
   },
   scoreBarFill: {
     height: '100%',
     borderRadius: '4px',
-    transition: 'width 0.3s ease',
   },
   scoreValue: {
     fontSize: '0.875rem',
     fontWeight: 600,
-    color: '#cdd6f4',
+    color: '#d6e2ff',
     minWidth: '32px',
     textAlign: 'right' as const,
   },
@@ -129,25 +184,14 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '8px',
   },
   feedbackItem: {
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     lineHeight: 1.6,
-    color: '#cdd6f4',
   },
   strengthItem: {
     color: '#a6e3a1',
   },
   improvementItem: {
     color: '#f9e2af',
-  },
-  codeBlock: {
-    backgroundColor: '#1e1e2e',
-    borderRadius: '8px',
-    padding: '16px',
-    overflow: 'auto',
-    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
-    fontSize: '0.875rem',
-    lineHeight: 1.6,
-    maxHeight: '400px',
   },
   missTagsContainer: {
     display: 'flex',
@@ -156,44 +200,111 @@ const styles: Record<string, React.CSSProperties> = {
   },
   missTag: {
     padding: '6px 12px',
-    backgroundColor: '#45475a',
+    backgroundColor: '#1f2a3a',
     borderRadius: '16px',
     fontSize: '0.75rem',
-    fontWeight: 500,
+    fontWeight: 600,
     color: '#f38ba8',
     textTransform: 'lowercase' as const,
   },
+  codeBlock: {
+    backgroundColor: '#0a0f18',
+    borderRadius: '10px',
+    border: '1px solid rgba(137, 180, 250, 0.14)',
+    overflow: 'auto',
+    maxHeight: '420px',
+  },
+  emptyCodeState: {
+    padding: '18px 16px',
+    color: 'rgba(214, 226, 255, 0.72)',
+    fontSize: '0.95rem',
+    lineHeight: 1.6,
+  },
+  codeRow: {
+    display: 'grid',
+    gridTemplateColumns: '56px 1fr',
+    alignItems: 'stretch',
+  },
+  lineNumber: {
+    padding: '0 12px',
+    textAlign: 'right' as const,
+    color: 'rgba(214, 226, 255, 0.4)',
+    userSelect: 'none' as const,
+    borderRight: '1px solid rgba(137, 180, 250, 0.1)',
+    backgroundColor: 'rgba(14, 20, 31, 0.96)',
+    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+    fontSize: '0.84rem',
+    lineHeight: 1.8,
+    paddingTop: '2px',
+    paddingBottom: '2px',
+  },
+  codeCell: {
+    margin: 0,
+    padding: '2px 16px',
+    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+    fontSize: '0.94rem',
+    lineHeight: 1.8,
+    whiteSpace: 'pre',
+  },
+  narrativeCodeCell: {
+    whiteSpace: 'pre-wrap' as const,
+    wordBreak: 'break-word' as const,
+  },
+  annotationRow: {
+    display: 'grid',
+    gridTemplateColumns: '56px 1fr',
+  },
+  annotationCell: {
+    margin: 0,
+    padding: '2px 16px',
+    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+    fontSize: '0.84rem',
+    lineHeight: 1.7,
+    whiteSpace: 'pre-wrap' as const,
+  },
+  annotationInfo: {
+    backgroundColor: 'rgba(148, 226, 213, 0.08)',
+    color: '#94e2d5',
+  },
+  annotationWarning: {
+    backgroundColor: 'rgba(249, 226, 175, 0.1)',
+    color: '#f9e2af',
+  },
+  annotationError: {
+    backgroundColor: 'rgba(243, 139, 168, 0.12)',
+    color: '#f38ba8',
+  },
   footer: {
     padding: '24px',
-    borderTop: '1px solid #45475a',
-    backgroundColor: '#181825',
+    borderTop: '1px solid rgba(137, 180, 250, 0.14)',
+    backgroundColor: 'rgba(8, 12, 20, 0.96)',
     display: 'flex',
     justifyContent: 'center',
     gap: '16px',
+    flexWrap: 'wrap',
   },
   button: {
     padding: '14px 28px',
     fontSize: '1rem',
-    fontWeight: 600,
+    fontWeight: 700,
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
   },
   nextButton: {
     backgroundColor: '#89b4fa',
-    color: '#1e1e2e',
+    color: '#0d1119',
   },
   nextButtonHover: {
     backgroundColor: '#b4befe',
     transform: 'translateY(-1px)',
   },
   historyButton: {
-    backgroundColor: '#45475a',
-    color: '#cdd6f4',
+    backgroundColor: '#2a3446',
+    color: '#d6e2ff',
   },
   historyButtonHover: {
-    backgroundColor: '#585b70',
+    backgroundColor: '#36445c',
     transform: 'translateY(-1px)',
   },
   emptyState: {
@@ -207,19 +318,65 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyStateText: {
     fontSize: '1.125rem',
-    color: '#6c7086',
+    color: '#7e8aa3',
     marginBottom: '24px',
   },
 };
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function getPrismLanguage(
+  language?: ProgrammingLanguage,
+  code: string = ''
+): 'javascript' | 'python' | 'typescript' | 'sql' | 'yaml' | 'docker' {
+  if (language === 'python') return 'python';
+  if (language === 'typescript') return 'typescript';
+  if (language === 'javascript') return 'javascript';
+  if (language === 'sql') return 'sql';
+  if (language === 'yaml') return 'yaml';
+  if (language === 'dockerfile') return 'docker';
+
+  if (code.includes('def ') || code.includes('elif ') || code.includes('self.')) {
+    return 'python';
+  }
+  if (code.includes(': string') || code.includes(': number') || code.includes('interface ')) {
+    return 'typescript';
+  }
+  return 'javascript';
+}
+
+function isNarrativeSnapshot(problemSnapshot?: SessionProblemSnapshot | null): boolean {
+  if (!problemSnapshot) return false;
+  if (problemSnapshot.contract?.responseMode === 'narrative') return true;
+  return problemSnapshot.assessmentType === 'behavioral' || problemSnapshot.assessmentType === 'system-design' || problemSnapshot.assessmentType === 'math';
+}
+
+function getCommentPrefix(problemSnapshot?: SessionProblemSnapshot | null): string {
+  if (isNarrativeSnapshot(problemSnapshot)) {
+    return 'Note:';
+  }
+  if (problemSnapshot?.language === 'javascript' || problemSnapshot?.language === 'typescript') {
+    return '// Review:';
+  }
+  if (problemSnapshot?.language === 'sql') {
+    return '-- Review:';
+  }
+  return '# Review:';
+}
 
 /**
  * Get the color for a score bar based on the score value (0-4)
  */
 function getScoreColor(score: number): string {
-  if (score >= 4) return '#a6e3a1'; // Green - excellent
-  if (score >= 3) return '#94e2d5'; // Teal - good
-  if (score >= 2) return '#f9e2af'; // Yellow - borderline
-  return '#f38ba8'; // Red - needs improvement
+  if (score >= 4) return '#a6e3a1';
+  if (score >= 3) return '#94e2d5';
+  if (score >= 2) return '#f9e2af';
+  return '#f38ba8';
 }
 
 /**
@@ -241,28 +398,70 @@ function getVerdictStyle(verdict: Verdict): React.CSSProperties {
 /**
  * Syntax highlighting function using Prism.js
  */
-function highlightCode(code: string): string {
-  // Try to detect language from common patterns
-  let grammar = Prism.languages.javascript;
-  let language = 'javascript';
+function highlightCode(code: string, language?: ProgrammingLanguage): string {
+  if (!code) return '';
 
-  // Check for Python-specific patterns
-  if (code.includes('def ') || code.includes('print(') || code.includes('elif ') || code.includes('self.')) {
-    grammar = Prism.languages.python;
-    language = 'python';
-  }
-  // Check for TypeScript-specific patterns
-  else if (code.includes(': string') || code.includes(': number') || code.includes('interface ') || code.includes('<T>')) {
-    grammar = Prism.languages.typescript;
-    language = 'typescript';
-  }
-
-  return Prism.highlight(code, grammar, language);
+  const prismLanguage = getPrismLanguage(language, code);
+  const grammar = Prism.languages[prismLanguage] ?? Prism.languages.javascript;
+  return Prism.highlight(code, grammar, prismLanguage);
 }
 
-/**
- * Score display component
- */
+interface RenderedRow {
+  kind: 'code' | 'annotation';
+  lineNumber: number;
+  html: string;
+  severity?: EvaluationAnnotationSeverity;
+}
+
+function buildRenderedRows(
+  code: string,
+  annotations: EvaluationAnnotation[],
+  target: 'candidate' | 'ideal',
+  problemSnapshot?: SessionProblemSnapshot | null
+): RenderedRow[] {
+  const lines = code.length > 0 ? code.split('\n') : [''];
+  const grouped = new Map<number, EvaluationAnnotation[]>();
+
+  for (const annotation of annotations.filter((entry) => entry.target === target)) {
+    const line = Math.max(1, Math.min(lines.length, annotation.line));
+    const current = grouped.get(line) ?? [];
+    current.push(annotation);
+    grouped.set(line, current);
+  }
+
+  const rows: RenderedRow[] = [];
+  const prefix = getCommentPrefix(problemSnapshot);
+  const narrative = isNarrativeSnapshot(problemSnapshot);
+
+  lines.forEach((line, index) => {
+    const lineNumber = index + 1;
+    const lineAnnotations = grouped.get(lineNumber) ?? [];
+
+    for (const annotation of lineAnnotations) {
+      rows.push({
+        kind: 'annotation',
+        lineNumber,
+        html: escapeHtml(`${prefix} ${annotation.message}`),
+        severity: annotation.severity,
+      });
+    }
+
+    rows.push({
+      kind: 'code',
+      lineNumber,
+      html: narrative ? escapeHtml(line || ' ') : (line.length > 0 ? highlightCode(line, problemSnapshot?.language) : '&nbsp;'),
+    });
+  });
+
+  return rows;
+}
+
+function getAnnotationStyle(severity: EvaluationAnnotationSeverity = 'info'): React.CSSProperties {
+  if (severity === 'error') return styles.annotationError;
+  if (severity === 'warning') return styles.annotationWarning;
+  return styles.annotationInfo;
+}
+
 interface ScoreItemProps {
   label: string;
   score: number;
@@ -293,15 +492,84 @@ const ScoreItem: React.FC<ScoreItemProps> = ({ label, score, maxScore = 4 }) => 
   );
 };
 
+interface AnnotatedCodeBlockProps {
+  title: string;
+  code: string;
+  annotations: EvaluationAnnotation[];
+  target: 'candidate' | 'ideal';
+  problemSnapshot?: SessionProblemSnapshot | null;
+  testId: string;
+}
+
+const AnnotatedCodeBlock: React.FC<AnnotatedCodeBlockProps> = ({
+  title,
+  code,
+  annotations,
+  target,
+  problemSnapshot,
+  testId,
+}) => {
+  const narrative = isNarrativeSnapshot(problemSnapshot);
+  if (!code) {
+    return (
+      <div style={styles.section} data-testid={`${testId}-section`}>
+        <h3 style={styles.sectionTitle}>{title}</h3>
+        <div style={styles.codeBlock} data-testid={`${testId}-code`}>
+          <div style={styles.emptyCodeState}>No captured answer/code is available for this session.</div>
+        </div>
+      </div>
+    );
+  }
+
+  const rows = buildRenderedRows(code, annotations, target, problemSnapshot);
+
+  return (
+    <div style={styles.section} data-testid={`${testId}-section`}>
+      <h3 style={styles.sectionTitle}>{title}</h3>
+      <div style={styles.codeBlock} data-testid={`${testId}-code`}>
+        {rows.map((row, index) => (
+          row.kind === 'annotation' ? (
+            <div key={`${target}-annotation-${index}`} style={styles.annotationRow}>
+              <div style={styles.lineNumber}>{row.lineNumber}</div>
+              <pre
+                style={{
+                  ...styles.annotationCell,
+                  ...getAnnotationStyle(row.severity),
+                }}
+                dangerouslySetInnerHTML={{ __html: row.html }}
+              />
+            </div>
+          ) : (
+            <div key={`${target}-code-${index}`} style={styles.codeRow}>
+              <div style={styles.lineNumber}>{row.lineNumber}</div>
+              <pre
+                style={{
+                  ...styles.codeCell,
+                  ...(narrative ? styles.narrativeCodeCell : {}),
+                }}
+                dangerouslySetInnerHTML={{ __html: row.html }}
+              />
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const ReviewPanel: React.FC<ReviewPanelProps> = ({
   evaluation,
+  candidateCode = '',
+  problemSnapshot = null,
+  onCopyContext,
+  copyStatus = 'idle',
   onNextProblem,
   onViewHistory,
+  nextActionLabel = 'Next Problem',
 }) => {
   const [isNextHovered, setIsNextHovered] = React.useState(false);
   const [isHistoryHovered, setIsHistoryHovered] = React.useState(false);
 
-  // Handle empty evaluation state
   if (!evaluation) {
     return (
       <div style={styles.container} data-testid="review-panel">
@@ -324,29 +592,72 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
     );
   }
 
-  const { verdict, scores, feedback, idealSolution, missTags } = evaluation;
+  const { verdict, scores, feedback, idealSolution, missTags, annotations = [] } = evaluation;
+  const description = problemSnapshot?.content?.description ?? problemSnapshot?.prompt ?? '';
+  const narrative = isNarrativeSnapshot(problemSnapshot);
 
   return (
     <div style={styles.container} data-testid="review-panel">
-      {/* Header with Verdict */}
       <div style={styles.header}>
-        <h2 style={styles.headerTitle}>Evaluation Results</h2>
-        <div style={styles.verdictContainer}>
-          <span
-            style={{
-              ...styles.verdictBadge,
-              ...getVerdictStyle(verdict),
-            }}
-            data-testid="verdict-badge"
-          >
-            {verdict}
-          </span>
+        <div>
+          <h2 style={styles.headerTitle}>Evaluation Results</h2>
+          {problemSnapshot && (
+            <div style={styles.headerMeta}>
+              <strong>{problemSnapshot.title}</strong>
+              {description ? `\n${description}` : ''}
+            </div>
+          )}
+        </div>
+
+        <div style={styles.headerActions}>
+          <div style={styles.verdictContainer}>
+            <span
+              style={{
+                ...styles.verdictBadge,
+                ...getVerdictStyle(verdict),
+              }}
+              data-testid="verdict-badge"
+            >
+              {verdict}
+            </span>
+          </div>
+          {onCopyContext && (
+            <button
+              type="button"
+              style={styles.copyButton}
+              onClick={onCopyContext}
+              data-testid="copy-review-context-button"
+            >
+              Copy Session Context
+            </button>
+          )}
+          {copyStatus !== 'idle' && (
+            <span
+              style={{
+                ...styles.copyStatus,
+                ...(copyStatus === 'error' ? styles.copyStatusError : {}),
+              }}
+              data-testid="copy-context-status"
+            >
+              {copyStatus === 'copied' ? 'Copied' : 'Copy failed'}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Content */}
       <div style={styles.content}>
-        {/* Rubric Scores Section */}
+        {problemSnapshot && (
+          <div style={styles.section} data-testid="problem-recap-section">
+            <h3 style={styles.sectionTitle}>Problem Recap</h3>
+            <div style={styles.recapMeta}>
+              <span style={styles.recapPill}>{problemSnapshot.language}</span>
+              <span style={styles.recapPill}>{problemSnapshot.difficulty}</span>
+              <span style={styles.recapPill}>{problemSnapshot.assessmentType ?? 'coding'}</span>
+            </div>
+            <p style={styles.recapText}>{description || 'No description available.'}</p>
+          </div>
+        )}
+
         <div style={styles.section} data-testid="scores-section">
           <h3 style={styles.sectionTitle}>Rubric Scores</h3>
           <div style={styles.scoresGrid}>
@@ -357,11 +668,9 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           </div>
         </div>
 
-        {/* Feedback Section */}
         <div style={styles.section} data-testid="feedback-section">
           <h3 style={styles.sectionTitle}>Feedback</h3>
-          
-          {/* Strengths */}
+
           {feedback.strengths.length > 0 && (
             <div data-testid="strengths-section">
               <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: '#a6e3a1' }}>
@@ -381,7 +690,6 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
             </div>
           )}
 
-          {/* Improvements */}
           {feedback.improvements.length > 0 && (
             <div data-testid="improvements-section" style={{ marginTop: feedback.strengths.length > 0 ? '16px' : 0 }}>
               <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: '#f9e2af' }}>
@@ -402,7 +710,6 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           )}
         </div>
 
-        {/* Miss Tags Section */}
         {missTags.length > 0 && (
           <div style={styles.section} data-testid="miss-tags-section">
             <h3 style={styles.sectionTitle}>Areas to Focus On</h3>
@@ -420,20 +727,27 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           </div>
         )}
 
-        {/* Ideal Solution Section */}
+        <AnnotatedCodeBlock
+          title={narrative ? 'Your Answer' : 'Your Solution'}
+          code={candidateCode}
+          annotations={annotations}
+          target="candidate"
+          problemSnapshot={problemSnapshot}
+          testId="candidate-solution"
+        />
+
         {idealSolution && (
-          <div style={styles.section} data-testid="ideal-solution-section">
-            <h3 style={styles.sectionTitle}>Ideal Solution</h3>
-            <pre
-              style={styles.codeBlock}
-              data-testid="ideal-solution-code"
-              dangerouslySetInnerHTML={{ __html: highlightCode(idealSolution) }}
-            />
-          </div>
+          <AnnotatedCodeBlock
+            title={narrative ? 'Ideal Answer' : 'Ideal Solution'}
+            code={idealSolution}
+            annotations={annotations}
+            target="ideal"
+            problemSnapshot={problemSnapshot}
+            testId="ideal-solution"
+          />
         )}
       </div>
 
-      {/* Footer with Action Buttons */}
       <div style={styles.footer}>
         <button
           onClick={onNextProblem}
@@ -447,7 +761,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           data-testid="next-problem-button"
           aria-label="Next problem"
         >
-          Next Problem
+          {nextActionLabel}
         </button>
         <button
           onClick={onViewHistory}
@@ -470,5 +784,4 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
 
 export default ReviewPanel;
 
-// Export utility functions for testing
 export { getScoreColor, getVerdictStyle, highlightCode };
