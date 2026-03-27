@@ -12,10 +12,10 @@ test.describe('Layout Height Propagation', () => {
     
     if (isVisible) {
       // Add a dummy API key to dismiss the modal
-      const apiKeyInput = page.locator('input[type="password"]');
+      const apiKeyInput = page.locator('[data-testid="api-key-input"]');
       await apiKeyInput.fill('test-api-key-for-e2e-testing');
-      
-      const saveButton = page.locator('button:has-text("Save")');
+
+      const saveButton = page.locator('[data-testid="settings-save-button"]');
       await saveButton.click();
       
       // Wait for modal to close
@@ -176,10 +176,10 @@ test.describe('Layout Height Propagation', () => {
 
   test('should verify chat panel fills its container', async ({ page }) => {
     await page.locator('[data-testid="start-session-button"]').click();
-    await page.waitForSelector('.chatLog', { state: 'visible', timeout: 10000 });
+    await page.waitForSelector('[data-testid="messages-container"]', { state: 'visible', timeout: 10000 });
 
     // Verify chat log has proper flex properties
-    const chatLog = page.locator('.chatLog');
+    const chatLog = page.locator('[data-testid="messages-container"]');
     const chatLogStyles = await chatLog.evaluate((el) => {
       const styles = window.getComputedStyle(el);
       const rect = el.getBoundingClientRect();
@@ -199,17 +199,6 @@ test.describe('Layout Height Propagation', () => {
   });
 
   test('should verify editor fills its container', async ({ page }) => {
-    // Skip settings and start session
-    const settingsModal = page.locator('[data-testid="settings-modal"]');
-    const isSettingsVisible = await settingsModal.isVisible().catch(() => false);
-    
-    if (isSettingsVisible) {
-      const closeButton = page.locator('button:has-text("Close")');
-      if (await closeButton.isVisible().catch(() => false)) {
-        await closeButton.click();
-      }
-    }
-
     await page.locator('[data-testid="start-session-button"]').click();
     await page.waitForSelector('.editor', { state: 'visible', timeout: 10000 });
 
@@ -232,17 +221,6 @@ test.describe('Layout Height Propagation', () => {
   });
 
   test('should not have dead space - viewport should be filled', async ({ page }) => {
-    // Skip settings and start session
-    const settingsModal = page.locator('[data-testid="settings-modal"]');
-    const isSettingsVisible = await settingsModal.isVisible().catch(() => false);
-    
-    if (isSettingsVisible) {
-      const closeButton = page.locator('button:has-text("Close")');
-      if (await closeButton.isVisible().catch(() => false)) {
-        await closeButton.click();
-      }
-    }
-
     await page.locator('[data-testid="start-session-button"]').click();
     await page.waitForSelector('.session-view', { state: 'visible', timeout: 10000 });
 
@@ -272,5 +250,25 @@ test.describe('Layout Height Propagation', () => {
 
     // Right column should match main height (no collapse)
     expect(rightColHeight).toBe(mainHeight);
+  });
+
+  test('should keep topbar visible without window scroll on session start', async ({ page }) => {
+    await page.locator('[data-testid="start-session-button"]').click();
+    await page.waitForSelector('.topbar', { state: 'visible', timeout: 10000 });
+
+    // Allow layout/animations to settle
+    await page.waitForTimeout(500);
+
+    const scrollY = await page.evaluate(() => window.scrollY);
+    expect(scrollY).toBe(0);
+
+    const topbarBox = await page.locator('.topbar').boundingBox();
+    const viewportHeight = await page.evaluate(() => window.innerHeight);
+
+    expect(topbarBox).not.toBeNull();
+    if (topbarBox) {
+      expect(topbarBox.y).toBeGreaterThanOrEqual(0);
+      expect(topbarBox.y + topbarBox.height).toBeLessThanOrEqual(viewportHeight);
+    }
   });
 });
