@@ -11,7 +11,7 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ProblemService } from '../problemService';
-import { problems } from '../../data/problems';
+import { problems } from '../../data/problemsOld';
 
 describe('ProblemService', () => {
   let service: ProblemService;

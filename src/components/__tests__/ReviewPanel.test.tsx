@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ReviewPanel, getScoreColor, getVerdictStyle, highlightCode } from '../ReviewPanel';
-import type { EvaluationResult } from '../../types';
+import type { EvaluationResult, SessionProblemSnapshot } from '../../types';
 
 /**
  * Unit tests for ReviewPanel component
@@ -27,12 +27,32 @@ const createEvaluation = (overrides: Partial<EvaluationResult> = {}): Evaluation
   },
   idealSolution: 'function solution() {\n  return "ideal";\n}',
   missTags: ['edge-cases', 'complexity-analysis'],
+  annotations: [
+    { target: 'candidate', line: 1, message: 'Check this first line.', severity: 'warning' },
+    { target: 'ideal', line: 1, message: 'This starts the optimal pattern.', severity: 'info' },
+  ],
   ...overrides,
 });
+
+const problemSnapshot: SessionProblemSnapshot = {
+  id: 'two-sum',
+  title: 'Two Sum',
+  language: 'python',
+  difficulty: 'easy',
+  timeLimit: 20,
+  prompt: 'Return indices of two values that add up to target.',
+  constraints: ['Exactly one solution exists.'],
+  examples: [{ input: 'nums=[2,7,11,15], target=9', output: '[0,1]' }],
+  assessmentType: 'coding',
+};
 
 describe('ReviewPanel Component', () => {
   const defaultProps = {
     evaluation: createEvaluation(),
+    candidateCode: 'def solve(nums, target):\n    pass',
+    problemSnapshot,
+    onCopyContext: vi.fn(),
+    copyStatus: 'idle' as const,
     onNextProblem: vi.fn(),
     onViewHistory: vi.fn(),
   };
@@ -70,6 +90,11 @@ describe('ReviewPanel Component', () => {
     it('renders the ideal solution section', () => {
       render(<ReviewPanel {...defaultProps} />);
       expect(screen.getByTestId('ideal-solution-section')).toBeInTheDocument();
+    });
+
+    it('renders the candidate solution section', () => {
+      render(<ReviewPanel {...defaultProps} />);
+      expect(screen.getByTestId('candidate-solution-section')).toBeInTheDocument();
     });
 
     it('renders action buttons', () => {
@@ -238,6 +263,16 @@ describe('ReviewPanel Component', () => {
       render(<ReviewPanel {...defaultProps} evaluation={evaluation} />);
       
       expect(screen.queryByTestId('ideal-solution-section')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('copy context controls', () => {
+    it('calls onCopyContext when copy button is clicked', () => {
+      const onCopyContext = vi.fn();
+      render(<ReviewPanel {...defaultProps} onCopyContext={onCopyContext} />);
+
+      fireEvent.click(screen.getByTestId('copy-review-context-button'));
+      expect(onCopyContext).toHaveBeenCalledTimes(1);
     });
   });
 

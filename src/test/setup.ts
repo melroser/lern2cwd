@@ -49,6 +49,24 @@ beforeEach(() => {
     writable: true,
     configurable: true,
   });
+
+  class ResizeObserverMock {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  }
+
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    value: ResizeObserverMock,
+    writable: true,
+    configurable: true,
+  });
+
+  Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+    value: () => {},
+    writable: true,
+    configurable: true,
+  });
 });
 
 // Clean up localStorage after each test

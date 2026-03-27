@@ -13,6 +13,7 @@ vi.mock('../services/problemService', () => ({
     loadProblems: vi.fn().mockResolvedValue([]),
     getRandomProblem: vi.fn(),
     getProblemById: vi.fn(),
+    getAvailableProblemSets: vi.fn().mockReturnValue([]),
   },
 }));
 
@@ -20,6 +21,9 @@ vi.mock('../services/proctorService', () => ({
   proctorService: {
     generateIntro: vi.fn(),
     respondToQuestion: vi.fn(),
+    getLastInteractionMode: vi.fn().mockReturnValue('idle'),
+    getProactiveNudge: vi.fn().mockReturnValue(null),
+    cancelPendingRequest: vi.fn(),
     evaluate: vi.fn(),
   },
 }));

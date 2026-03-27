@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { SettingsModal } from '../SettingsModal';
 import { 
   getStoredApiKey, 
+  getEnvironmentApiKey,
+  getEnvironmentApiKeySource,
+  getConfiguredApiKey,
+  isEnvironmentApiKeyConfigured,
   saveApiKey, 
   removeApiKey, 
   hasApiKey,
@@ -819,12 +823,21 @@ describe('SettingsModal', () => {
 });
 
 describe('API Key Storage Utilities', () => {
+  const globalRef = globalThis as typeof globalThis & {
+    __APP_CONFIG__?: Record<string, unknown>;
+    __NETLIFY_ENV__?: Record<string, unknown>;
+  };
+
   beforeEach(() => {
     localStorage.clear();
+    delete globalRef.__APP_CONFIG__;
+    delete globalRef.__NETLIFY_ENV__;
   });
 
   afterEach(() => {
     localStorage.clear();
+    delete globalRef.__APP_CONFIG__;
+    delete globalRef.__NETLIFY_ENV__;
   });
 
   describe('getStoredApiKey', () => {
@@ -881,6 +894,27 @@ describe('API Key Storage Utilities', () => {
     it('should return true when key exists', () => {
       localStorage.setItem(API_KEY_STORAGE_KEY, 'sk-valid');
       expect(hasApiKey()).toBe(true);
+    });
+  });
+
+  describe('environment key support', () => {
+    it('should read runtime environment key from __APP_CONFIG__', () => {
+      globalRef.__APP_CONFIG__ = {
+        OPENAI_API_KEY: 'sk-env-runtime',
+      };
+
+      expect(getEnvironmentApiKey()).toBe('sk-env-runtime');
+      expect(getEnvironmentApiKeySource()).toBe('window.__APP_CONFIG__.OPENAI_API_KEY');
+      expect(isEnvironmentApiKeyConfigured()).toBe(true);
+    });
+
+    it('should use local key before environment key for effective key', () => {
+      globalRef.__APP_CONFIG__ = {
+        OPENAI_API_KEY: 'sk-env-runtime',
+      };
+      saveApiKey('sk-local');
+
+      expect(getConfiguredApiKey()).toBe('sk-local');
     });
   });
 });
