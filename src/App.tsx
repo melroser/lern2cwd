@@ -1,37 +1,190 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { CodeEditorPanel } from './components/CodeEditorPanel';
 import { ChatPanel } from './components/ChatPanel';
+import { ChatInput } from './components/ChatInput';
 import { ReviewPanel } from './components/ReviewPanel';
 import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsModal } from './components/SettingsModal';
+import { AuthScreen } from './components/AuthScreen';
+import { AuthDebugPanel } from './components/AuthDebugPanel';
+import { AuthStatusControls } from './components/AuthStatusControls';
+import { AuthProvider } from './auth/AuthProvider';
+import { RequireAuth } from './auth/RequireAuth';
 import { useSession } from './hooks/useSession';
 import { useTimer } from './hooks/useTimer';
 import { useChat } from './hooks/useChat';
 import { problemService } from './services/problemService';
 import { proctorService } from './services/proctorService';
 import { storageService } from './services/storageService';
-import { getStoredApiKey, hasApiKey } from './utils/apiKeyStorage';
+import { getStoredApiKey, hasApiKey, isEnvironmentApiKeyConfigured, getEnvironmentApiKeySource } from './utils/apiKeyStorage';
 import { getEditorSettings } from './utils/editorSettings';
-import type { Problem, EvaluationResult, SessionRecord } from './types';
+import { getProblemSetSettings, saveProblemSetSettings } from './utils/problemSetSettings';
+import type {
+  Problem,
+  EvaluationResult,
+  SessionRecord,
+  SessionProblemSnapshot,
+  ProblemSetOption,
+  ProctorInteractionMode,
+  Verdict,
+} from './types';
 import './App.css';
 
-type ViewState = 'home' | 'session' | 'review' | 'history';
+type ViewState = 'home' | 'session' | 'review' | 'history' | 'campaign';
+
+type ProblemAttemptSummary = {
+  attempts: number;
+  hasPass: boolean;
+  bestVerdict: Verdict | null;
+  lastVerdict: Verdict | null;
+  lastAttemptedAt: number | null;
+};
+
+type CampaignSection = {
+  set: ProblemSetOption;
+  problems: Problem[];
+  attemptedCount: number;
+  passedCount: number;
+  nextProblem: Problem | null;
+};
+
+type CampaignFlow = {
+  problemSetId: string;
+  orderedProblemIds: string[];
+} | null;
+
+const VERDICT_PRIORITY: Record<Verdict, number> = {
+  'No Pass': 0,
+  Borderline: 1,
+  Pass: 2,
+};
 
 interface ConfirmDialogState {
   isOpen: boolean;
   timeRemaining: number;
 }
 
-function App() {
+type CopyStatus = 'idle' | 'copied' | 'error';
+
+async function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'true');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const success = document.execCommand('copy');
+  document.body.removeChild(textarea);
+  if (!success) {
+    throw new Error('Clipboard copy failed');
+  }
+}
+
+function createProblemSnapshot(problem: Problem): SessionProblemSnapshot {
+  return {
+    id: problem.id,
+    title: problem.title,
+    language: problem.language,
+    difficulty: problem.difficulty,
+    timeLimit: problem.timeLimit,
+    prompt: problem.prompt,
+    constraints: problem.constraints,
+    examples: problem.examples,
+    assessmentType: problem.assessmentType,
+    domain: problem.domain,
+    competencyTags: problem.competencyTags,
+    problemSetId: problem.problemSetId,
+    content: problem.content,
+    contract: problem.contract,
+  };
+}
+
+function getCampaignStatusLabel(summary?: ProblemAttemptSummary): string {
+  if (!summary || summary.attempts === 0) return 'New';
+  if (summary.hasPass) return 'Passed';
+  if (summary.lastVerdict === 'Borderline') return 'Borderline';
+  return 'Needs Work';
+}
+
+function getCampaignStatusClass(summary?: ProblemAttemptSummary): string {
+  if (!summary || summary.attempts === 0) return 'statusNew';
+  if (summary.hasPass) return 'statusPass';
+  if (summary.lastVerdict === 'Borderline') return 'statusBorderline';
+  return 'statusNoPass';
+}
+
+function getCampaignPreview(problem: Problem): string {
+  const source = problem.content?.description ?? problem.prompt;
+  return source.split(/\n+/)[0]?.trim() ?? problem.prompt;
+}
+
+function buildLegacySnapshotFromSession(sessionRecord: SessionRecord): string {
+  const transcript = sessionRecord.chatTranscript
+    .map((msg) => `[${msg.role.toUpperCase()}] ${msg.content}`)
+    .join('\n\n');
+
+  return [
+    '=== Session Context Snapshot ===',
+    `Captured At: ${new Date().toISOString()}`,
+    `Problem ID: ${sessionRecord.problemId}`,
+    `Title: ${sessionRecord.problemTitle}`,
+    '',
+    '--- Candidate Attempt ---',
+    sessionRecord.finalCode || '(no code/answer entered yet)',
+    '',
+    '--- Proctor/User Chat ---',
+    transcript || '(no chat messages yet)',
+    '',
+    '--- Evaluation ---',
+    `Verdict: ${sessionRecord.evaluation.verdict}`,
+    `Scores: approach=${sessionRecord.evaluation.scores.approach}, completeness=${sessionRecord.evaluation.scores.completeness}, complexity=${sessionRecord.evaluation.scores.complexity}, communication=${sessionRecord.evaluation.scores.communication}`,
+    `Strengths: ${sessionRecord.evaluation.feedback.strengths.join(' | ') || '(none)'}`,
+    `Improvements: ${sessionRecord.evaluation.feedback.improvements.join(' | ') || '(none)'}`,
+    `Miss Tags: ${sessionRecord.evaluation.missTags.join(', ') || '(none)'}`,
+    '',
+    '--- Ideal Solution ---',
+    sessionRecord.evaluation.idealSolution || '(no ideal solution captured)',
+    '=== End Snapshot ===',
+  ].join('\n');
+}
+
+function AppShell() {
   // View state management
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showSettings, setShowSettings] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [vimMode, setVimMode] = useState(false);
+  const [problemTab, setProblemTab] = useState<'description' | 'constraints' | 'examples'>('description');
+  const [proctorMode, setProctorMode] = useState<ProctorInteractionMode>(() => proctorService.getLastInteractionMode());
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+  const [selectedProblemSetIds, setSelectedProblemSetIds] = useState<string[]>(
+    () => getProblemSetSettings().selectedProblemSetIds
+  );
+  const [loadedProblems, setLoadedProblems] = useState<Problem[]>([]);
+  const [problemSetOptions, setProblemSetOptions] = useState<ProblemSetOption[]>(
+    () => problemService.getAvailableProblemSets()
+  );
+
+  const problemRef = useRef<HTMLDivElement>(null);
+  const problemPanelRef = useRef<HTMLDivElement>(null);
+  const proactiveNudgeRef = useRef<{ count: number; lastAt: number; lastCodeDigest: string }>({
+    count: 0,
+    lastAt: 0,
+    lastCodeDigest: '',
+  });
+  const latestCodeRef = useRef('');
   
   // Session state
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [currentEvaluation, setCurrentEvaluation] = useState<EvaluationResult | null>(null);
+  const [reviewSession, setReviewSession] = useState<SessionRecord | null>(null);
+  const [activeCampaignFlow, setActiveCampaignFlow] = useState<CampaignFlow>(null);
   
   // Confirmation dialog state
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
@@ -42,6 +195,33 @@ function App() {
   // Hooks
   const sessionHook = useSession();
   const chat = useChat();
+  const addChatMessage = chat.addMessage;
+
+  useEffect(() => {
+    latestCodeRef.current = sessionHook.session?.code ?? latestCodeRef.current;
+  }, [sessionHook.session?.code]);
+
+  const resolveProblemSnapshot = useCallback((
+    sessionRecord?: SessionRecord | null,
+    liveProblem?: Problem | null
+  ): SessionProblemSnapshot | null => {
+    if (sessionRecord?.problemSnapshot) {
+      return sessionRecord.problemSnapshot;
+    }
+
+    if (liveProblem) {
+      return createProblemSnapshot(liveProblem);
+    }
+
+    if (sessionRecord?.problemId) {
+      const matchedProblem = problemService.getProblemById(sessionRecord.problemId);
+      if (matchedProblem) {
+        return createProblemSnapshot(matchedProblem);
+      }
+    }
+
+    return null;
+  }, []);
   
   // Check for API key on mount
   useEffect(() => {
@@ -64,7 +244,7 @@ function App() {
         const sessionDraft = {
           sessionId: sessionHook.session!.id,
           problemId: currentProblem?.id,
-          code: sessionHook.session!.code,
+          code: latestCodeRef.current,
           chatHistory: chat.messages,
           timestamp: Date.now(),
         };
@@ -75,10 +255,49 @@ function App() {
     }
   }, [sessionHook.session, chat.messages, currentProblem?.id]);
   
-  // Load problems on mount
+  // Load problems when selected sets change
   useEffect(() => {
-    problemService.loadProblems().catch(console.error);
-  }, []);
+    problemService.loadProblems(selectedProblemSetIds).then((problems) => {
+      setLoadedProblems(problems);
+      setProblemSetOptions(problemService.getAvailableProblemSets());
+    }).catch(console.error);
+  }, [selectedProblemSetIds]);
+
+  // Auto-scale problem text to fit the panel
+  useEffect(() => {
+    const problemEl = problemRef.current;
+    const panelEl = problemPanelRef.current;
+    if (!problemEl || !panelEl) return;
+
+    const fit = () => {
+      const maxSize = 26;
+      const minSize = 16;
+      let size = maxSize;
+      problemEl.style.setProperty('--problem-font-size', `${size}px`);
+      problemEl.style.setProperty('--problem-line-height', '1.45');
+
+      let guard = 0;
+      while (panelEl.scrollHeight > panelEl.clientHeight && size > minSize && guard < 32) {
+        size -= 1;
+        problemEl.style.setProperty('--problem-font-size', `${size}px`);
+        guard += 1;
+      }
+
+      panelEl.style.overflowY = panelEl.scrollHeight > panelEl.clientHeight ? 'auto' : 'hidden';
+    };
+
+    const rafFit = () => {
+      requestAnimationFrame(fit);
+    };
+
+    rafFit();
+
+    const ro = new ResizeObserver(rafFit);
+    ro.observe(problemEl);
+    ro.observe(panelEl);
+
+    return () => ro.disconnect();
+  }, [currentProblem, problemTab]);
   
   // Handle actual submission for evaluation
   const handleSubmitForEvaluation = useCallback(async () => {
@@ -101,8 +320,9 @@ function App() {
       proctorService.cancelPendingRequest();
       
       // Get evaluation
+      const submittedCode = latestCodeRef.current || sessionHook.session!.code;
       const evaluation = await proctorService.evaluate(
-        sessionHook.session!.code,
+        submittedCode,
         currentProblem,
         chat.messages
       );
@@ -119,12 +339,14 @@ function App() {
         problemTitle: currentProblem.title,
         timestamp: Date.now(),
         duration,
-        finalCode: sessionHook.session!.code,
+        finalCode: submittedCode,
         chatTranscript: chat.messages,
         evaluation,
+        problemSnapshot: createProblemSnapshot(currentProblem),
       };
       
       storageService.saveSession(sessionRecord);
+      setReviewSession(sessionRecord);
       
       // Complete session
       sessionHook.endSession();
@@ -150,17 +372,22 @@ function App() {
   // Initialize timer with expiry callback
   const timerWithExpiry = useTimer(handleTimerExpiry);
   
-  // Start a new session
-  const handleStartSession = useCallback(async () => {
+  // Start a session from a specific problem
+  const startSessionWithProblem = useCallback(async (problem: Problem, flow: CampaignFlow = null) => {
     try {
-      // Get a random problem
-      const problem = problemService.getRandomProblem();
-      if (!problem) {
-        console.error('No problems available');
-        return;
-      }
+      proctorService.cancelPendingRequest();
+      timerWithExpiry.reset();
+      chat.clearMessages();
       
       setCurrentProblem(problem);
+      setCurrentEvaluation(null);
+      setProblemTab('description');
+      setProctorMode('idle');
+      setCopyStatus('idle');
+      setReviewSession(null);
+      setActiveCampaignFlow(flow);
+      proactiveNudgeRef.current = { count: 0, lastAt: 0, lastCodeDigest: '' };
+      latestCodeRef.current = problem.scaffold;
       
       // Start session in waiting_to_start state
       sessionHook.startSession(problem);
@@ -176,7 +403,69 @@ function App() {
     } catch (error) {
       console.error('Failed to start session:', error);
     }
-  }, [sessionHook, chat]);
+  }, [sessionHook, chat, timerWithExpiry]);
+
+  // Start a new random session
+  const handleStartSession = useCallback(async () => {
+    try {
+      const problem = problemService.getRandomProblem();
+      if (!problem) {
+        console.error('No problems available');
+        return;
+      }
+
+      await startSessionWithProblem(problem, null);
+    } catch (error) {
+      console.error('Failed to start random session:', error);
+    }
+  }, [startSessionWithProblem]);
+
+  // Proactive proctor nudges while the candidate is drafting.
+  useEffect(() => {
+    if (!currentProblem || sessionHook.session?.status !== 'active') return;
+
+    const code = latestCodeRef.current || sessionHook.session?.code || '';
+    const codeDigest = code.replace(/\s+/g, '').slice(0, 280);
+    const now = Date.now();
+    const { count, lastAt, lastCodeDigest } = proactiveNudgeRef.current;
+
+    if (count >= 3) return;
+    if (now - lastAt < 90000) return;
+    if (codeDigest === lastCodeDigest) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const context = {
+        problem: currentProblem,
+        currentCode: code,
+        chatHistory: chat.messages,
+        timeRemaining: timerWithExpiry.timeRemaining,
+      };
+
+      const nudge = proctorService.getProactiveNudge(context);
+      if (!nudge) return;
+
+      addChatMessage({ role: 'proctor', content: nudge });
+      proactiveNudgeRef.current = {
+        count: proactiveNudgeRef.current.count + 1,
+        lastAt: Date.now(),
+        lastCodeDigest: codeDigest,
+      };
+    }, 12000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    currentProblem,
+    sessionHook.session?.status,
+    sessionHook.session?.code,
+    timerWithExpiry.timeRemaining,
+    chat.messages,
+    addChatMessage,
+  ]);
+
+  const handleEditorCodeChange = useCallback((nextCode: string) => {
+    latestCodeRef.current = nextCode;
+    sessionHook.updateCode(nextCode);
+  }, [sessionHook]);
   
   // Handle submit button click
   const handleSubmitClick = useCallback(() => {
@@ -200,26 +489,10 @@ function App() {
     
     // Check if user is ready to start (waiting_to_start state)
     if (sessionHook.session?.status === 'waiting_to_start') {
-      const readyKeywords = ['ready', 'yes', 'start', 'go', 'begin', 'ok', 'sure', 'yep', 'yeah'];
-      const isReady = readyKeywords.some(keyword => 
-        message.toLowerCase().includes(keyword)
-      );
-      
-      if (isReady) {
-        // Add user message
-        chat.addMessage({ role: 'user', content: message });
-        
-        // Activate session
-        sessionHook.activateSession();
-        
-        // Start timer
-        timerWithExpiry.start(currentProblem.timeLimit * 60);
-        
-        // Add proctor message
-        chat.addMessage({ role: 'proctor', content: 'Timer started. Good luck!' });
-        
-        return;
-      }
+      // Do not start timer from chat; require explicit Ready action
+      chat.addMessage({ role: 'user', content: message });
+      chat.addMessage({ role: 'proctor', content: 'Press "Ready. Start Timer" to begin.' });
+      return;
     }
     
     // Normal chat flow for active sessions
@@ -229,22 +502,58 @@ function App() {
       // Get proctor response
       const context = {
         problem: currentProblem,
-        currentCode: sessionHook.session!.code,
+        currentCode: latestCodeRef.current || sessionHook.session!.code,
         chatHistory: chat.messages,
         timeRemaining: timerWithExpiry.timeRemaining,
       };
       
       const response = await proctorService.respondToQuestion(message, context);
+      setProctorMode(proctorService.getLastInteractionMode());
       
       // Add both user message and proctor response
       chat.addMessage({ role: 'user', content: message });
       chat.addMessage({ role: 'proctor', content: response });
     } catch (error) {
       console.error('Failed to get proctor response:', error);
+      setProctorMode('fallback');
       chat.addMessage({ role: 'user', content: message });
       chat.addMessage({ role: 'proctor', content: 'Sorry, I encountered an error. Please try asking your question again.' });
     }
   }, [currentProblem, sessionHook, chat, timerWithExpiry]);
+
+  const handleReadyStart = useCallback(() => {
+    if (!currentProblem) return;
+    if (sessionHook.session?.status !== 'waiting_to_start') return;
+
+    sessionHook.activateSession();
+    timerWithExpiry.start(currentProblem.timeLimit * 60);
+    chat.addMessage({
+      role: 'proctor',
+      content: `Timer started. ${currentProblem.tutorPlan?.openingPrompt ?? 'What are you thinking for your approach to this problem?'}`,
+    });
+  }, [currentProblem, sessionHook, timerWithExpiry, chat]);
+
+  const handleProblemSetSelectionChange = useCallback((setIds: string[]) => {
+    setSelectedProblemSetIds(setIds);
+    saveProblemSetSettings({ selectedProblemSetIds: setIds });
+  }, []);
+
+  const getNextCampaignProblem = useCallback((): Problem | null => {
+    if (!activeCampaignFlow || !currentProblem) return null;
+
+    const currentIndex = activeCampaignFlow.orderedProblemIds.indexOf(currentProblem.id);
+    if (currentIndex === -1) return null;
+
+    for (let index = currentIndex + 1; index < activeCampaignFlow.orderedProblemIds.length; index += 1) {
+      const nextProblemId = activeCampaignFlow.orderedProblemIds[index];
+      const nextProblem = problemService.getProblemById(nextProblemId);
+      if (nextProblem) {
+        return nextProblem;
+      }
+    }
+
+    return null;
+  }, [activeCampaignFlow, currentProblem]);
   
   // Handle next problem
   const handleNextProblem = useCallback(() => {
@@ -253,32 +562,245 @@ function App() {
     chat.clearMessages();
     setCurrentProblem(null);
     setCurrentEvaluation(null);
-    
-    // Start new session
+    setReviewSession(null);
+    setProblemTab('description');
+    setCopyStatus('idle');
+    setProctorMode('idle');
+
+    const nextCampaignProblem = getNextCampaignProblem();
+    if (nextCampaignProblem && activeCampaignFlow) {
+      startSessionWithProblem(nextCampaignProblem, activeCampaignFlow);
+      return;
+    }
+
+    if (activeCampaignFlow) {
+      latestCodeRef.current = '';
+      setCurrentView('campaign');
+      setCurrentProblem(null);
+      return;
+    }
+
+    // Start new random session
     handleStartSession();
-  }, [timerWithExpiry, chat, handleStartSession]);
+  }, [timerWithExpiry, chat, handleStartSession, getNextCampaignProblem, activeCampaignFlow, startSessionWithProblem]);
+
+  const handleViewCampaign = useCallback(() => {
+    setCurrentView('campaign');
+    setCopyStatus('idle');
+  }, []);
   
   // Handle view history
   const handleViewHistory = useCallback(() => {
+    setActiveCampaignFlow(null);
     setCurrentView('history');
   }, []);
   
   // Handle back to home
   const handleBackToHome = useCallback(() => {
+    proctorService.cancelPendingRequest();
+    timerWithExpiry.reset();
+    chat.clearMessages();
+    latestCodeRef.current = '';
     setCurrentView('home');
-  }, []);
+    setCurrentProblem(null);
+    setCurrentEvaluation(null);
+    setReviewSession(null);
+    setProblemTab('description');
+    setCopyStatus('idle');
+    setProctorMode('idle');
+    setActiveCampaignFlow(null);
+  }, [chat, timerWithExpiry]);
   
   // Handle session selection from history
   const handleSelectSession = useCallback((sessionId: string) => {
     const sessionRecord = storageService.getSession(sessionId);
     if (sessionRecord) {
+      const matchedProblem = problemService.getProblemById(sessionRecord.problemId);
+      const hydratedSessionRecord = sessionRecord.problemSnapshot || !matchedProblem
+        ? sessionRecord
+        : {
+            ...sessionRecord,
+            problemSnapshot: createProblemSnapshot(matchedProblem),
+          };
+
+      latestCodeRef.current = sessionRecord.finalCode;
+      setCurrentProblem(matchedProblem);
+      setReviewSession(hydratedSessionRecord);
       setCurrentEvaluation(sessionRecord.evaluation);
+      setActiveCampaignFlow(null);
       setCurrentView('review');
     }
   }, []);
   
   // Get stored sessions for history
   const storedSessions = storageService.getSessions();
+
+  const problemAttemptMap = useMemo<Record<string, ProblemAttemptSummary>>(() => {
+    const summaries: Record<string, ProblemAttemptSummary> = {};
+
+    for (const session of storedSessions) {
+      const existing = summaries[session.problemId] ?? {
+        attempts: 0,
+        hasPass: false,
+        bestVerdict: null,
+        lastVerdict: null,
+        lastAttemptedAt: null,
+      };
+
+      const verdict = session.evaluation.verdict;
+      const isNewerAttempt = existing.lastAttemptedAt === null || session.timestamp > existing.lastAttemptedAt;
+      const currentBestPriority = existing.bestVerdict ? VERDICT_PRIORITY[existing.bestVerdict] : -1;
+      const nextPriority = VERDICT_PRIORITY[verdict];
+
+      summaries[session.problemId] = {
+        attempts: existing.attempts + 1,
+        hasPass: existing.hasPass || verdict === 'Pass',
+        bestVerdict: nextPriority > currentBestPriority ? verdict : existing.bestVerdict,
+        lastVerdict: isNewerAttempt ? verdict : existing.lastVerdict,
+        lastAttemptedAt: isNewerAttempt ? session.timestamp : existing.lastAttemptedAt,
+      };
+    }
+
+    return summaries;
+  }, [storedSessions]);
+
+  const campaignSections = useMemo<CampaignSection[]>(() => {
+    const enabledOptions = problemSetOptions.filter((option) =>
+      selectedProblemSetIds.includes(option.id),
+    );
+
+    const sections: CampaignSection[] = [];
+
+    for (const set of enabledOptions) {
+      const problems = loadedProblems.filter((problem) => problem.problemSetId === set.id);
+      if (problems.length === 0) {
+        continue;
+      }
+
+      const attemptedCount = problems.filter((problem) => (problemAttemptMap[problem.id]?.attempts ?? 0) > 0).length;
+      const passedCount = problems.filter((problem) => problemAttemptMap[problem.id]?.hasPass).length;
+      const nextProblem =
+        problems.find((problem) => (problemAttemptMap[problem.id]?.attempts ?? 0) === 0) ??
+        problems.find((problem) => !problemAttemptMap[problem.id]?.hasPass) ??
+        problems[0] ??
+        null;
+
+      sections.push({
+        set,
+        problems,
+        attemptedCount,
+        passedCount,
+        nextProblem,
+      });
+    }
+
+    return sections;
+  }, [loadedProblems, problemAttemptMap, problemSetOptions, selectedProblemSetIds]);
+
+  const nextReviewActionLabel = useMemo(() => {
+    if (!activeCampaignFlow) {
+      return 'Next Problem';
+    }
+
+    return getNextCampaignProblem() ? 'Next In Set' : 'Back to Campaign';
+  }, [activeCampaignFlow, getNextCampaignProblem]);
+
+  const handleStartCampaignProblem = useCallback(async (problem: Problem, orderedProblemIds: string[]) => {
+    await startSessionWithProblem(problem, {
+      problemSetId: problem.problemSetId ?? 'campaign',
+      orderedProblemIds,
+    });
+  }, [startSessionWithProblem]);
+
+  const handleContinueCampaignSet = useCallback(async (section: CampaignSection) => {
+    if (!section.nextProblem) {
+      return;
+    }
+
+    await handleStartCampaignProblem(
+      section.nextProblem,
+      section.problems.map((problem) => problem.id),
+    );
+  }, [handleStartCampaignProblem]);
+
+  const buildSessionContextSnapshot = useCallback((): string => {
+    const problemSnapshot = resolveProblemSnapshot(reviewSession, currentProblem);
+    const evaluation = reviewSession?.evaluation ?? currentEvaluation;
+    const code = reviewSession?.finalCode ?? latestCodeRef.current ?? sessionHook.session?.code ?? '';
+    const transcriptMessages = reviewSession?.chatTranscript ?? chat.messages;
+
+    if (!problemSnapshot) {
+      if (reviewSession) {
+        return buildLegacySnapshotFromSession(reviewSession);
+      }
+      return 'No problem context available.';
+    }
+
+    const description = problemSnapshot.content?.description ?? problemSnapshot.prompt;
+    const constraints = problemSnapshot.content?.constraints ?? problemSnapshot.constraints;
+    const examples = problemSnapshot.content?.examples ?? problemSnapshot.examples;
+    const transcript = transcriptMessages
+      .map((msg) => `[${msg.role.toUpperCase()}] ${msg.content}`)
+      .join('\n\n');
+
+    const examplesBlock = examples
+      .map((example, index) => {
+        const explanation = example.explanation ? `\nExplanation: ${example.explanation}` : '';
+        return `Example ${index + 1}:\nInput: ${example.input}\nOutput: ${example.output}${explanation}`;
+      })
+      .join('\n\n');
+
+    return [
+      '=== Session Context Snapshot ===',
+      `Captured At: ${new Date().toISOString()}`,
+      `Problem ID: ${problemSnapshot.id}`,
+      `Problem Set: ${problemSnapshot.problemSetId ?? 'unknown'}`,
+      `Title: ${problemSnapshot.title}`,
+      `Assessment Type: ${problemSnapshot.assessmentType ?? 'coding'}`,
+      `Difficulty: ${problemSnapshot.difficulty}`,
+      `Language: ${problemSnapshot.language}`,
+      `Time Remaining: ${currentView === 'session' ? `${Math.floor(timerWithExpiry.timeRemaining / 60).toString().padStart(2, '0')}:${(timerWithExpiry.timeRemaining % 60).toString().padStart(2, '0')}` : 'session ended'}`,
+      '',
+      '--- Problem Description ---',
+      description,
+      '',
+      '--- Constraints ---',
+      constraints.map((constraint) => `- ${constraint}`).join('\n'),
+      '',
+      '--- Examples ---',
+      examplesBlock || 'No examples provided.',
+      '',
+      '--- Candidate Attempt ---',
+      code || '(no code/answer entered yet)',
+      '',
+      '--- Proctor/User Chat ---',
+      transcript || '(no chat messages yet)',
+      '',
+      '--- Evaluation ---',
+      evaluation ? `Verdict: ${evaluation.verdict}` : 'No evaluation yet.',
+      evaluation ? `Scores: approach=${evaluation.scores.approach}, completeness=${evaluation.scores.completeness}, complexity=${evaluation.scores.complexity}, communication=${evaluation.scores.communication}` : '',
+      evaluation ? `Strengths: ${evaluation.feedback.strengths.join(' | ') || '(none)'}` : '',
+      evaluation ? `Improvements: ${evaluation.feedback.improvements.join(' | ') || '(none)'}` : '',
+      evaluation ? `Miss Tags: ${evaluation.missTags.join(', ') || '(none)'}` : '',
+      evaluation ? '' : '',
+      evaluation ? '--- Ideal Solution ---' : '',
+      evaluation?.idealSolution ?? '',
+      '=== End Snapshot ===',
+    ].join('\n');
+  }, [reviewSession, currentProblem, currentEvaluation, sessionHook.session?.code, chat.messages, timerWithExpiry.timeRemaining, currentView, resolveProblemSnapshot]);
+
+  const handleCopySessionContext = useCallback(async () => {
+    try {
+      const snapshot = buildSessionContextSnapshot();
+      await copyTextToClipboard(snapshot);
+      setCopyStatus('copied');
+    } catch (error) {
+      console.error('Failed to copy session context:', error);
+      setCopyStatus('error');
+    }
+
+    window.setTimeout(() => setCopyStatus('idle'), 2000);
+  }, [buildSessionContextSnapshot]);
   
   // Format time remaining for confirmation dialog
   const formatTimeRemaining = (seconds: number): string => {
@@ -308,14 +830,19 @@ function App() {
           <SettingsModal
             isOpen={showSettings}
             onClose={() => setShowSettings(false)}
-            onSave={(apiKey: string) => {
-              setApiKeyConfigured(apiKey.trim().length > 0);
+            onSave={() => {
+              setApiKeyConfigured(hasApiKey());
               setShowSettings(false);
             }}
             onVimModeChange={(enabled: boolean) => setVimMode(enabled)}
             initialApiKey={getStoredApiKey() || ''}
+            isEnvironmentApiKeyConfigured={isEnvironmentApiKeyConfigured()}
+            environmentApiKeySource={getEnvironmentApiKeySource()}
             isFirstLaunch={!apiKeyConfigured}
             vimMode={vimMode}
+            problemSetOptions={problemSetOptions}
+            selectedProblemSetIds={selectedProblemSetIds}
+            onProblemSetSelectionChange={handleProblemSetSelectionChange}
           />
         )}
         
@@ -370,6 +897,10 @@ function App() {
                 <div className="home-content">
                   <h1>Coding Interview Simulator</h1>
                   <p>Practice coding interviews with AI-powered feedback</p>
+
+                  <div className="homeMetaBar">
+                    <AuthStatusControls />
+                  </div>
                   
                   <div className="home-actions">
                     <button
@@ -377,7 +908,15 @@ function App() {
                       className="btn primary"
                       onClick={handleStartSession}
                     >
-                      Start Session
+                      Start Random Session
+                    </button>
+
+                    <button
+                      data-testid="browse-campaign-button"
+                      className="btn"
+                      onClick={handleViewCampaign}
+                    >
+                      Browse Campaign
                     </button>
                     
                     {storedSessions.length > 0 && (
@@ -400,6 +939,153 @@ function App() {
                 </div>
               </div>
             )}
+
+            {currentView === 'campaign' && (
+              <div className="appViewShell" data-testid="campaign-view">
+                <div className="topbar appTopbar">
+                  <div className="brand">
+                    <span className="dot"></span>
+                    <span>INTERVIEW SIMULATOR</span>
+                    <span style={{ color: 'var(--cool)' }}>/</span>
+                    <span style={{ color: 'var(--hot)' }}>CAMPAIGN</span>
+                  </div>
+                  <div className="meta">
+                    <div className="pill">
+                      <span>MODE</span>
+                      <span style={{ color: 'var(--cool)' }}>Guided Practice</span>
+                    </div>
+                    <AuthStatusControls />
+                    <button
+                      className="btn"
+                      data-testid="campaign-random-button"
+                      onClick={handleStartSession}
+                    >
+                      Random Session
+                    </button>
+                    <button
+                      className="btn subtle"
+                      data-testid="home-nav-button"
+                      onClick={handleBackToHome}
+                    >
+                      Home
+                    </button>
+                  </div>
+                </div>
+
+                <div className="appViewBody">
+                  <div className="campaignView">
+                    <div className="campaignIntro">
+                      <h1>Campaign Mode</h1>
+                      <p>
+                        Work through your enabled problem sets in order, or jump straight to a specific drill you want to practice again.
+                      </p>
+                    </div>
+
+                    {campaignSections.length === 0 ? (
+                      <div className="campaignEmpty">
+                        <h2>No enabled problem sets</h2>
+                        <p>Turn on at least one problem set in Settings and it will show up here.</p>
+                        <button className="btn" onClick={() => setShowSettings(true)}>
+                          Open Settings
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="campaignSections">
+                        {campaignSections.map((section) => (
+                          <section
+                            key={section.set.id}
+                            className="campaignSetCard"
+                            data-testid={`campaign-set-${section.set.id}`}
+                          >
+                            <div className="campaignSetHeader">
+                              <div className="campaignSetTitleBlock">
+                                <div className="campaignSetEyebrow">{section.set.assessmentType}</div>
+                                <h2>{section.set.label}</h2>
+                                <p>{section.set.description}</p>
+                              </div>
+
+                              <div className="campaignSetSummary">
+                                <div className="campaignSummaryStats">
+                                  <span>{section.problems.length} problems</span>
+                                  <span>{section.attemptedCount} attempted</span>
+                                  <span>{section.passedCount} passed</span>
+                                </div>
+                                <button
+                                  className="btn primary"
+                                  data-testid={`campaign-continue-${section.set.id}`}
+                                  onClick={() => handleContinueCampaignSet(section)}
+                                  disabled={!section.nextProblem}
+                                >
+                                  Continue In Order
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="campaignProblemList">
+                              {section.problems.map((problem, index) => {
+                                const summary = problemAttemptMap[problem.id];
+                                const orderedProblemIds = section.problems.map((item) => item.id);
+
+                                return (
+                                  <article
+                                    key={problem.id}
+                                    className="campaignProblemRow"
+                                    data-testid={`campaign-problem-${problem.id}`}
+                                  >
+                                    <div className="campaignProblemOrder">{index + 1}</div>
+
+                                    <div className="campaignProblemBody">
+                                      <div className="campaignProblemTitleRow">
+                                        <div>
+                                          <h3>{problem.title}</h3>
+                                          <p>{getCampaignPreview(problem)}</p>
+                                        </div>
+
+                                        <div className="campaignProblemMeta">
+                                          <span className={`campaignStatusBadge ${getCampaignStatusClass(summary)}`}>
+                                            {getCampaignStatusLabel(summary)}
+                                          </span>
+                                          <span className="tag cool">{problem.difficulty}</span>
+                                          <span className="tag">{problem.language}</span>
+                                        </div>
+                                      </div>
+
+                                      <div className="campaignProblemStats">
+                                        <span>
+                                          {summary?.attempts
+                                            ? `${summary.attempts} attempt${summary.attempts === 1 ? '' : 's'}`
+                                            : 'Not attempted yet'}
+                                        </span>
+                                        <span>
+                                          Best: {summary?.bestVerdict ?? '—'}
+                                        </span>
+                                        <span>
+                                          Last: {summary?.lastVerdict ?? '—'}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    <div className="campaignProblemActions">
+                                      <button
+                                        className="btn"
+                                        data-testid={`campaign-start-problem-${problem.id}`}
+                                        onClick={() => handleStartCampaignProblem(problem, orderedProblemIds)}
+                                      >
+                                        {summary?.attempts ? 'Practice Again' : 'Start'}
+                                      </button>
+                                    </div>
+                                  </article>
+                                );
+                              })}
+                            </div>
+                          </section>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Session View */}
             {currentView === 'session' && currentProblem && (
@@ -414,12 +1100,40 @@ function App() {
                   <div className="meta">
                     <div className="pill">
                       <span style={{ color: 'rgba(182,255,182,0.65)' }}>PROBLEM</span>
-                      <span style={{ color: 'var(--cool)' }}>{currentProblem.title}</span>
+                      <span style={{ color: 'var(--cool)' }}>
+                        {sessionHook.session?.status === 'waiting_to_start' ? 'Hidden' : currentProblem.title}
+                      </span>
                     </div>
                     <div className="pill">
                       <span style={{ color: 'rgba(182,255,182,0.65)' }}>TIMER</span>
                       <span className="timer">{Math.floor(timerWithExpiry.timeRemaining / 60).toString().padStart(2, '0')}:{(timerWithExpiry.timeRemaining % 60).toString().padStart(2, '0')}</span>
                     </div>
+                    <div className="pill" data-testid="proctor-mode-pill">
+                      <span>PROCTOR</span>
+                      <span className={`proctorModeValue ${proctorMode === 'llm' ? 'live' : proctorMode === 'fallback' ? 'fallback' : ''}`}>
+                        {proctorMode === 'llm' ? 'LIVE' : proctorMode === 'fallback' ? 'LOCAL FALLBACK' : 'IDLE'}
+                      </span>
+                    </div>
+                    <AuthStatusControls />
+                    <button
+                      className="btn subtle"
+                      data-testid="home-nav-button"
+                      onClick={handleBackToHome}
+                    >
+                      Home
+                    </button>
+                    <button
+                      className="btn"
+                      data-testid="copy-context-button"
+                      onClick={handleCopySessionContext}
+                    >
+                      Copy Context
+                    </button>
+                    {copyStatus !== 'idle' && (
+                      <span className={`copyStatus ${copyStatus === 'error' ? 'error' : ''}`} data-testid="copy-context-status">
+                        {copyStatus === 'copied' ? 'Copied' : 'Copy failed'}
+                      </span>
+                    )}
                     <button className="btn" onClick={() => setShowSettings(true)}>
                       Settings
                     </button>
@@ -430,48 +1144,154 @@ function App() {
                 
                 <div className="main">
                   <section className="left-col">
-                    <div className="problem">
-                      <div className="title">
-                        <h2>{currentProblem.title}</h2>
-                        <div className="tags">
-                          <span className="tag cool">{currentProblem.difficulty}</span>
-                          <span className="tag">{currentProblem.language}</span>
+                    <div className="problem" ref={problemRef}>
+                      {sessionHook.session?.status === 'waiting_to_start' ? (
+                        <div className="readyGate">
+                          <div className="readyTitle">Ready to start?</div>
+                          <div className="readySub">Press the button to reveal the problem and start the timer.</div>
+                          <button className="btn primary" onClick={handleReadyStart}>
+                            Ready. Start Timer
+                          </button>
                         </div>
-                      </div>
-                      
-                      <p className="prompt">
-                        {currentProblem.prompt}
-                      </p>
-                  
-                      {currentProblem.constraints && currentProblem.constraints.length > 0 && (
-                        <div style={{ marginTop: '1rem' }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--cool)', marginBottom: '0.5rem' }}>
-                            Constraints:
-                          </div>
-                          <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                            {currentProblem.constraints.map((constraint, i) => (
-                              <li key={i}>{constraint}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {currentProblem.examples && currentProblem.examples.length > 0 && (
-                        <div style={{ marginTop: '1rem' }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--cool)', marginBottom: '0.5rem' }}>
-                            Examples:
-                          </div>
-                          {currentProblem.examples.map((example, i) => (
-                            <div key={i} style={{ marginBottom: '0.75rem', fontSize: '0.85rem', lineHeight: '1.6' }}>
-                              <div><strong>Input:</strong> {example.input}</div>
-                              <div><strong>Output:</strong> {example.output}</div>
-                              {example.explanation && <div style={{ fontStyle: 'italic', opacity: 0.8 }}>{example.explanation}</div>}
+                      ) : (
+                        <>
+                          <div className="title">
+                            <h2>{currentProblem.title}</h2>
+                            <div className="tags">
+                              <span className="tag cool">{currentProblem.difficulty}</span>
+                              <span className="tag">{currentProblem.language}</span>
                             </div>
-                          ))}
-                        </div>
+                          </div>
+
+                          <div className="problemTabs" role="tablist" aria-label="Problem tabs">
+                            <button
+                              type="button"
+                              role="tab"
+                              id="tab-description"
+                              aria-controls="panel-description"
+                              aria-selected={problemTab === 'description'}
+                              className={`tabBtn ${problemTab === 'description' ? 'active' : ''}`}
+                              onClick={() => setProblemTab('description')}
+                            >
+                              Description
+                            </button>
+                            <button
+                              type="button"
+                              role="tab"
+                              id="tab-constraints"
+                              aria-controls="panel-constraints"
+                              aria-selected={problemTab === 'constraints'}
+                              className={`tabBtn ${problemTab === 'constraints' ? 'active' : ''}`}
+                              onClick={() => setProblemTab('constraints')}
+                            >
+                              Constraints
+                            </button>
+                            <button
+                              type="button"
+                              role="tab"
+                              id="tab-examples"
+                              aria-controls="panel-examples"
+                              aria-selected={problemTab === 'examples'}
+                              className={`tabBtn ${problemTab === 'examples' ? 'active' : ''}`}
+                              onClick={() => setProblemTab('examples')}
+                            >
+                              Examples
+                            </button>
+                          </div>
+
+                          <div className="problemPanel" ref={problemPanelRef}>
+                            {problemTab === 'description' && (
+                              <div
+                                id="panel-description"
+                                role="tabpanel"
+                                aria-labelledby="tab-description"
+                                tabIndex={0}
+                              >
+                                <div className="promptBlocks">
+                                  {(currentProblem.content?.description ?? currentProblem.prompt)
+                                    .split(/\n\s*\n/)
+                                    .map((block, i) => (
+                                    <div key={i} className="promptBlock">
+                                      {block}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {problemTab === 'constraints' && (
+                              <div
+                                id="panel-constraints"
+                                role="tabpanel"
+                                aria-labelledby="tab-constraints"
+                                tabIndex={0}
+                              >
+                                {(currentProblem.content?.constraints ?? currentProblem.constraints).length > 0 ? (
+                                  <div className="constraintList">
+                                    {(currentProblem.content?.constraints ?? currentProblem.constraints).map((constraint, i) => (
+                                      <div key={i} className="constraintItem">
+                                        <span className="constraintBullet" aria-hidden="true">▸</span>
+                                        <span>{constraint}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="problemEmpty">No constraints provided.</div>
+                                )}
+                              </div>
+                            )}
+
+                            {problemTab === 'examples' && (
+                              <div
+                                id="panel-examples"
+                                role="tabpanel"
+                                aria-labelledby="tab-examples"
+                                tabIndex={0}
+                              >
+                                {(currentProblem.content?.examples ?? currentProblem.examples).length > 0 ? (
+                                  <div className="examplesList">
+                                    {(currentProblem.content?.examples ?? currentProblem.examples).map((example, i) => (
+                                      <div key={i} className="exampleCard">
+                                        <div><strong>Input:</strong> {example.input}</div>
+                                        <div><strong>Output:</strong> {example.output}</div>
+                                        {example.explanation && <div className="exampleNote">{example.explanation}</div>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="problemEmpty">No examples provided.</div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
-                    
+
+                    <div className="proctorWrap">
+                      <div className="chatHeader">
+                        <div className="label">Proctor Channel</div>
+                        <div className="signal">
+                          <div className="bars" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
+                          <span>secure link</span>
+                        </div>
+                      </div>
+
+                      <div className="chatPanelWrap">
+                        <ChatPanel
+                          data-testid="chat-panel"
+                          messages={chat.messages}
+                        />
+                      </div>
+                    </div>
+                  </section>
+                  
+                  <aside className="right-col">
                     <div className="editorWrap">
                       <div className="editorHeader">
                         <div className="leftBits">
@@ -490,7 +1310,7 @@ function App() {
                           data-testid="code-editor-panel"
                           problemPrompt={currentProblem.prompt}
                           code={sessionHook.session?.code || ''}
-                          onCodeChange={sessionHook.updateCode}
+                          onCodeChange={handleEditorCodeChange}
                           onSubmit={handleSubmitClick}
                           isDisabled={chat.isLoading || sessionHook.session?.status !== 'active'}
                           vimMode={vimMode}
@@ -498,28 +1318,11 @@ function App() {
                         />
                       </div>
                     </div>
-                  </section>
-                  
-                  <aside className="right-col">
-                    <div className="chatHeader">
-                      <div className="label">Proctor Channel</div>
-                      <div className="signal">
-                        <div className="bars" aria-hidden="true">
-                          <span></span>
-                          <span></span>
-                          <span></span>
-                          <span></span>
-                        </div>
-                        <span>secure link</span>
-                      </div>
-                    </div>
-                    
-                    <div className="chatLog">
-                      <ChatPanel
-                        data-testid="chat-panel"
-                        messages={chat.messages}
+
+                    <div className="chatInputDock">
+                      <ChatInput
                         onSendMessage={handleSendMessage}
-                        isDisabled={chat.isLoading || (sessionHook.session?.status !== 'active' && sessionHook.session?.status !== 'waiting_to_start')}
+                        isDisabled={chat.isLoading || sessionHook.session?.status !== 'active'}
                       />
                     </div>
                   </aside>
@@ -529,31 +1332,112 @@ function App() {
             
             {/* Review View */}
             {currentView === 'review' && currentEvaluation && (
-              <div style={{ width: '100%', height: '100%', overflow: 'auto' }} data-testid="review-view">
-                <ReviewPanel
-                  data-testid="review-panel"
-                  evaluation={currentEvaluation}
-                  onNextProblem={handleNextProblem}
-                  onViewHistory={handleViewHistory}
-                />
+              <div className="appViewShell" data-testid="review-view">
+                <div className="topbar appTopbar">
+                  <div className="brand">
+                    <span className="dot"></span>
+                    <span>INTERVIEW SIMULATOR</span>
+                    <span style={{ color: 'var(--cool)' }}>/</span>
+                    <span style={{ color: 'var(--hot)' }}>REVIEW</span>
+                  </div>
+                  <div className="meta">
+                    <div className="pill">
+                      <span>VIEW</span>
+                      <span style={{ color: 'var(--cool)' }}>Evaluation Results</span>
+                    </div>
+                    <AuthStatusControls />
+                    <button
+                      className="btn subtle"
+                      data-testid="home-nav-button"
+                      onClick={handleBackToHome}
+                    >
+                      Home
+                    </button>
+                  </div>
+                </div>
+
+                <div className="appViewBody">
+                  <ReviewPanel
+                    data-testid="review-panel"
+                    evaluation={currentEvaluation}
+                    candidateCode={reviewSession?.finalCode ?? sessionHook.session?.code ?? latestCodeRef.current}
+                    problemSnapshot={resolveProblemSnapshot(reviewSession, currentProblem)}
+                    onCopyContext={handleCopySessionContext}
+                    copyStatus={copyStatus}
+                    nextActionLabel={nextReviewActionLabel}
+                    onNextProblem={handleNextProblem}
+                    onViewHistory={handleViewHistory}
+                  />
+                </div>
               </div>
             )}
             
             {/* History View */}
             {currentView === 'history' && (
-              <div style={{ width: '100%', height: '100%', overflow: 'auto' }} data-testid="history-view">
-                <HistoryPanel
-                  data-testid="history-panel"
-                  sessions={storedSessions}
-                  onSelectSession={handleSelectSession}
-                  onClose={handleBackToHome}
-                />
+              <div className="appViewShell" data-testid="history-view">
+                <div className="topbar appTopbar">
+                  <div className="brand">
+                    <span className="dot"></span>
+                    <span>INTERVIEW SIMULATOR</span>
+                    <span style={{ color: 'var(--cool)' }}>/</span>
+                    <span style={{ color: 'var(--hot)' }}>HISTORY</span>
+                  </div>
+                  <div className="meta">
+                    <div className="pill">
+                      <span>VIEW</span>
+                      <span style={{ color: 'var(--cool)' }}>Session History</span>
+                    </div>
+                    <AuthStatusControls />
+                    <button
+                      className="btn subtle"
+                      data-testid="home-nav-button"
+                      onClick={handleBackToHome}
+                    >
+                      Home
+                    </button>
+                  </div>
+                </div>
+
+                <div className="appViewBody">
+                  <HistoryPanel
+                    data-testid="history-panel"
+                    sessions={storedSessions}
+                    onSelectSession={handleSelectSession}
+                    onClose={handleBackToHome}
+                  />
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function AuthLoadingFallback() {
+  return (
+    <div className="home-view authGateView" data-testid="auth-loading-screen">
+      <div className="home-content authGateCard">
+        <div className="authGateEyebrow">Loading access</div>
+        <h1>Interview Simulator</h1>
+        <p>Checking your session…</p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <RequireAuth
+        fallback={<AuthScreen />}
+        loadingFallback={<AuthLoadingFallback />}
+      >
+        <AppShell />
+      </RequireAuth>
+      <AuthDebugPanel />
+    </AuthProvider>
   );
 }
 
