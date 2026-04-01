@@ -6,7 +6,6 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_LOGOUT_REDIRECT_PATH?: string;
   readonly VITE_AUTH_DEBUG?: string;
   readonly VITE_NETLIFY_SITE_URL?: string;
-  readonly VITE_NETLIFY_IDENTITY_API_URL?: string;
   readonly VITE_NETLIFY_IDENTITY_LOCALE?: string;
   readonly VITE_NETLIFY_IDENTITY_NAME_PLACEHOLDER?: string;
   readonly VITE_NETLIFY_PUBLIC_SIGNUP?: string;

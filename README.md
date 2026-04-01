@@ -20,52 +20,55 @@ npm install
 
 ## Run Locally
 
-Start the dev server:
+For auth-enabled local development, run through Netlify so Identity and Functions are available:
 
 ```bash
-npm run dev
+netlify dev
 ```
 
 Open:
 
 ```text
+http://localhost:8888
+```
+
+If you only need the raw Vite app without Netlify auth/functions:
+
+```bash
+npm run dev
+```
+
+That serves on:
+
+```text
 http://localhost:45173
 ```
 
-## API Key Setup
+## Environment Setup
 
-The app can use either:
+The app uses a single server-side AI key:
 
-1. a key saved in Settings inside the browser
-2. an environment variable
-
-Supported env vars:
-
-- `VITE_OPENAI_API_KEY` - preferred
-- `OPENAI_API_KEY` - fallback
-- `NETLIFY_OPENAI_API_KEY` - fallback
+- `OPENAI_API_KEY`
 
 Local example:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Then set one of the values in `.env`, for example:
+Then set:
 
 ```bash
-VITE_OPENAI_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here
 ```
 
 Restart `npm run dev` after changing env vars.
 
 ## Netlify
 
-Set one of these in Netlify:
+Set this in Netlify:
 
-- `VITE_OPENAI_API_KEY`
 - `OPENAI_API_KEY`
-- `NETLIFY_OPENAI_API_KEY`
 
 Path:
 

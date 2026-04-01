@@ -4,12 +4,8 @@
   functions = "netlify/functions"
   publish = "dist"
 
-  # Configure API key in Netlify UI:
-  # Site settings -> Environment variables
-  # Supported names:
-  # - VITE_OPENAI_API_KEY (preferred)
-  # - OPENAI_API_KEY
-  # - NETLIFY_OPENAI_API_KEY
+  # Configure the production AI key in Netlify UI:
+  # Site configuration -> Environment variables -> OPENAI_API_KEY
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
@@ -18,11 +14,9 @@
   #  to = "/index.html"
   #  status = 200
 
-  ## (optional) Settings for Netlify Dev
-  ## https://github.com/netlify/cli/blob/main/docs/netlify-dev.md#project-detection
-  #[dev]
-  #  command = "yarn start" # Command to start your dev server
-  #  port = 3000 # Port that the dev server will be listening on
-  #  publish = "dist" # Folder with the static content for _redirect file
+[dev]
+  command = "npm run dev -- --host 127.0.0.1 --port 45173"
+  targetPort = 45173
+  publish = "dist"
 
   ## more info on configuring this file: https://ntl.fyi/file-based-build-config

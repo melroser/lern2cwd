@@ -438,15 +438,6 @@ export interface UseChatReturn {
 // =============================================================================
 
 /**
- * Header component props
- */
-export interface HeaderProps {
-  problemTitle: string;
-  timeRemaining: number; // seconds
-  isSessionActive: boolean;
-}
-
-/**
  * CodeEditorPanel component props
  */
 export interface CodeEditorPanelProps {

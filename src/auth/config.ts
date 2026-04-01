@@ -26,7 +26,7 @@ function parseProvider(value: string | undefined): AuthProviderName {
 }
 
 const configuredNetlifySiteURL = normalizeNetlifySiteURL(
-  import.meta.env.VITE_NETLIFY_SITE_URL || import.meta.env.VITE_NETLIFY_IDENTITY_API_URL,
+  import.meta.env.VITE_NETLIFY_SITE_URL,
 );
 
 export const authConfig = {

@@ -7,8 +7,8 @@
  * - Evaluating code submissions
  * 
  * Supports two modes:
- * - Live LLM mode: Uses real API calls when an API key is configured
- * - Mock mode: Returns hardcoded responses for testing when no API key is available
+ * - Live LLM mode: Uses the authenticated Netlify AI gateway
+ * - Mock mode: Returns hardcoded responses when live access is unavailable
  * 
  * Requirements: 3.2, 4.1
  */
@@ -23,7 +23,6 @@ import type {
   ProctorInteractionMode,
   MissTag,
 } from '../types';
-import { getConfiguredApiKey, hasApiKey } from '../utils/apiKeyStorage';
 import {
   buildLiveChatPrompt,
   buildEvaluationPrompt,
@@ -34,30 +33,7 @@ import { evaluationService, EvaluationParseError } from './evaluationService';
 // Constants
 // =============================================================================
 
-/**
- * OpenAI API endpoint for chat completions
- */
-const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-
-/**
- * Default model to use for LLM calls
- */
-const DEFAULT_MODEL = 'gpt-4o-mini';
-
-/**
- * Request timeout in milliseconds
- */
-const REQUEST_TIMEOUT_MS = 15000;
-
-/**
- * Maximum retry attempts for API calls
- */
-const MAX_RETRIES = 2;
-
-/**
- * Delay between retries in milliseconds
- */
-const RETRY_DELAY_MS = 1000;
+const NETLIFY_AI_GATEWAY_ENDPOINT = '/.netlify/functions/ai';
 
 // =============================================================================
 // Helper Functions
@@ -71,13 +47,6 @@ const RETRY_DELAY_MS = 1000;
 function simulateLatency(minMs: number = 500, maxMs: number = 1000): Promise<void> {
   const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
   return new Promise((resolve) => setTimeout(resolve, delay));
-}
-
-/**
- * Sleep for a specified duration
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -1649,151 +1618,31 @@ export class LLMApiError extends Error {
   }
 }
 
-/**
- * Call the OpenAI API with the given prompts
- * 
- * @param systemPrompt - The system prompt
- * @param userPrompt - The user prompt
- * @param apiKey - The API key to use
- * @param signal - Optional AbortSignal for cancellation
- * @returns The LLM response content
- */
-async function callOpenAI(
-  systemPrompt: string,
-  userPrompt: string,
-  apiKey: string,
-  signal?: AbortSignal
-): Promise<string> {
-  const response = await fetch(OPENAI_API_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.7,
-    }),
-    signal,
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => 'Unknown error');
-    
-    // Determine if error is retryable
-    const isRetryable = response.status === 429 || // Rate limit
-                        response.status === 500 || // Server error
-                        response.status === 502 || // Bad gateway
-                        response.status === 503 || // Service unavailable
-                        response.status === 504;   // Gateway timeout
-
-    throw new LLMApiError(
-      `OpenAI API error: ${response.status} - ${errorBody}`,
-      response.status,
-      isRetryable
-    );
-  }
-
-  const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content;
-
-  if (!content) {
-    throw new LLMApiError('Empty response from OpenAI API');
-  }
-
-  return content;
-}
-
-/**
- * Call the LLM API with retry logic
- * 
- * @param systemPrompt - The system prompt
- * @param userPrompt - The user prompt
- * @param apiKey - The API key to use
- * @param signal - Optional AbortSignal for cancellation
- * @returns The LLM response content
- */
-async function callLLMWithRetry(
-  systemPrompt: string,
-  userPrompt: string,
-  apiKey: string,
-  signal?: AbortSignal
-): Promise<string> {
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    try {
-      // Create a timeout controller
-      const timeoutController = new AbortController();
-      const timeoutId = setTimeout(() => timeoutController.abort(), REQUEST_TIMEOUT_MS);
-
-      // Set up abort handling for external signal
-      const handleExternalAbort = () => timeoutController.abort();
-      if (signal) {
-        signal.addEventListener('abort', handleExternalAbort);
-      }
-
-      try {
-        const result = await callOpenAI(systemPrompt, userPrompt, apiKey, timeoutController.signal);
-        clearTimeout(timeoutId);
-        return result;
-      } finally {
-        clearTimeout(timeoutId);
-        if (signal) {
-          signal.removeEventListener('abort', handleExternalAbort);
-        }
-      }
-    } catch (error) {
-      lastError = error as Error;
-
-      // Don't retry if aborted by user
-      if (signal?.aborted) {
-        throw error;
-      }
-
-      // Check if error is retryable
-      if (error instanceof LLMApiError && !error.isRetryable) {
-        throw error;
-      }
-
-      // Wait before retrying (except on last attempt)
-      if (attempt < MAX_RETRIES - 1) {
-        await sleep(RETRY_DELAY_MS * (attempt + 1)); // Exponential backoff
-      }
-    }
-  }
-
-  throw lastError || new LLMApiError('Failed after max retries');
-}
-
 // =============================================================================
 // ProctorService Implementation
 // =============================================================================
 
 /**
- * ProctorService implementation with LLM integration and mock fallback
- * 
- * When an API key is configured, uses real LLM calls.
- * When no API key is available, falls back to mock responses.
+ * ProctorService implementation with Netlify AI gateway integration and mock fallback
  */
 export class ProctorService implements IProctorService {
   private abortController: AbortController | null = null;
   private lastInteractionMode: ProctorInteractionMode = 'idle';
+  private accessTokenProvider: (() => Promise<string | null>) | null = null;
+
+  configureAccessTokenProvider(provider: (() => Promise<string | null>) | null): void {
+    this.accessTokenProvider = provider;
+  }
+
+  private canUseGateway(): boolean {
+    return this.accessTokenProvider !== null;
+  }
 
   /**
-   * Check if LLM mode is available (API key is configured)
+   * Check if live LLM mode is available through an authenticated gateway.
    */
   private isLLMAvailable(): boolean {
-    if (!hasApiKey()) return false;
-    const key = getConfiguredApiKey();
-    if (!key) return false;
-    // Keep deterministic mode for local test keys used in automated UI tests.
-    if (key.startsWith('test-')) return false;
-    return true;
+    return this.canUseGateway();
   }
 
   /**
@@ -2537,7 +2386,7 @@ export class ProctorService implements IProctorService {
       question: string,
       context: SessionContext
     ): Promise<string> {
-      // LLM-first mode: if a key is configured, use AI for every user interaction.
+      // LLM-first mode: if an authenticated gateway is available, use AI for every user interaction.
       if (this.isLLMAvailable()) {
         try {
           const llmResponse = await this.respondToQuestionLLM(question, context);
@@ -2551,7 +2400,7 @@ export class ProctorService implements IProctorService {
         }
       }
 
-      // No API key configured: use deterministic/mock fallback.
+      // No live gateway available: use deterministic/mock fallback.
       const localResponse = this.respondDeterministically(question, context);
       if (localResponse) {
         await simulateLatency(180, 420);
@@ -2571,11 +2420,6 @@ export class ProctorService implements IProctorService {
     question: string,
     context: SessionContext
   ): Promise<string> {
-    const apiKey = getConfiguredApiKey();
-    if (!apiKey) {
-      throw new LLMApiError('No API key configured');
-    }
-
     // Build the prompt
     const { systemPrompt, userPrompt } = buildLiveChatPrompt({
       problem: context.problem,
@@ -2589,10 +2433,9 @@ export class ProctorService implements IProctorService {
     this.abortController = new AbortController();
 
     try {
-      const response = await callLLMWithRetry(
+      const response = await this.callConfiguredLLM(
         systemPrompt,
         userPrompt,
-        apiKey,
         this.abortController.signal
       );
       return response;
@@ -2874,13 +2717,12 @@ export class ProctorService implements IProctorService {
       problem: Problem,
       chatHistory: ChatMessage[]
     ): Promise<EvaluationResult> {
-      // Check if LLM mode is available
+      // Check if the authenticated gateway is available
       if (this.isLLMAvailable()) {
         try {
           return await this.evaluateLLM(code, problem, chatHistory);
         } catch (error) {
-          // If the API call fails for any reason, fall back to mock mode
-          // This prevents the app from freezing on bad API keys or network errors
+          // If the gateway call fails for any reason, fall back to mock mode
           console.warn('LLM evaluation call failed, falling back to mock mode:', error);
           return this.evaluateMock(code, problem, chatHistory);
         }
@@ -2898,11 +2740,6 @@ export class ProctorService implements IProctorService {
     problem: Problem,
     chatHistory: ChatMessage[]
   ): Promise<EvaluationResult> {
-    const apiKey = getConfiguredApiKey();
-    if (!apiKey) {
-      throw new LLMApiError('No API key configured');
-    }
-
     // Calculate duration (approximate - we don't have exact start time here)
     const durationSeconds = problem.timeLimit * 60;
 
@@ -2919,10 +2756,9 @@ export class ProctorService implements IProctorService {
 
     try {
       // First attempt
-      let llmResponse = await callLLMWithRetry(
+      let llmResponse = await this.callConfiguredLLM(
         systemPrompt,
         userPrompt,
-        apiKey,
         this.abortController.signal
       );
 
@@ -2955,10 +2791,9 @@ export class ProctorService implements IProctorService {
         const retryPrompt = userPrompt +
           '\n\nIMPORTANT: Respond with ONLY valid JSON that matches the required schema exactly. No markdown, no code fences, no extra text.';
 
-        llmResponse = await callLLMWithRetry(
+        llmResponse = await this.callConfiguredLLM(
           systemPrompt,
           retryPrompt,
-          apiKey,
           this.abortController.signal
         );
 
@@ -2984,6 +2819,71 @@ export class ProctorService implements IProctorService {
     } finally {
       this.abortController = null;
     }
+  }
+
+  private async callConfiguredLLM(
+    systemPrompt: string,
+    userPrompt: string,
+    signal?: AbortSignal
+  ): Promise<string> {
+    if (!this.canUseGateway()) {
+      throw new LLMApiError('No authenticated AI gateway available');
+    }
+
+    return this.callGatewayLLM(systemPrompt, userPrompt, signal);
+  }
+
+  private async callGatewayLLM(
+    systemPrompt: string,
+    userPrompt: string,
+    signal?: AbortSignal
+  ): Promise<string> {
+    if (!this.accessTokenProvider) {
+      throw new LLMApiError('No Netlify auth token provider configured');
+    }
+
+    const accessToken = await this.accessTokenProvider();
+    if (!accessToken) {
+      throw new LLMApiError('No access token available for the AI gateway');
+    }
+
+    const response = await fetch(NETLIFY_AI_GATEWAY_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        systemPrompt,
+        userPrompt,
+      }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => 'Unknown error');
+      const isRetryable =
+        response.status === 429 ||
+        response.status === 500 ||
+        response.status === 502 ||
+        response.status === 503 ||
+        response.status === 504;
+
+      throw new LLMApiError(
+        `Netlify AI gateway error: ${response.status} - ${errorBody}`,
+        response.status,
+        isRetryable,
+      );
+    }
+
+    const data = await response.json();
+    const content = data?.content;
+
+    if (typeof content !== 'string' || content.trim().length === 0) {
+      throw new LLMApiError('Netlify AI gateway returned an empty response');
+    }
+
+    return content;
   }
 
   /**

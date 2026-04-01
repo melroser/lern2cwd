@@ -1,6 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { storageService } from '../services/storageService';
-import { saveEditorSettings, getEditorSettings } from '../utils/editorSettings';
+import {
+  clearEditorSettings,
+  DEFAULT_EDITOR_SETTINGS,
+  saveEditorSettings,
+} from '../utils/editorSettings';
+import { clearProblemSetSettings } from '../utils/problemSetSettings';
 import type { ProblemSetOption } from '../types';
 
 /**
@@ -13,16 +18,13 @@ import type { ProblemSetOption } from '../types';
 export interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (apiKey: string) => void;
+  onSave: () => void;
   onVimModeChange?: (enabled: boolean) => void;
   onProblemSetSelectionChange?: (problemSetIds: string[]) => void;
-  initialApiKey?: string;
   isFirstLaunch?: boolean;
   vimMode?: boolean;
   problemSetOptions?: ProblemSetOption[];
   selectedProblemSetIds?: string[];
-  isEnvironmentApiKeyConfigured?: boolean;
-  environmentApiKeySource?: string | null;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -86,58 +88,6 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.6,
     marginBottom: '16px',
   },
-  inputGroup: {
-    marginBottom: '16px',
-  },
-  label: {
-    display: 'block',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#cdd6f4',
-    marginBottom: '8px',
-  },
-  input: {
-    width: '100%',
-    padding: '12px 16px',
-    fontSize: '1rem',
-    fontFamily: 'monospace',
-    backgroundColor: '#313244',
-    border: '1px solid #45475a',
-    borderRadius: '8px',
-    color: '#cdd6f4',
-    outline: 'none',
-    transition: 'border-color 0.2s ease',
-    boxSizing: 'border-box' as const,
-  },
-  inputFocused: {
-    borderColor: '#89b4fa',
-  },
-  warningBox: {
-    backgroundColor: 'rgba(249, 226, 175, 0.1)',
-    border: '1px solid #f9e2af',
-    borderRadius: '8px',
-    padding: '16px',
-    marginBottom: '16px',
-  },
-  warningTitle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    color: '#f9e2af',
-    marginBottom: '12px',
-  },
-  warningIcon: {
-    fontSize: '1.1rem',
-  },
-  warningList: {
-    margin: 0,
-    paddingLeft: '20px',
-    fontSize: '0.85rem',
-    color: '#f9e2af',
-    lineHeight: 1.8,
-  },
   infoBox: {
     backgroundColor: 'rgba(137, 180, 250, 0.1)',
     border: '1px solid #89b4fa',
@@ -192,41 +142,6 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#45475a',
     color: '#6c7086',
     cursor: 'not-allowed',
-  },
-  removeButton: {
-    padding: '12px 24px',
-    fontSize: '1rem',
-    fontWeight: 500,
-    color: '#f38ba8',
-    backgroundColor: 'transparent',
-    border: '1px solid #f38ba8',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  },
-  keyStatus: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '0.875rem',
-    marginTop: '8px',
-  },
-  keyStatusConfigured: {
-    color: '#a6e3a1',
-  },
-  keyStatusNotConfigured: {
-    color: '#f38ba8',
-  },
-  statusDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-  },
-  statusDotConfigured: {
-    backgroundColor: '#a6e3a1',
-  },
-  statusDotNotConfigured: {
-    backgroundColor: '#f38ba8',
   },
   dangerSection: {
     marginTop: '24px',
@@ -387,24 +302,27 @@ const styles: Record<string, React.CSSProperties> = {
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
+  onSave,
   onVimModeChange,
   onProblemSetSelectionChange,
   isFirstLaunch = false,
   vimMode = false,
   problemSetOptions = [],
   selectedProblemSetIds = [],
-  isEnvironmentApiKeyConfigured = false,
-  environmentApiKeySource = null,
 }) => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const effectiveVimMode = vimMode ?? getEditorSettings().vimMode;
+  const effectiveVimMode = vimMode ?? DEFAULT_EDITOR_SETTINGS.vimMode;
   const effectiveProblemSetIds = selectedProblemSetIds;
 
   const handleClearAllData = useCallback(() => {
     storageService.clearSessions();
+    clearEditorSettings();
+    clearProblemSetSettings();
     setShowClearConfirm(false);
-  }, []);
+    onVimModeChange?.(DEFAULT_EDITOR_SETTINGS.vimMode);
+    onProblemSetSelectionChange?.([]);
+  }, [onProblemSetSelectionChange, onVimModeChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -472,8 +390,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span>Privacy First</span>
             </div>
             <p style={styles.privacyNoticeText}>
-              All data stored locally on this device only. Your session history, 
-              code, and chat transcripts never leave your browser.
+              Your local history and preferences stay on this device under your
+              signed-in profile. LLM requests go through the authenticated server gateway.
             </p>
           </div>
         )}
@@ -484,10 +402,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <span>LLM Access</span>
           </div>
           <p style={styles.infoText}>
-            API configuration is environment-managed for this app.
-            {isEnvironmentApiKeyConfigured
-              ? ` Shared access is configured via ${environmentApiKeySource ?? 'environment variables'}.`
-              : ' Shared access is not configured yet.'}
+            LLM access is managed for authenticated beta users through environment
+            configuration on the deployment.
           </p>
         </div>
 
@@ -565,8 +481,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <span>Data Privacy</span>
           </div>
           <p style={styles.infoText}>
-            All session data is stored locally on this device only. 
-            API keys are not stored in the browser.
+            Local history and editor preferences stay on this device. The API key
+            is server-managed and never stored in the browser.
           </p>
         </div>
 
@@ -596,7 +512,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div style={styles.buttonGroup}>
           <button
             style={styles.cancelButton}
-            onClick={onClose}
+            onClick={() => {
+              onSave();
+              onClose();
+            }}
             data-testid="settings-cancel-button"
           >
             Close

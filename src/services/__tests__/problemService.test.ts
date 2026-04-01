@@ -1,170 +1,39 @@
-/**
- * Unit tests for ProblemService
- * 
- * Tests the problem bank management functionality:
- * - loadProblems(): Returns all problems
- * - getRandomProblem(excludeIds): Returns a random problem not in the exclusion list
- * - getProblemById(id): Returns problem by id or null
- * 
- * Requirements: 8.3, 8.4
- */
-
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ProblemService } from '../problemService';
-import { problems } from '../../data/problemsOld';
 
 describe('ProblemService', () => {
-  let service: ProblemService;
+  it('loads only the selected problem sets', async () => {
+    const service = new ProblemService();
+    const problems = await service.loadProblems(['python-fundamentals']);
 
-  beforeEach(() => {
-    service = new ProblemService();
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems.every((problem) => problem.problemSetId === 'python-fundamentals')).toBe(true);
   });
 
-  describe('loadProblems', () => {
-    it('should return all problems from the problem bank', async () => {
-      const loadedProblems = await service.loadProblems();
-      
-      expect(loadedProblems).toHaveLength(problems.length);
-      expect(loadedProblems).toEqual(problems);
-    });
+  it('returns metadata for all registered problem sets with counts', () => {
+    const service = new ProblemService();
+    const sets = service.getAvailableProblemSets();
 
-    it('should return problems with all required fields', async () => {
-      const loadedProblems = await service.loadProblems();
-      
-      loadedProblems.forEach((problem) => {
-        expect(problem).toHaveProperty('id');
-        expect(problem).toHaveProperty('language');
-        expect(problem).toHaveProperty('title');
-        expect(problem).toHaveProperty('difficulty');
-        expect(problem).toHaveProperty('timeLimit');
-        expect(problem).toHaveProperty('prompt');
-        expect(problem).toHaveProperty('constraints');
-        expect(problem).toHaveProperty('scaffold');
-        expect(problem).toHaveProperty('examples');
-        expect(problem).toHaveProperty('expectedApproach');
-        expect(problem).toHaveProperty('commonPitfalls');
-        expect(problem).toHaveProperty('idealSolutionOutline');
-        expect(problem).toHaveProperty('evaluationNotes');
-      });
-    });
+    expect(sets.find((set) => set.id === 'neetcode-50')?.questionCount).toBeGreaterThan(0);
+    expect(sets.find((set) => set.id === 'python-intermediate')?.questionCount).toBeGreaterThan(0);
+    expect(sets.find((set) => set.id === 'synthbee-conversational-screen')?.assessmentType).toBe('behavioral');
   });
 
-  describe('getRandomProblem', () => {
-    it('should return a problem when no exclusion list is provided', async () => {
-      await service.loadProblems();
-      
-      const problem = service.getRandomProblem();
-      
-      expect(problem).toBeDefined();
-      expect(problem.id).toBeDefined();
-      expect(problems.some((p) => p.id === problem.id)).toBe(true);
-    });
+  it('resolves known problems by id from the currently selected pool', async () => {
+    const service = new ProblemService();
+    await service.loadProblems(['neetcode-50']);
 
-    it('should return a problem when exclusion list is empty', async () => {
-      await service.loadProblems();
-      
-      const problem = service.getRandomProblem([]);
-      
-      expect(problem).toBeDefined();
-      expect(problem.id).toBeDefined();
-    });
-
-    it('should not return a problem in the exclusion list', async () => {
-      await service.loadProblems();
-      
-      // Exclude all but one problem
-      const excludeIds = problems.slice(0, -1).map((p) => p.id);
-      const problem = service.getRandomProblem(excludeIds);
-      
-      expect(problem).toBeDefined();
-      expect(excludeIds).not.toContain(problem.id);
-    });
-
-    it('should return any problem when all problems are excluded', async () => {
-      await service.loadProblems();
-      
-      // Exclude all problems
-      const excludeIds = problems.map((p) => p.id);
-      const problem = service.getRandomProblem(excludeIds);
-      
-      // Should still return a problem (fallback behavior)
-      expect(problem).toBeDefined();
-      expect(problem.id).toBeDefined();
-    });
-
-    it('should work without calling loadProblems first', () => {
-      // Don't call loadProblems - service should load on demand
-      const problem = service.getRandomProblem();
-      
-      expect(problem).toBeDefined();
-      expect(problem.id).toBeDefined();
-    });
-
-    it('should return different problems over multiple calls (statistical test)', async () => {
-      await service.loadProblems();
-      
-      // If we have multiple problems, calling getRandomProblem many times
-      // should eventually return different problems
-      if (problems.length > 1) {
-        const selectedIds = new Set<string>();
-        
-        // Call 50 times to increase chance of getting different problems
-        for (let i = 0; i < 50; i++) {
-          const problem = service.getRandomProblem();
-          selectedIds.add(problem.id);
-        }
-        
-        // With 5 problems and 50 calls, we should get at least 2 different problems
-        expect(selectedIds.size).toBeGreaterThan(1);
-      }
-    });
+    const problem = service.getProblemById('neet-valid-sudoku');
+    expect(problem?.id).toBe('neet-valid-sudoku');
+    expect(problem?.problemSetId).toBe('neetcode-50');
   });
 
-  describe('getProblemById', () => {
-    it('should return the correct problem for a valid id', async () => {
-      await service.loadProblems();
-      
-      const problem = service.getProblemById('fizzbuzz');
-      
-      expect(problem).toBeDefined();
-      expect(problem?.id).toBe('fizzbuzz');
-      expect(problem?.title).toBe('FizzBuzz');
-    });
+  it('returns a random problem outside the exclusion list when possible', async () => {
+    const service = new ProblemService();
+    const problems = await service.loadProblems(['python-fundamentals']);
+    const excluded = problems.slice(0, Math.max(0, problems.length - 1)).map((problem) => problem.id);
 
-    it('should return null for an invalid id', async () => {
-      await service.loadProblems();
-      
-      const problem = service.getProblemById('non-existent-problem');
-      
-      expect(problem).toBeNull();
-    });
-
-    it('should return null for an empty id', async () => {
-      await service.loadProblems();
-      
-      const problem = service.getProblemById('');
-      
-      expect(problem).toBeNull();
-    });
-
-    it('should work without calling loadProblems first', () => {
-      // Don't call loadProblems - service should load on demand
-      const problem = service.getProblemById('two-sum');
-      
-      expect(problem).toBeDefined();
-      expect(problem?.id).toBe('two-sum');
-    });
-
-    it('should return all known problems by their ids', async () => {
-      await service.loadProblems();
-      
-      const knownIds = ['fizzbuzz', 'two-sum', 'valid-parentheses', 'reverse-string', 'palindrome-number'];
-      
-      knownIds.forEach((id) => {
-        const problem = service.getProblemById(id);
-        expect(problem).toBeDefined();
-        expect(problem?.id).toBe(id);
-      });
-    });
+    const randomProblem = service.getRandomProblem(excluded);
+    expect(excluded.includes(randomProblem.id)).toBe(false);
   });
 });

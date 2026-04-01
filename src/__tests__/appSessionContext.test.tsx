@@ -7,6 +7,39 @@ import { proctorService } from '../services/proctorService';
 import { storageService } from '../services/storageService';
 import type { EvaluationResult, Problem, SessionRecord } from '../types';
 
+vi.mock('../auth/AuthProvider', () => ({
+  AuthProvider: ({ children }: { children: any }) => <>{children}</>,
+}));
+
+vi.mock('../auth/RequireAuth', () => ({
+  RequireAuth: ({ children }: { children: any }) => <>{children}</>,
+}));
+
+vi.mock('../auth/useAuth', () => ({
+  useAuth: () => ({
+    isLoaded: true,
+    isAuthenticated: true,
+    user: {
+      id: 'user-1',
+      email: 'tester@example.com',
+      displayName: 'Test User',
+      roles: [],
+      authProvider: 'netlify',
+    },
+    profileKey: 'netlify:user-1',
+    provider: 'netlify',
+    error: null,
+    signupEnabled: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    signup: vi.fn(),
+    refreshSession: vi.fn(),
+    getAccessToken: vi.fn(async () => 'jwt-token'),
+    hasRole: vi.fn().mockReturnValue(false),
+    hasAnyRole: vi.fn().mockReturnValue(false),
+  }),
+}));
+
 vi.mock('../services/problemService', () => ({
   problemService: {
     loadProblems: vi.fn().mockResolvedValue([]),
@@ -22,6 +55,7 @@ vi.mock('../services/proctorService', () => ({
     respondToQuestion: vi.fn(),
     getLastInteractionMode: vi.fn().mockReturnValue('idle'),
     getProactiveNudge: vi.fn().mockReturnValue(null),
+    configureAccessTokenProvider: vi.fn(),
     cancelPendingRequest: vi.fn(),
     evaluate: vi.fn(),
   },
@@ -29,18 +63,12 @@ vi.mock('../services/proctorService', () => ({
 
 vi.mock('../services/storageService', () => ({
   storageService: {
+    setStorageScope: vi.fn(),
     getSessions: vi.fn().mockReturnValue([]),
     saveSession: vi.fn(),
     getSession: vi.fn(),
     clearSessions: vi.fn(),
   },
-}));
-
-vi.mock('../utils/apiKeyStorage', () => ({
-  getStoredApiKey: vi.fn().mockReturnValue('test-key'),
-  hasApiKey: vi.fn().mockReturnValue(true),
-  isEnvironmentApiKeyConfigured: vi.fn().mockReturnValue(false),
-  getEnvironmentApiKeySource: vi.fn().mockReturnValue(null),
 }));
 
 const mockProblem: Problem = {
@@ -141,7 +169,7 @@ describe('App session context', () => {
     vi.mocked(storageService.getSessions).mockReturnValue([]);
 
     localStorage.setItem(
-      'coding-interview-problem-set-settings',
+      'coding-interview-problem-set-settings:netlify:user-1',
       JSON.stringify({ selectedProblemSetIds: ['neetcode-50', 'python-fundamentals'] }),
     );
 

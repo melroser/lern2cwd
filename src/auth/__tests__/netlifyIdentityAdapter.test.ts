@@ -80,13 +80,13 @@ describe('netlifyIdentityAdapter', () => {
     expect(initOptions).not.toHaveProperty('APIUrl');
   });
 
-  it('accepts the legacy identity URL env var and converts it to a site URL', async () => {
-    vi.stubEnv('VITE_NETLIFY_IDENTITY_API_URL', 'https://lern2cwd.netlify.app/.netlify/identity');
+  it('does not seed a localhost site URL when none is configured', async () => {
+    vi.stubEnv('VITE_NETLIFY_SITE_URL', '');
     const { createNetlifyIdentityAdapter } = await import('../adapters/netlifyIdentityAdapter');
 
     const adapter = createNetlifyIdentityAdapter();
     await adapter.init();
 
-    expect(window.localStorage.getItem('netlifySiteURL')).toBe('https://lern2cwd.netlify.app');
+    expect(window.localStorage.getItem('netlifySiteURL')).toBeNull();
   });
 });

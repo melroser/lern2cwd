@@ -17,13 +17,13 @@ import { useChat } from './hooks/useChat';
 import { problemService } from './services/problemService';
 import { proctorService } from './services/proctorService';
 import { storageService } from './services/storageService';
+import { getEditorSettings, setEditorSettingsStorageScope } from './utils/editorSettings';
 import {
-  isEnvironmentApiKeyConfigured,
-  getEnvironmentApiKeySource,
-  setApiKeyStorageScope,
-} from './utils/apiKeyStorage';
-import { getEditorSettings } from './utils/editorSettings';
-import { getProblemSetSettings, saveProblemSetSettings } from './utils/problemSetSettings';
+  DEFAULT_SELECTED_PROBLEM_SETS,
+  getProblemSetSettings,
+  saveProblemSetSettings,
+  setProblemSetSettingsStorageScope,
+} from './utils/problemSetSettings';
 import type {
   Problem,
   EvaluationResult,
@@ -170,9 +170,7 @@ function AppShell() {
   const [problemTab, setProblemTab] = useState<'description' | 'constraints' | 'examples'>('description');
   const [proctorMode, setProctorMode] = useState<ProctorInteractionMode>(() => proctorService.getLastInteractionMode());
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
-  const [selectedProblemSetIds, setSelectedProblemSetIds] = useState<string[]>(
-    () => getProblemSetSettings().selectedProblemSetIds
-  );
+  const [selectedProblemSetIds, setSelectedProblemSetIds] = useState<string[]>(DEFAULT_SELECTED_PROBLEM_SETS);
   const [loadedProblems, setLoadedProblems] = useState<Problem[]>([]);
   const [problemSetOptions, setProblemSetOptions] = useState<ProblemSetOption[]>(
     () => problemService.getAvailableProblemSets()
@@ -206,9 +204,16 @@ function AppShell() {
 
   useEffect(() => {
     storageService.setStorageScope(auth.profileKey);
-    setApiKeyStorageScope(auth.profileKey);
+    setEditorSettingsStorageScope(auth.profileKey);
+    setProblemSetSettingsStorageScope(auth.profileKey);
     setStorageScopeReady(true);
   }, [auth.profileKey]);
+
+  useEffect(() => {
+    proctorService.configureAccessTokenProvider(
+      auth.isAuthenticated ? auth.getAccessToken : null,
+    );
+  }, [auth.getAccessToken, auth.isAuthenticated]);
 
   useEffect(() => {
     latestCodeRef.current = sessionHook.session?.code ?? latestCodeRef.current;
@@ -242,26 +247,8 @@ function AppShell() {
 
     const editorSettings = getEditorSettings();
     setVimMode(editorSettings.vimMode);
-  }, [storageScopeReady]);
-  
-  // Auto-save session state every 30 seconds
-  useEffect(() => {
-    if (sessionHook.session?.status === 'active' && sessionHook.session?.id) {
-      const interval = setInterval(() => {
-        // Auto-save session draft to localStorage
-        const sessionDraft = {
-          sessionId: sessionHook.session!.id,
-          problemId: currentProblem?.id,
-          code: latestCodeRef.current,
-          chatHistory: chat.messages,
-          timestamp: Date.now(),
-        };
-        localStorage.setItem(`session-draft-${sessionHook.session!.id}`, JSON.stringify(sessionDraft));
-      }, 30000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [sessionHook.session, chat.messages, currentProblem?.id]);
+    setSelectedProblemSetIds(getProblemSetSettings().selectedProblemSetIds);
+  }, [auth.profileKey, storageScopeReady]);
   
   // Load problems when selected sets change
   useEffect(() => {
@@ -707,6 +694,22 @@ function AppShell() {
     return sections;
   }, [loadedProblems, problemAttemptMap, problemSetOptions, selectedProblemSetIds]);
 
+  const currentProblemSetInfo = useMemo(() => {
+    if (!currentProblem?.problemSetId) {
+      return null;
+    }
+
+    const setMeta = problemSetOptions.find((option) => option.id === currentProblem.problemSetId);
+    const setProblems = loadedProblems.filter((problem) => problem.problemSetId === currentProblem.problemSetId);
+    const ordinal = setProblems.findIndex((problem) => problem.id === currentProblem.id);
+
+    return {
+      label: setMeta?.label ?? currentProblem.problemSetId,
+      total: setProblems.length > 0 ? setProblems.length : null,
+      ordinal: ordinal >= 0 ? ordinal + 1 : null,
+    };
+  }, [currentProblem, loadedProblems, problemSetOptions]);
+
   const nextReviewActionLabel = useMemo(() => {
     if (!activeCampaignFlow) {
       return 'Next Problem';
@@ -842,9 +845,6 @@ function AppShell() {
             onClose={() => setShowSettings(false)}
             onSave={() => setShowSettings(false)}
             onVimModeChange={(enabled: boolean) => setVimMode(enabled)}
-            initialApiKey=""
-            isEnvironmentApiKeyConfigured={isEnvironmentApiKeyConfigured()}
-            environmentApiKeySource={getEnvironmentApiKeySource()}
             vimMode={vimMode}
             problemSetOptions={problemSetOptions}
             selectedProblemSetIds={selectedProblemSetIds}
@@ -1110,6 +1110,17 @@ function AppShell() {
                         {sessionHook.session?.status === 'waiting_to_start' ? 'Hidden' : currentProblem.title}
                       </span>
                     </div>
+                    {currentProblemSetInfo && (
+                      <div className="pill" data-testid="problem-set-pill">
+                        <span style={{ color: 'rgba(182,255,182,0.65)' }}>SET</span>
+                        <span style={{ color: 'var(--cool)' }}>
+                          {currentProblemSetInfo.label}
+                          {currentProblemSetInfo.ordinal && currentProblemSetInfo.total
+                            ? ` · ${currentProblemSetInfo.ordinal}/${currentProblemSetInfo.total}`
+                            : ''}
+                        </span>
+                      </div>
+                    )}
                     <div className="pill">
                       <span style={{ color: 'rgba(182,255,182,0.65)' }}>TIMER</span>
                       <span className="timer">{Math.floor(timerWithExpiry.timeRemaining / 60).toString().padStart(2, '0')}:{(timerWithExpiry.timeRemaining % 60).toString().padStart(2, '0')}</span>

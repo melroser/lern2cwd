@@ -34,7 +34,6 @@ The migration surface should mostly be:
 ### Netlify Identity
 - `VITE_AUTH_PROVIDER=netlify`
 - `VITE_NETLIFY_SITE_URL` (optional, mainly for localhost development)
-- `VITE_NETLIFY_IDENTITY_API_URL` (legacy fallback; if provided, the app strips `/.netlify/identity` and treats it as the site URL)
 - `VITE_NETLIFY_IDENTITY_LOCALE` (optional)
 - `VITE_NETLIFY_PUBLIC_SIGNUP=false` for invite-only mode
 

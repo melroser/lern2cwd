@@ -8,7 +8,9 @@ interface ChatInputProps {
 const styles: Record<string, React.CSSProperties> = {
   input: {
     flex: 1,
-    border: '1px solid rgba(96, 255, 160, 0.18)',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'rgba(96, 255, 160, 0.18)',
     borderRadius: '12px',
     background: 'rgba(0, 0, 0, 0.20)',
     color: 'rgba(182, 255, 182, 0.92)',
