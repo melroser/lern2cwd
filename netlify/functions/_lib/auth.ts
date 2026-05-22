@@ -24,6 +24,19 @@ type NetlifyClientContext = {
   user?: NetlifyRequestUser;
 };
 
+type NetlifyIdentityRuntimeContext = {
+  url?: string;
+  token?: string;
+};
+
+type GlobalWithNetlifyIdentityContext = typeof globalThis & {
+  netlifyIdentityContext?: {
+    url: string;
+    token?: string;
+    user?: NetlifyRequestUser;
+  };
+};
+
 const NETLIFY_CONTEXT_HEADER = 'x-app-netlify-client-context';
 
 export class AuthError extends Error {
@@ -100,6 +113,23 @@ export function buildRequestFromNetlifyContext(event: HandlerEvent, context: Han
     headers,
     body,
   });
+}
+
+export function seedNetlifyIdentityContext(context: HandlerContext): boolean {
+  const identity = context.identity as NetlifyIdentityRuntimeContext | undefined;
+  const url = typeof identity?.url === 'string' && identity.url.length > 0 ? identity.url : null;
+
+  if (!url) {
+    return false;
+  }
+
+  (globalThis as GlobalWithNetlifyIdentityContext).netlifyIdentityContext = {
+    url,
+    token: typeof identity?.token === 'string' && identity.token.length > 0 ? identity.token : undefined,
+    user: context.clientContext?.user as NetlifyRequestUser | undefined,
+  };
+
+  return true;
 }
 
 export async function requireUser(req: Request): Promise<VerifiedRequestUser> {

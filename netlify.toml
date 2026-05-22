@@ -4,6 +4,10 @@
   functions = "netlify/functions"
   publish = "dist"
 
+[build.environment]
+  VITE_AUTH_PROVIDER = "netlify"
+  VITE_NETLIFY_PUBLIC_SIGNUP = "false"
+
   # Configure the production AI key in Netlify UI:
   # Site configuration -> Environment variables -> OPENAI_API_KEY
 

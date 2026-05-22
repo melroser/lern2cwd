@@ -1,16 +1,41 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import { createAuthAdapter } from './createAuthAdapter';
 import { authConfig } from './config';
-import { getAppUserProfileKey, type AuthSession, type AppUser, type AuthProviderName } from './types';
+import {
+  getAppUserProfileKey,
+  type AuthCallbackState,
+  type AuthOAuthProvider,
+  type AuthSession,
+  type AuthSignupResult,
+  type AppUser,
+  type AuthProviderName,
+} from './types';
 
 type AuthContextValue = AuthSession & {
   provider: AuthProviderName;
   error: string | null;
+  callbackState: AuthCallbackState | null;
   profileKey: string | null;
   signupEnabled: boolean;
-  login: (options?: { redirectTo?: string }) => Promise<void>;
+  oauthProviders: AuthOAuthProvider[];
+  login: (options?: { email?: string; password?: string; redirectTo?: string }) => Promise<void>;
   logout: (options?: { redirectTo?: string }) => Promise<void>;
-  signup: (options?: { email?: string; redirectTo?: string }) => Promise<void>;
+  signup: (options?: {
+    email?: string;
+    password?: string;
+    displayName?: string;
+    redirectTo?: string;
+  }) => Promise<AuthSignupResult>;
+  requestPasswordRecovery: (email: string) => Promise<void>;
+  acceptInvite: (options: {
+    token: string;
+    password: string;
+    displayName?: string;
+    redirectTo?: string;
+  }) => Promise<void>;
+  updatePassword: (options: { password: string; redirectTo?: string }) => Promise<void>;
+  oauthLogin: (provider: AuthOAuthProvider, options?: { redirectTo?: string }) => Promise<void>;
+  clearCallbackState: () => void;
   refreshSession: () => Promise<void>;
   getAccessToken: () => Promise<string | null>;
   hasRole: (role: string) => boolean;
@@ -44,12 +69,16 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: PropsWithChildren) {
   const adapter = useMemo(() => createAuthAdapter(), []);
   const [session, setSession] = useState<AuthSession>(initialSession);
+  const [callbackState, setCallbackState] = useState<AuthCallbackState | null>(null);
+  const [oauthProviders, setOauthProviders] = useState<AuthOAuthProvider[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const refreshSession = useCallback(async () => {
     try {
       const nextSession = normalizeSession(await adapter.getSession());
       setSession(nextSession);
+      setCallbackState(adapter.getCallbackState?.() ?? null);
+      setOauthProviders(adapter.getOAuthProviders?.() ?? []);
       setError(null);
     } catch (authError) {
       setSession({ ...initialSession, isLoaded: true });
@@ -64,6 +93,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void (async () => {
       try {
         await adapter.init();
+        setCallbackState(adapter.getCallbackState?.() ?? null);
+        setOauthProviders(adapter.getOAuthProviders?.() ?? []);
         if (!isActive) return;
 
         await refreshSession();
@@ -85,24 +116,86 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, [adapter, refreshSession]);
 
-  const login = useCallback(async (options?: { redirectTo?: string }) => {
+  const login = useCallback(async (options?: { email?: string; password?: string; redirectTo?: string }) => {
     setError(null);
     await adapter.login(options);
-  }, [adapter]);
+    await refreshSession();
+  }, [adapter, refreshSession]);
 
   const logout = useCallback(async (options?: { redirectTo?: string }) => {
     setError(null);
     await adapter.logout(options);
+    setCallbackState(adapter.getCallbackState?.() ?? null);
     setSession({ ...initialSession, isLoaded: true });
   }, [adapter]);
 
-  const signup = useCallback(async (options?: { email?: string; redirectTo?: string }) => {
+  const signup = useCallback(async (options?: {
+    email?: string;
+    password?: string;
+    displayName?: string;
+    redirectTo?: string;
+  }) => {
     if (!adapter.signup) {
       throw new Error(`${authConfig.provider} does not support sign-up through this adapter.`);
     }
 
     setError(null);
-    await adapter.signup(options);
+    const result = await adapter.signup(options);
+    await refreshSession();
+    return result;
+  }, [adapter, refreshSession]);
+
+  const requestPasswordRecovery = useCallback(async (email: string) => {
+    if (!adapter.requestPasswordRecovery) {
+      throw new Error(`${authConfig.provider} does not support password recovery through this adapter.`);
+    }
+
+    setError(null);
+    await adapter.requestPasswordRecovery(email);
+  }, [adapter]);
+
+  const acceptInvite = useCallback(async (options: {
+    token: string;
+    password: string;
+    displayName?: string;
+    redirectTo?: string;
+  }) => {
+    if (!adapter.acceptInvite) {
+      throw new Error(`${authConfig.provider} does not support invite acceptance through this adapter.`);
+    }
+
+    setError(null);
+    await adapter.acceptInvite(options);
+    setCallbackState(adapter.getCallbackState?.() ?? null);
+    await refreshSession();
+  }, [adapter, refreshSession]);
+
+  const updatePassword = useCallback(async (options: { password: string; redirectTo?: string }) => {
+    if (!adapter.updatePassword) {
+      throw new Error(`${authConfig.provider} does not support password updates through this adapter.`);
+    }
+
+    setError(null);
+    await adapter.updatePassword(options);
+    setCallbackState(adapter.getCallbackState?.() ?? null);
+    await refreshSession();
+  }, [adapter, refreshSession]);
+
+  const oauthLogin = useCallback(async (
+    provider: AuthOAuthProvider,
+    options?: { redirectTo?: string },
+  ) => {
+    if (!adapter.oauthLogin) {
+      throw new Error(`${authConfig.provider} does not support OAuth login through this adapter.`);
+    }
+
+    setError(null);
+    await adapter.oauthLogin(provider, options);
+  }, [adapter]);
+
+  const clearCallbackState = useCallback(() => {
+    adapter.clearCallbackState?.();
+    setCallbackState(null);
   }, [adapter]);
 
   const getAccessToken = useCallback(async () => {
@@ -127,16 +220,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
     ...session,
     provider: authConfig.provider,
     error,
+    callbackState,
     profileKey: session.user ? getAppUserProfileKey(session.user) : null,
-    signupEnabled: typeof adapter.signup === 'function' && !(authConfig.provider === 'netlify' && authConfig.netlify.inviteOnly),
+    signupEnabled: typeof adapter.signup === 'function' && (adapter.isSignupEnabled?.() ?? true),
+    oauthProviders,
     login,
     logout,
     signup,
+    requestPasswordRecovery,
+    acceptInvite,
+    updatePassword,
+    oauthLogin,
+    clearCallbackState,
     refreshSession,
     getAccessToken,
     hasRole,
     hasAnyRole,
-  }), [adapter, error, getAccessToken, hasAnyRole, hasRole, login, logout, refreshSession, session, signup]);
+  }), [
+    acceptInvite,
+    adapter,
+    callbackState,
+    clearCallbackState,
+    error,
+    getAccessToken,
+    hasAnyRole,
+    hasRole,
+    login,
+    logout,
+    oauthLogin,
+    oauthProviders,
+    refreshSession,
+    requestPasswordRecovery,
+    session,
+    signup,
+    updatePassword,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

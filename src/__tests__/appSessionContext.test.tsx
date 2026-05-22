@@ -29,10 +29,17 @@ vi.mock('../auth/useAuth', () => ({
     profileKey: 'netlify:user-1',
     provider: 'netlify',
     error: null,
+    callbackState: null,
     signupEnabled: false,
+    oauthProviders: [],
     login: vi.fn(),
     logout: vi.fn(),
     signup: vi.fn(),
+    requestPasswordRecovery: vi.fn(),
+    acceptInvite: vi.fn(),
+    updatePassword: vi.fn(),
+    oauthLogin: vi.fn(),
+    clearCallbackState: vi.fn(),
     refreshSession: vi.fn(),
     getAccessToken: vi.fn(async () => 'jwt-token'),
     hasRole: vi.fn().mockReturnValue(false),
@@ -197,6 +204,11 @@ describe('App session context', () => {
       expect(screen.getByText('Welcome to the test!')).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId('session-workspace-toggle')).toBeInTheDocument();
+    expect(screen.getByTestId('chat-panel')).toBeInTheDocument();
+    expect(screen.getAllByTestId('chat-input')).toHaveLength(1);
+    expect(screen.getByTestId('send-button')).toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
     await user.type(screen.getByTestId('chat-input'), 'Old session question');
     await user.click(screen.getByTestId('send-button'));
@@ -206,6 +218,9 @@ describe('App session context', () => {
       expect(screen.getByText('Here is my response.')).toBeInTheDocument();
     });
 
+    await user.click(
+      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /editor/i }),
+    );
     await user.click(screen.getByTestId('submit-button'));
     await waitFor(() => expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument());
     await user.click(screen.getByTestId('dialog-confirm-button'));
@@ -227,6 +242,44 @@ describe('App session context', () => {
 
     expect(screen.queryByText('Old session question')).not.toBeInTheDocument();
     expect(screen.queryByText('Here is my response.')).not.toBeInTheDocument();
+  });
+
+  it('keeps the editor locked until the timer starts, then switches workspace panes', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<App />);
+
+    await user.click(screen.getByTestId('start-session-button'));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+    });
+
+    const workspaceToggle = screen.getByTestId('session-workspace-toggle');
+    const promptToggle = within(workspaceToggle).getByRole('button', { name: /prompt/i });
+    const editorToggle = within(workspaceToggle).getByRole('button', { name: /editor/i });
+
+    expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(editorToggle).toHaveAttribute('aria-pressed', 'false');
+    expect(editorToggle).toBeDisabled();
+    expect(screen.getByText(/ready to start\?/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your solution/i)).not.toBeInTheDocument();
+
+    await user.click(editorToggle);
+
+    expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/ready to start\?/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your solution/i)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
+    const activeEditorToggle = within(workspaceToggle).getByRole('button', { name: /^editor$/i });
+
+    expect(activeEditorToggle).toBeEnabled();
+
+    await user.click(activeEditorToggle);
+
+    expect(promptToggle).toHaveAttribute('aria-pressed', 'false');
+    expect(activeEditorToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/your solution/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ready to start\?/i)).not.toBeInTheDocument();
   });
 
   it('hydrates legacy history sessions so review copy context includes the problem and candidate answer', async () => {
@@ -295,6 +348,9 @@ describe('App session context', () => {
     await user.click(screen.getByTestId('start-session-button'));
     await waitFor(() => expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
+    await user.click(
+      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /editor/i }),
+    );
     await user.click(screen.getByTestId('submit-button'));
     await waitFor(() => expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument());
     await user.click(screen.getByTestId('dialog-confirm-button'));

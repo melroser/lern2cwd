@@ -66,7 +66,9 @@ describe('ProctorService', () => {
   describe('generateIntro', () => {
     it('returns the current assessment opener', async () => {
       const intro = await service.generateIntro(baseProblem);
-      expect(intro).toBe("Welcome to the assessment. When you're ready to begin, let me know.");
+      expect(intro).toBe(
+        'Welcome to the assessment. Press "Ready. Start Timer" to reveal the prompt and unlock chat. Once the timer starts, you can talk to me here if you need a nudge, clarification, or help thinking through tradeoffs.',
+      );
     });
 
     it('keeps a friendly welcome tone', async () => {
@@ -101,10 +103,40 @@ describe('ProctorService', () => {
       expect(service.getLastInteractionMode()).toBe('llm');
     });
 
+    it('falls back to local coaching when the Netlify AI gateway fails', async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+        text: async () => 'quota exceeded',
+      });
+      globalThis.fetch = fetchMock as typeof fetch;
+
+      service.configureAccessTokenProvider(async () => 'jwt-token');
+
+      const response = await service.respondToQuestion('Can I get a hint?', createSessionContext());
+
+      expect(response).toMatch(/Hint|Start by restating the contract/i);
+      expect(response).not.toContain('proctor API error');
+      expect(fetchMock).toHaveBeenCalled();
+      expect(service.getLastInteractionMode()).toBe('fallback');
+    });
+
     it('returns a deterministic hint ladder in mock mode', async () => {
       const response = await service.respondToQuestion('stuck', createSessionContext());
       expect(response).toMatch(/Hint|Start by restating the contract/i);
       expect(service.getLastInteractionMode()).toBe('fallback');
+    });
+
+    it('recognizes nudge language in fallback mode', async () => {
+      const response = await service.respondToQuestion('Can I get a nudge?', createSessionContext());
+      expect(response).toMatch(/Hint|Start by restating the contract/i);
+      expect(service.getLastInteractionMode()).toBe('fallback');
+    });
+
+    it('answers edge case questions with concrete cases', async () => {
+      const response = await service.respondToQuestion('What edge cases should I check?', createSessionContext());
+      expect(response).toContain('Off-by-one errors');
+      expect(response).toContain('Not handling zero');
     });
 
     it('answers time checks directly', async () => {

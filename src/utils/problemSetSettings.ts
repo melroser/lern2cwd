@@ -9,10 +9,7 @@ export interface ProblemSetSettings {
   selectedProblemSetIds: string[];
 }
 
-export const DEFAULT_SELECTED_PROBLEM_SETS: string[] = [
-  'neetcode-50',
-  'codesignal-tech-force',
-];
+export const DEFAULT_SELECTED_PROBLEM_SETS: string[] = [];
 
 function getStorageKey(): string {
   return storageScope ? `${PROBLEM_SET_SETTINGS_KEY}:${storageScope}` : PROBLEM_SET_SETTINGS_KEY;
@@ -31,9 +28,9 @@ export function getProblemSetSettings(): ProblemSetSettings {
     const parsed = JSON.parse(raw) as Partial<ProblemSetSettings>;
     const selected = Array.isArray(parsed.selectedProblemSetIds)
       ? parsed.selectedProblemSetIds.filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
-      : [];
+      : null;
     return {
-      selectedProblemSetIds: selected.length > 0 ? selected : [...DEFAULT_SELECTED_PROBLEM_SETS],
+      selectedProblemSetIds: selected ?? [...DEFAULT_SELECTED_PROBLEM_SETS],
     };
   } catch {
     return { selectedProblemSetIds: [...DEFAULT_SELECTED_PROBLEM_SETS] };
@@ -46,7 +43,7 @@ export function saveProblemSetSettings(settings: ProblemSetSettings): void {
     localStorage.setItem(
       getStorageKey(),
       JSON.stringify({
-        selectedProblemSetIds: selected.length > 0 ? selected : [...DEFAULT_SELECTED_PROBLEM_SETS],
+        selectedProblemSetIds: selected,
       }),
     );
   } catch {

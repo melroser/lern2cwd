@@ -1,144 +1,146 @@
+import {
+  AUTH_EVENTS,
+  acceptInvite as acceptNetlifyInvite,
+  getSettings,
+  getUser,
+  handleAuthCallback,
+  login as netlifyLogin,
+  logout as netlifyLogout,
+  oauthLogin as netlifyOAuthLogin,
+  onAuthChange,
+  refreshSession,
+  requestPasswordRecovery as requestNetlifyPasswordRecovery,
+  signup as netlifySignup,
+  updateUser,
+  type CallbackResult,
+  type Settings,
+  type User,
+} from '@netlify/identity';
 import type {
-  AuthAdapter,
-  AuthSession,
   AppUser,
+  AuthAdapter,
+  AuthCallbackState,
+  AuthOAuthProvider,
+  AuthSignupResult,
 } from '../types';
 import { authConfig } from '../config';
-import type {
-  NetlifyIdentityUser,
-  NetlifyIdentityWidget,
-} from 'netlify-identity-widget';
 
-const REDIRECT_STORAGE_KEY = 'auth:netlify:redirect';
-
-let widgetPromise: Promise<NetlifyIdentityWidget> | null = null;
-const NETLIFY_LOCALHOST_SITE_URL_KEY = 'netlifySiteURL';
+const NF_JWT_COOKIE = 'nf_jwt';
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter((value) => value.trim().length > 0))];
 }
 
-function getPendingRedirect(): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.sessionStorage.getItem(REDIRECT_STORAGE_KEY);
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+
+  const match = new RegExp(`(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`)
+    .exec(document.cookie);
+  if (!match) return null;
+
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
 }
 
-function setPendingRedirect(target?: string): void {
-  if (typeof window === 'undefined' || !target) return;
-  window.sessionStorage.setItem(REDIRECT_STORAGE_KEY, target);
+function getRequiredValue(value: string | undefined, message: string): string {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim();
+  }
+
+  throw new Error(message);
 }
 
-function clearPendingRedirect(): void {
-  if (typeof window === 'undefined') return;
-  window.sessionStorage.removeItem(REDIRECT_STORAGE_KEY);
+function normalizeRedirectTarget(target?: string): string | null {
+  if (typeof window === 'undefined' || !target) return null;
+
+  const url = new URL(target, window.location.origin);
+  if (url.origin !== window.location.origin) {
+    return authConfig.loginRedirectPath;
+  }
+
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 function applyRedirect(target?: string): void {
-  if (typeof window === 'undefined' || !target) return;
+  if (typeof window === 'undefined') return;
 
-  if (/^https?:\/\//.test(target)) {
-    window.location.assign(target);
-    return;
-  }
+  const normalizedTarget = normalizeRedirectTarget(target);
+  if (!normalizedTarget) return;
 
-  window.location.assign(target.startsWith('/') ? target : `/${target}`);
+  const currentTarget = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (normalizedTarget === currentTarget) return;
+
+  window.location.assign(normalizedTarget);
 }
 
-function applyPendingRedirectIfNeeded(user: NetlifyIdentityUser | null): void {
-  const redirectTarget = getPendingRedirect();
-  if (!user || !redirectTarget) return;
-
-  clearPendingRedirect();
-  applyRedirect(redirectTarget);
-}
-
-function isLocalhost(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  return ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
-}
-
-function seedLocalNetlifySiteURL(): void {
-  if (typeof window === 'undefined' || !isLocalhost() || !authConfig.netlify.siteURL) {
-    return;
-  }
-
-  window.localStorage.setItem(NETLIFY_LOCALHOST_SITE_URL_KEY, authConfig.netlify.siteURL);
-}
-
-function readRoles(user: NetlifyIdentityUser): string[] {
-  const appMetadataRoles = Array.isArray(user.app_metadata?.roles) ? user.app_metadata.roles : [];
-  const authorizationRoles = Array.isArray(user.app_metadata?.authorization?.roles)
-    ? user.app_metadata.authorization.roles
-    : [];
-  const directRoles = Array.isArray(user.roles) ? user.roles : [];
-
-  return unique([...appMetadataRoles, ...authorizationRoles, ...directRoles].map(String));
-}
-
-function readDisplayName(user: NetlifyIdentityUser): string | null {
-  const userMetadata = user.user_metadata ?? {};
-  const rawDisplayName = userMetadata.full_name ?? userMetadata.fullName ?? userMetadata.name ?? null;
-  return typeof rawDisplayName === 'string' && rawDisplayName.trim().length > 0 ? rawDisplayName : null;
-}
-
-async function loadWidget(): Promise<NetlifyIdentityWidget> {
-  // The widget auto-initializes as soon as the module is imported, so local
-  // development needs the site URL seeded before the import happens.
-  seedLocalNetlifySiteURL();
-
-  if (!widgetPromise) {
-    widgetPromise = import('netlify-identity-widget').then((module) => module.default);
-  }
-
-  return widgetPromise;
-}
-
-export function normalizeNetlifyIdentityUser(user: NetlifyIdentityUser | null): AppUser | null {
-  if (!user) return null;
-
-  const id = typeof user.id === 'string' && user.id.trim().length > 0
-    ? user.id
-    : typeof user.sub === 'string' && user.sub.trim().length > 0
-      ? user.sub
-      : null;
-
-  if (!id) {
-    return null;
-  }
+function normalizeNetlifyIdentityUser(user: User | null): AppUser | null {
+  if (!user?.id) return null;
 
   return {
-    id,
-    email: typeof user.email === 'string' && user.email.trim().length > 0 ? user.email : null,
-    displayName: readDisplayName(user),
-    roles: readRoles(user),
+    id: user.id,
+    email: user.email ?? null,
+    displayName: user.name ?? null,
+    roles: unique([...(user.roles ?? []), user.role ?? '']),
     authProvider: 'netlify',
   };
 }
 
+function toCallbackState(result: CallbackResult | null): AuthCallbackState | null {
+  if (!result) return null;
+
+  if (result.type === 'invite' && result.token) {
+    return {
+      type: 'invite',
+      token: result.token,
+    };
+  }
+
+  if (result.type === 'recovery') {
+    return {
+      type: 'recovery',
+      email: result.user?.email ?? null,
+    };
+  }
+
+  return null;
+}
+
+export { normalizeNetlifyIdentityUser };
+
 export function createNetlifyIdentityAdapter(): AuthAdapter {
-  let initialized = false;
+  let callbackState: AuthCallbackState | null = null;
+  let identitySettings: Settings | null = null;
+
+  const signupDisabled = (): boolean => (
+    authConfig.netlify.inviteOnly || identitySettings?.disableSignup === true
+  );
+
+  const getOAuthProviders = (): AuthOAuthProvider[] => {
+    const configuredProviders = identitySettings?.providers;
+    if (!configuredProviders) return [];
+
+    return (['google', 'github', 'gitlab', 'bitbucket', 'facebook'] as AuthOAuthProvider[])
+      .filter((provider) => configuredProviders[provider]);
+  };
 
   return {
     async init(): Promise<void> {
       if (typeof window === 'undefined') return;
 
-      const widget = await loadWidget();
-      if (!initialized) {
-        widget.init({
-          locale: authConfig.netlify.locale,
-          namePlaceholder: authConfig.netlify.namePlaceholder,
-          logo: true,
-        });
-        initialized = true;
-      }
+      callbackState = toCallbackState(await handleAuthCallback());
 
-      applyPendingRedirectIfNeeded(widget.currentUser());
+      try {
+        identitySettings = await getSettings();
+      } catch {
+        identitySettings = null;
+      }
     },
 
-    async getSession(): Promise<AuthSession> {
-      const widget = await loadWidget();
-      const user = normalizeNetlifyIdentityUser(widget.currentUser());
+    async getSession() {
+      const user = normalizeNetlifyIdentityUser(await getUser());
 
       return {
         user,
@@ -149,67 +151,105 @@ export function createNetlifyIdentityAdapter(): AuthAdapter {
     },
 
     async login(options): Promise<void> {
-      const widget = await loadWidget();
-      setPendingRedirect(options?.redirectTo ?? authConfig.loginRedirectPath);
-      widget.open('login');
+      const email = getRequiredValue(options?.email, 'Enter your email address.');
+      const password = getRequiredValue(options?.password, 'Enter your password.');
+
+      await netlifyLogin(email, password);
+      applyRedirect(options?.redirectTo ?? authConfig.loginRedirectPath);
     },
 
     async logout(options): Promise<void> {
-      const widget = await loadWidget();
-      clearPendingRedirect();
-      await Promise.resolve(widget.logout());
+      callbackState = null;
+      await netlifyLogout();
       applyRedirect(options?.redirectTo ?? authConfig.logoutRedirectPath);
     },
 
-    async signup(options): Promise<void> {
-      if (authConfig.netlify.inviteOnly) {
-        throw new Error('Public sign-up is disabled. Access is invite only.');
+    async signup(options): Promise<AuthSignupResult> {
+      if (signupDisabled()) {
+        throw new Error('Public sign-up is disabled for this site. Use an invite or request password setup if an admin created your account.');
       }
 
-      const widget = await loadWidget();
-      setPendingRedirect(options?.redirectTo ?? authConfig.loginRedirectPath);
-      widget.open('signup', options?.email ? { email: options.email } : undefined);
+      const email = getRequiredValue(options?.email, 'Enter your email address.');
+      const password = getRequiredValue(options?.password, 'Enter a password.');
+      const displayName = options?.displayName?.trim();
+      const netlifyUser = await netlifySignup(
+        email,
+        password,
+        displayName ? { full_name: displayName } : undefined,
+      );
+      const user = normalizeNetlifyIdentityUser(netlifyUser);
+      const isAuthenticated = Boolean(netlifyUser.confirmedAt);
+
+      if (isAuthenticated) {
+        applyRedirect(options?.redirectTo ?? authConfig.loginRedirectPath);
+      }
+
+      return {
+        status: isAuthenticated ? 'authenticated' : 'confirmation_required',
+        user: isAuthenticated ? user : null,
+      };
+    },
+
+    async oauthLogin(provider): Promise<void> {
+      netlifyOAuthLogin(provider);
+    },
+
+    async requestPasswordRecovery(email): Promise<void> {
+      await requestNetlifyPasswordRecovery(email);
+    },
+
+    async acceptInvite(options): Promise<void> {
+      const password = getRequiredValue(options.password, 'Enter a password.');
+      await acceptNetlifyInvite(options.token, password);
+      const displayName = options.displayName?.trim();
+      if (displayName) {
+        await updateUser({ data: { full_name: displayName } });
+      }
+      callbackState = null;
+      applyRedirect(options.redirectTo ?? authConfig.loginRedirectPath);
+    },
+
+    async updatePassword(options): Promise<void> {
+      const password = getRequiredValue(options.password, 'Enter a password.');
+      await updateUser({ password });
+      callbackState = null;
+      applyRedirect(options.redirectTo ?? authConfig.loginRedirectPath);
+    },
+
+    getCallbackState(): AuthCallbackState | null {
+      return callbackState;
+    },
+
+    isSignupEnabled(): boolean {
+      return !signupDisabled();
+    },
+
+    getOAuthProviders,
+
+    clearCallbackState(): void {
+      callbackState = null;
     },
 
     async getAccessToken(): Promise<string | null> {
-      const widget = await loadWidget();
-      const user = widget.currentUser();
-
-      if (!user?.jwt) {
-        return null;
-      }
-
-      return user.jwt();
+      const refreshedToken = await refreshSession().catch(() => null);
+      return refreshedToken ?? readCookie(NF_JWT_COOKIE);
     },
 
     onAuthStateChange(callback): () => void {
-      let disposed = false;
-      let cleanup = () => {};
-
-      void loadWidget().then((widget) => {
-        if (disposed) return;
-
-        const handleStateChange = (): void => {
-          applyPendingRedirectIfNeeded(widget.currentUser());
-          callback();
-        };
-
-        const events: Array<'init' | 'login' | 'logout' | 'error'> = ['init', 'login', 'logout', 'error'];
-        for (const event of events) {
-          widget.on(event, handleStateChange);
+      return onAuthChange((event, user) => {
+        if (event === AUTH_EVENTS.RECOVERY) {
+          callbackState = {
+            type: 'recovery',
+            email: user?.email ?? null,
+          };
         }
 
-        cleanup = () => {
-          for (const event of events) {
-            widget.off(event, handleStateChange);
-          }
-        };
-      });
+        if (event === AUTH_EVENTS.LOGOUT) {
+          callbackState = null;
+        }
 
-      return () => {
-        disposed = true;
-        cleanup();
-      };
+        callback();
+      });
     },
   };
 }

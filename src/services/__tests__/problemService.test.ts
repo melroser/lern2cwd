@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { ProblemService } from '../problemService';
 
 describe('ProblemService', () => {
+  it('loads the tutorial when no problem sets are selected', async () => {
+    const service = new ProblemService();
+    const problems = await service.loadProblems([]);
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0].problemSetId).toBe('tutorial');
+    expect(problems[0].title).toMatch(/tutorial/i);
+  });
+
   it('loads only the selected problem sets', async () => {
     const service = new ProblemService();
     const problems = await service.loadProblems(['python-fundamentals']);
@@ -14,6 +23,7 @@ describe('ProblemService', () => {
     const service = new ProblemService();
     const sets = service.getAvailableProblemSets();
 
+    expect(sets.find((set) => set.id === 'tutorial')?.questionCount).toBe(1);
     expect(sets.find((set) => set.id === 'neetcode-50')?.questionCount).toBeGreaterThan(0);
     expect(sets.find((set) => set.id === 'python-intermediate')?.questionCount).toBeGreaterThan(0);
     expect(sets.find((set) => set.id === 'synthbee-conversational-screen')?.assessmentType).toBe('behavioral');
@@ -35,5 +45,11 @@ describe('ProblemService', () => {
 
     const randomProblem = service.getRandomProblem(excluded);
     expect(excluded.includes(randomProblem.id)).toBe(false);
+  });
+
+  it('returns the tutorial as the default random problem for a fresh service', () => {
+    const service = new ProblemService();
+
+    expect(service.getRandomProblem().problemSetId).toBe('tutorial');
   });
 });

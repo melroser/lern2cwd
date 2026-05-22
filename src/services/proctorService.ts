@@ -1703,12 +1703,13 @@ export class ProctorService implements IProctorService {
     const assessmentType = context.problem.assessmentType ?? 'coding';
     const asksCoreClarification =
       /(don't understand|dont understand|i don't get|i dont get|what are you asking|is this a flawed question|always yes|always true|reverse.*string)/.test(q);
-    const asksHint = /(hint|help|stuck|confus|how do i start)\b/.test(q);
+    const asksHint = /(hint|nudge|help|stuck|confus|how do i start)\b/.test(q);
     const asksClarification = /(what does|what is|what's|whats|input|parameter|argument|variable|format|meaning)/.test(q);
     const asksSelfCheck = /(hows that|how's that|how is that|is this good|is this right|is this correct|does this work|review this|what do you think)/.test(q);
     const asksVisibleCodeReview =
       /(look at it|look at my code|look at the code|can't you see|cant you see|that'?s literally what i did|did you look|check the code|can you see it)/.test(q);
     const asksComplexity = /(complexity|big o|runtime|space)/.test(q);
+    const asksEdgeCase = /(edge case|edge cases|corner case|corner cases|boundary|boundaries)/.test(q);
     const asksDataStructure =
       /(data structure|hash ?map|dictionary|dict|set|array|stack|queue)/.test(q) &&
       /(what|which|should|use|pick)/.test(q);
@@ -1750,6 +1751,17 @@ export class ProctorService implements IProctorService {
         return this.applyNoRepeatGuard(`Aim for ${target}. Explain why your chosen data structure reaches that complexity.`, context);
       }
       return this.applyNoRepeatGuard('State time and space complexity explicitly, then justify them from your loops/data structures.', context);
+    }
+
+    if (asksEdgeCase) {
+      const pitfalls = context.problem.commonPitfalls?.filter(Boolean).slice(0, 3) ?? [];
+      if (pitfalls.length > 0) {
+        return this.applyNoRepeatGuard(`Pressure-test these cases: ${pitfalls.join('; ')}.`, context);
+      }
+      if (assessmentType === 'coding') {
+        return this.applyNoRepeatGuard('Check empty input, one item, duplicates, negative values when allowed, and the largest constraint size.', context);
+      }
+      return this.applyNoRepeatGuard('Check for missing context, a vague decision, no measurable outcome, and whether your answer names the tradeoff clearly.', context);
     }
 
     if (asksDataStructure) {
@@ -2367,7 +2379,11 @@ export class ProctorService implements IProctorService {
     // Realistic proctor intro - minimal and professional
     await simulateLatency(300, 600);
 
-    return `Welcome to the assessment. When you're ready to begin, let me know.`;
+    return [
+      'Welcome to the assessment.',
+      'Press "Ready. Start Timer" to reveal the prompt and unlock chat.',
+      'Once the timer starts, you can talk to me here if you need a nudge, clarification, or help thinking through tradeoffs.',
+    ].join(' ');
   }
 
   /**
@@ -2396,7 +2412,13 @@ export class ProctorService implements IProctorService {
         } catch (error) {
           console.warn('LLM chat call failed:', error);
           this.lastInteractionMode = 'fallback';
-          return 'I hit a proctor API error on that turn. Please retry your question in one sentence.';
+          const localResponse = this.respondDeterministically(question, context);
+          if (localResponse) {
+            return this.applyNoRepeatGuard(localResponse, context);
+          }
+
+          const mockResponse = await this.respondToQuestionMock(question, context);
+          return this.applyNoRepeatGuard(mockResponse, context);
         }
       }
 

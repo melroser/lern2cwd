@@ -17,7 +17,7 @@ import { useChat } from './hooks/useChat';
 import { problemService } from './services/problemService';
 import { proctorService } from './services/proctorService';
 import { storageService } from './services/storageService';
-import { getEditorSettings, setEditorSettingsStorageScope } from './utils/editorSettings';
+import { getEditorSettings, saveEditorSettings, setEditorSettingsStorageScope, type ThemeMode } from './utils/editorSettings';
 import {
   DEFAULT_SELECTED_PROBLEM_SETS,
   getProblemSetSettings,
@@ -161,13 +161,20 @@ function buildLegacySnapshotFromSession(sessionRecord: SessionRecord): string {
 
 function AppShell() {
   const auth = useAuth();
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return 'dark';
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  });
 
   // View state management
   const [currentView, setCurrentView] = useState<ViewState>('home');
   const [showSettings, setShowSettings] = useState(false);
   const [storageScopeReady, setStorageScopeReady] = useState(false);
   const [vimMode, setVimMode] = useState(false);
+  const [themeMode, setThemeMode] = useState<ThemeMode>('system');
   const [problemTab, setProblemTab] = useState<'description' | 'constraints' | 'examples'>('description');
+  const [sessionWorkspacePane, setSessionWorkspacePane] = useState<'problem' | 'editor'>('problem');
+  const [topbarMenuOpen, setTopbarMenuOpen] = useState(false);
   const [proctorMode, setProctorMode] = useState<ProctorInteractionMode>(() => proctorService.getLastInteractionMode());
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const [selectedProblemSetIds, setSelectedProblemSetIds] = useState<string[]>(DEFAULT_SELECTED_PROBLEM_SETS);
@@ -201,6 +208,9 @@ function AppShell() {
   const sessionHook = useSession();
   const chat = useChat();
   const addChatMessage = chat.addMessage;
+  const isSessionPendingStart = sessionHook.session?.status === 'waiting_to_start';
+  const isSessionActive = sessionHook.session?.status === 'active';
+  const isTutorialMode = selectedProblemSetIds.length === 0;
 
   useEffect(() => {
     storageService.setStorageScope(auth.profileKey);
@@ -218,6 +228,31 @@ function AppShell() {
   useEffect(() => {
     latestCodeRef.current = sessionHook.session?.code ?? latestCodeRef.current;
   }, [sessionHook.session?.code]);
+
+  useEffect(() => {
+    if (currentView === 'session') {
+      setSessionWorkspacePane('problem');
+    }
+  }, [currentProblem?.id, currentView]);
+
+  useEffect(() => {
+    if (isSessionPendingStart && sessionWorkspacePane === 'editor') {
+      setSessionWorkspacePane('problem');
+    }
+  }, [isSessionPendingStart, sessionWorkspacePane]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setSystemTheme(event.matches ? 'light' : 'dark');
+    };
+
+    setSystemTheme(mediaQuery.matches ? 'light' : 'dark');
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const resolveProblemSnapshot = useCallback((
     sessionRecord?: SessionRecord | null,
@@ -247,8 +282,20 @@ function AppShell() {
 
     const editorSettings = getEditorSettings();
     setVimMode(editorSettings.vimMode);
+    setThemeMode(editorSettings.themeMode);
     setSelectedProblemSetIds(getProblemSetSettings().selectedProblemSetIds);
   }, [auth.profileKey, storageScopeReady]);
+
+  const resolvedTheme = themeMode === 'system' ? systemTheme : themeMode;
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.style.colorScheme = resolvedTheme;
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    setTopbarMenuOpen(false);
+  }, [currentView, currentProblem?.id, showSettings]);
   
   // Load problems when selected sets change
   useEffect(() => {
@@ -298,7 +345,7 @@ function AppShell() {
   
   // Handle actual submission for evaluation
   const handleSubmitForEvaluation = useCallback(async () => {
-    if (!currentProblem || sessionHook.session?.status !== 'active') return;
+    if (!currentProblem || !isSessionActive) return;
     
     // Capture timeRemaining immediately before any async operations
     const capturedTimeRemaining = timerWithExpiry.timeRemaining;
@@ -419,7 +466,7 @@ function AppShell() {
 
   // Proactive proctor nudges while the candidate is drafting.
   useEffect(() => {
-    if (!currentProblem || sessionHook.session?.status !== 'active') return;
+    if (!currentProblem || !isSessionActive) return;
 
     const code = latestCodeRef.current || sessionHook.session?.code || '';
     const codeDigest = code.replace(/\s+/g, '').slice(0, 280);
@@ -452,7 +499,7 @@ function AppShell() {
     return () => window.clearTimeout(timeoutId);
   }, [
     currentProblem,
-    sessionHook.session?.status,
+    isSessionActive,
     sessionHook.session?.code,
     timerWithExpiry.timeRemaining,
     chat.messages,
@@ -485,7 +532,7 @@ function AppShell() {
     if (!currentProblem) return;
     
     // Check if user is ready to start (waiting_to_start state)
-    if (sessionHook.session?.status === 'waiting_to_start') {
+    if (isSessionPendingStart) {
       // Do not start timer from chat; require explicit Ready action
       chat.addMessage({ role: 'user', content: message });
       chat.addMessage({ role: 'proctor', content: 'Press "Ready. Start Timer" to begin.' });
@@ -493,7 +540,7 @@ function AppShell() {
     }
     
     // Normal chat flow for active sessions
-    if (sessionHook.session?.status !== 'active') return;
+    if (!isSessionActive) return;
     
     try {
       // Get proctor response
@@ -516,11 +563,11 @@ function AppShell() {
       chat.addMessage({ role: 'user', content: message });
       chat.addMessage({ role: 'proctor', content: 'Sorry, I encountered an error. Please try asking your question again.' });
     }
-  }, [currentProblem, sessionHook, chat, timerWithExpiry]);
+  }, [currentProblem, isSessionActive, isSessionPendingStart, sessionHook, chat, timerWithExpiry]);
 
   const handleReadyStart = useCallback(() => {
     if (!currentProblem) return;
-    if (sessionHook.session?.status !== 'waiting_to_start') return;
+    if (!isSessionPendingStart) return;
 
     sessionHook.activateSession();
     timerWithExpiry.start(currentProblem.timeLimit * 60);
@@ -528,11 +575,31 @@ function AppShell() {
       role: 'proctor',
       content: `Timer started. ${currentProblem.tutorPlan?.openingPrompt ?? 'What are you thinking for your approach to this problem?'}`,
     });
-  }, [currentProblem, sessionHook, timerWithExpiry, chat]);
+  }, [currentProblem, isSessionPendingStart, sessionHook, timerWithExpiry, chat]);
 
   const handleProblemSetSelectionChange = useCallback((setIds: string[]) => {
     setSelectedProblemSetIds(setIds);
     saveProblemSetSettings({ selectedProblemSetIds: setIds });
+  }, []);
+
+  const handleThemeModeChange = useCallback((nextThemeMode: ThemeMode) => {
+    setThemeMode(nextThemeMode);
+    saveEditorSettings({ themeMode: nextThemeMode });
+  }, []);
+
+  const handleThemeToggle = useCallback(() => {
+    const nextThemeMode: ThemeMode = resolvedTheme === 'dark' ? 'light' : 'dark';
+    handleThemeModeChange(nextThemeMode);
+    setTopbarMenuOpen(false);
+  }, [handleThemeModeChange, resolvedTheme]);
+
+  const handleOpenSettings = useCallback(() => {
+    setTopbarMenuOpen(false);
+    setShowSettings(true);
+  }, []);
+
+  const handleToggleTopbarMenu = useCallback(() => {
+    setTopbarMenuOpen((open) => !open);
   }, []);
 
   const getNextCampaignProblem = useCallback((): Problem | null => {
@@ -820,6 +887,10 @@ function AppShell() {
     const minutes = Math.floor(seconds / 60);
     return minutes === 1 ? '1 minute' : `${minutes} minutes`;
   };
+
+  const topbarClassName = `topbar${topbarMenuOpen ? ' menuOpen' : ''}`;
+  const topbarMetaClassName = `meta${topbarMenuOpen ? ' menuOpen' : ''}`;
+  const themeToggleLabel = resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
   
   return (
     <>
@@ -845,13 +916,15 @@ function AppShell() {
             onClose={() => setShowSettings(false)}
             onSave={() => setShowSettings(false)}
             onVimModeChange={(enabled: boolean) => setVimMode(enabled)}
+            onThemeModeChange={handleThemeModeChange}
             vimMode={vimMode}
+            themeMode={themeMode}
             problemSetOptions={problemSetOptions}
             selectedProblemSetIds={selectedProblemSetIds}
             onProblemSetSelectionChange={handleProblemSetSelectionChange}
           />
         )}
-        
+
         {/* Confirmation Dialog */}
         {confirmDialog.isOpen && (
           <div style={{
@@ -914,8 +987,14 @@ function AppShell() {
                       className="btn primary"
                       onClick={handleStartSession}
                     >
-                      Start Random Session
+                      {isTutorialMode ? 'Start Tutorial' : 'Start Random Session'}
                     </button>
+
+                    {isTutorialMode && (
+                      <p className="homeHint">
+                        Tutorial mode is active. Enable problem packs in Settings when you are ready for real sessions.
+                      </p>
+                    )}
 
                     <button
                       data-testid="browse-campaign-button"
@@ -937,10 +1016,11 @@ function AppShell() {
                     
                     <button
                       className="btn"
-                      onClick={() => setShowSettings(true)}
+                      onClick={handleOpenSettings}
                     >
                       Settings
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -948,18 +1028,34 @@ function AppShell() {
 
             {currentView === 'campaign' && (
               <div className="appViewShell" data-testid="campaign-view">
-                <div className="topbar appTopbar">
+                <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
                     <span>INTERVIEW SIMULATOR</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>CAMPAIGN</span>
                   </div>
-                  <div className="meta">
+                  <button
+                    type="button"
+                    className="topbarMenuButton"
+                    aria-label={topbarMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                    aria-expanded={topbarMenuOpen}
+                    onClick={handleToggleTopbarMenu}
+                  >
+                    {topbarMenuOpen ? '✕' : '☰'}
+                  </button>
+                  <div className={topbarMetaClassName}>
                     <div className="pill">
                       <span>MODE</span>
                       <span style={{ color: 'var(--cool)' }}>Guided Practice</span>
                     </div>
+                    <button
+                      className="btn subtle"
+                      type="button"
+                      onClick={handleThemeToggle}
+                    >
+                      {themeToggleLabel}
+                    </button>
                     <AuthStatusControls />
                     <button
                       className="btn"
@@ -991,7 +1087,7 @@ function AppShell() {
                       <div className="campaignEmpty">
                         <h2>No enabled problem sets</h2>
                         <p>Turn on at least one problem set in Settings and it will show up here.</p>
-                        <button className="btn" onClick={() => setShowSettings(true)}>
+                        <button className="btn" onClick={handleOpenSettings}>
                           Open Settings
                         </button>
                       </div>
@@ -1096,18 +1192,27 @@ function AppShell() {
             {/* Session View */}
             {currentView === 'session' && currentProblem && (
               <div className="session-view">
-                <div className="topbar">
+                <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
                     <span>INTERVIEW SIMULATOR</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>{currentProblem.language.toUpperCase()}</span>
                   </div>
-                  <div className="meta">
+                  <button
+                    type="button"
+                    className="topbarMenuButton"
+                    aria-label={topbarMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                    aria-expanded={topbarMenuOpen}
+                    onClick={handleToggleTopbarMenu}
+                  >
+                    {topbarMenuOpen ? '✕' : '☰'}
+                  </button>
+                  <div className={topbarMetaClassName}>
                     <div className="pill">
                       <span style={{ color: 'rgba(182,255,182,0.65)' }}>PROBLEM</span>
                       <span style={{ color: 'var(--cool)' }}>
-                        {sessionHook.session?.status === 'waiting_to_start' ? 'Hidden' : currentProblem.title}
+                        {isSessionPendingStart ? 'Hidden' : currentProblem.title}
                       </span>
                     </div>
                     {currentProblemSetInfo && (
@@ -1131,6 +1236,13 @@ function AppShell() {
                         {proctorMode === 'llm' ? 'LIVE' : proctorMode === 'fallback' ? 'LOCAL FALLBACK' : 'IDLE'}
                       </span>
                     </div>
+                    <button
+                      className="btn subtle"
+                      type="button"
+                      onClick={handleThemeToggle}
+                    >
+                      {themeToggleLabel}
+                    </button>
                     <AuthStatusControls />
                     <button
                       className="btn subtle"
@@ -1151,7 +1263,7 @@ function AppShell() {
                         {copyStatus === 'copied' ? 'Copied' : 'Copy failed'}
                       </span>
                     )}
-                    <button className="btn" onClick={() => setShowSettings(true)}>
+                    <button className="btn" onClick={handleOpenSettings}>
                       Settings
                     </button>
                   </div>
@@ -1160,189 +1272,230 @@ function AppShell() {
                 <div className="neonLine"></div>
                 
                 <div className="main">
-                  <section className="left-col">
-                    <div className="problem" ref={problemRef}>
-                      {sessionHook.session?.status === 'waiting_to_start' ? (
-                        <div className="readyGate">
-                          <div className="readyTitle">Ready to start?</div>
-                          <div className="readySub">Press the button to reveal the problem and start the timer.</div>
-                          <button className="btn primary" onClick={handleReadyStart}>
-                            Ready. Start Timer
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="title">
-                            <h2>{currentProblem.title}</h2>
-                            <div className="tags">
-                              <span className="tag cool">{currentProblem.difficulty}</span>
-                              <span className="tag">{currentProblem.language}</span>
+                  <div className="sessionWorkspaceToggle" data-testid="session-workspace-toggle">
+                    <button
+                      type="button"
+                      className={`workspaceToggleBtn ${sessionWorkspacePane === 'problem' ? 'active' : ''}`}
+                      onClick={() => setSessionWorkspacePane('problem')}
+                      aria-pressed={sessionWorkspacePane === 'problem'}
+                    >
+                      Prompt
+                    </button>
+                    <button
+                      type="button"
+                      className={`workspaceToggleBtn ${sessionWorkspacePane === 'editor' ? 'active' : ''}`}
+                      onClick={() => {
+                        if (!isSessionPendingStart) {
+                          setSessionWorkspacePane('editor');
+                        }
+                      }}
+                      aria-pressed={sessionWorkspacePane === 'editor'}
+                      disabled={isSessionPendingStart}
+                      title={isSessionPendingStart ? 'The editor unlocks when you start the timer.' : undefined}
+                    >
+                      {isSessionPendingStart ? 'Editor Locked' : 'Editor'}
+                    </button>
+                  </div>
+
+                  <div className="sessionWorkspace">
+                    {sessionWorkspacePane === 'problem' ? (
+                      <section
+                        className="left-col workspacePane isActive"
+                        data-pane="problem"
+                      >
+                        <div className="problem" ref={problemRef}>
+                          {isSessionPendingStart ? (
+                            <div className="readyGate">
+                              <div className="readyTitle">Ready to start?</div>
+                              <div className="readySub">Press the button to reveal the problem and start the timer.</div>
+                              <button className="btn primary" onClick={handleReadyStart}>
+                                Ready. Start Timer
+                              </button>
                             </div>
-                          </div>
-
-                          <div className="problemTabs" role="tablist" aria-label="Problem tabs">
-                            <button
-                              type="button"
-                              role="tab"
-                              id="tab-description"
-                              aria-controls="panel-description"
-                              aria-selected={problemTab === 'description'}
-                              className={`tabBtn ${problemTab === 'description' ? 'active' : ''}`}
-                              onClick={() => setProblemTab('description')}
-                            >
-                              Description
-                            </button>
-                            <button
-                              type="button"
-                              role="tab"
-                              id="tab-constraints"
-                              aria-controls="panel-constraints"
-                              aria-selected={problemTab === 'constraints'}
-                              className={`tabBtn ${problemTab === 'constraints' ? 'active' : ''}`}
-                              onClick={() => setProblemTab('constraints')}
-                            >
-                              Constraints
-                            </button>
-                            <button
-                              type="button"
-                              role="tab"
-                              id="tab-examples"
-                              aria-controls="panel-examples"
-                              aria-selected={problemTab === 'examples'}
-                              className={`tabBtn ${problemTab === 'examples' ? 'active' : ''}`}
-                              onClick={() => setProblemTab('examples')}
-                            >
-                              Examples
-                            </button>
-                          </div>
-
-                          <div className="problemPanel" ref={problemPanelRef}>
-                            {problemTab === 'description' && (
-                              <div
-                                id="panel-description"
-                                role="tabpanel"
-                                aria-labelledby="tab-description"
-                                tabIndex={0}
-                              >
-                                <div className="promptBlocks">
-                                  {(currentProblem.content?.description ?? currentProblem.prompt)
-                                    .split(/\n\s*\n/)
-                                    .map((block, i) => (
-                                    <div key={i} className="promptBlock">
-                                      {block}
-                                    </div>
-                                  ))}
+                          ) : (
+                            <>
+                              <div className="title">
+                                <h2>{currentProblem.title}</h2>
+                                <div className="tags">
+                                  <span className="tag cool">{currentProblem.difficulty}</span>
+                                  <span className="tag">{currentProblem.language}</span>
                                 </div>
                               </div>
-                            )}
 
-                            {problemTab === 'constraints' && (
-                              <div
-                                id="panel-constraints"
-                                role="tabpanel"
-                                aria-labelledby="tab-constraints"
-                                tabIndex={0}
-                              >
-                                {(currentProblem.content?.constraints ?? currentProblem.constraints).length > 0 ? (
-                                  <div className="constraintList">
-                                    {(currentProblem.content?.constraints ?? currentProblem.constraints).map((constraint, i) => (
-                                      <div key={i} className="constraintItem">
-                                        <span className="constraintBullet" aria-hidden="true">▸</span>
-                                        <span>{constraint}</span>
-                                      </div>
-                                    ))}
+                              <div className="problemTabs" role="tablist" aria-label="Problem tabs">
+                                <button
+                                  type="button"
+                                  role="tab"
+                                  id="tab-description"
+                                  aria-controls="panel-description"
+                                  aria-selected={problemTab === 'description'}
+                                  className={`tabBtn ${problemTab === 'description' ? 'active' : ''}`}
+                                  onClick={() => setProblemTab('description')}
+                                >
+                                  Description
+                                </button>
+                                <button
+                                  type="button"
+                                  role="tab"
+                                  id="tab-constraints"
+                                  aria-controls="panel-constraints"
+                                  aria-selected={problemTab === 'constraints'}
+                                  className={`tabBtn ${problemTab === 'constraints' ? 'active' : ''}`}
+                                  onClick={() => setProblemTab('constraints')}
+                                >
+                                  Constraints
+                                </button>
+                                <button
+                                  type="button"
+                                  role="tab"
+                                  id="tab-examples"
+                                  aria-controls="panel-examples"
+                                  aria-selected={problemTab === 'examples'}
+                                  className={`tabBtn ${problemTab === 'examples' ? 'active' : ''}`}
+                                  onClick={() => setProblemTab('examples')}
+                                >
+                                  Examples
+                                </button>
+                              </div>
+
+                              <div className="problemPanel" ref={problemPanelRef}>
+                                {problemTab === 'description' && (
+                                  <div
+                                    id="panel-description"
+                                    role="tabpanel"
+                                    aria-labelledby="tab-description"
+                                    tabIndex={0}
+                                  >
+                                    <div className="promptBlocks">
+                                      {(currentProblem.content?.description ?? currentProblem.prompt)
+                                        .split(/\n\s*\n/)
+                                        .map((block, i) => (
+                                        <div key={i} className="promptBlock">
+                                          {block}
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                ) : (
-                                  <div className="problemEmpty">No constraints provided.</div>
+                                )}
+
+                                {problemTab === 'constraints' && (
+                                  <div
+                                    id="panel-constraints"
+                                    role="tabpanel"
+                                    aria-labelledby="tab-constraints"
+                                    tabIndex={0}
+                                  >
+                                    {(currentProblem.content?.constraints ?? currentProblem.constraints).length > 0 ? (
+                                      <div className="constraintList">
+                                        {(currentProblem.content?.constraints ?? currentProblem.constraints).map((constraint, i) => (
+                                          <div key={i} className="constraintItem">
+                                            <span className="constraintBullet" aria-hidden="true">▸</span>
+                                            <span>{constraint}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="problemEmpty">No constraints provided.</div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {problemTab === 'examples' && (
+                                  <div
+                                    id="panel-examples"
+                                    role="tabpanel"
+                                    aria-labelledby="tab-examples"
+                                    tabIndex={0}
+                                  >
+                                    {(currentProblem.content?.examples ?? currentProblem.examples).length > 0 ? (
+                                      <div className="examplesList">
+                                        {(currentProblem.content?.examples ?? currentProblem.examples).map((example, i) => (
+                                          <div key={i} className="exampleCard">
+                                            <div><strong>Input:</strong> {example.input}</div>
+                                            <div><strong>Output:</strong> {example.output}</div>
+                                            {example.explanation && <div className="exampleNote">{example.explanation}</div>}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="problemEmpty">No examples provided.</div>
+                                    )}
+                                  </div>
                                 )}
                               </div>
-                            )}
-
-                            {problemTab === 'examples' && (
-                              <div
-                                id="panel-examples"
-                                role="tabpanel"
-                                aria-labelledby="tab-examples"
-                                tabIndex={0}
-                              >
-                                {(currentProblem.content?.examples ?? currentProblem.examples).length > 0 ? (
-                                  <div className="examplesList">
-                                    {(currentProblem.content?.examples ?? currentProblem.examples).map((example, i) => (
-                                      <div key={i} className="exampleCard">
-                                        <div><strong>Input:</strong> {example.input}</div>
-                                        <div><strong>Output:</strong> {example.output}</div>
-                                        {example.explanation && <div className="exampleNote">{example.explanation}</div>}
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="problemEmpty">No examples provided.</div>
-                                )}
-                              </div>
-                            )}
+                            </>
+                          )}
+                        </div>
+                      </section>
+                    ) : (
+                      <aside
+                        className="right-col workspacePane isActive"
+                        data-pane="editor"
+                      >
+                        <div className="editorWrap">
+                          <div className="editorHeader">
+                            <div className="leftBits">
+                              <span className="statusLight"></span>
+                              <span>EDITOR</span>
+                              <span style={{ opacity: 0.6 }}>/ {currentProblem.language}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <span style={{ color: 'rgba(182,255,182,0.55)' }}>Mode:</span>
+                              <span style={{ color: 'var(--hot)' }}>Assessment</span>
+                            </div>
                           </div>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="proctorWrap">
-                      <div className="chatHeader">
-                        <div className="label">Proctor Channel</div>
-                        <div className="signal">
-                          <div className="bars" aria-hidden="true">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
+                          
+                          <div className="editor">
+                            <CodeEditorPanel
+                              data-testid="code-editor-panel"
+                              problemPrompt={currentProblem.prompt}
+                              code={sessionHook.session?.code || ''}
+                              onCodeChange={handleEditorCodeChange}
+                              onSubmit={handleSubmitClick}
+                              isDisabled={chat.isLoading || !isSessionActive}
+                              vimMode={vimMode}
+                              language={currentProblem.language}
+                              resolvedTheme={resolvedTheme}
+                            />
                           </div>
-                          <span>secure link</span>
                         </div>
-                      </div>
+                      </aside>
+                    )}
+                  </div>
 
-                      <div className="chatPanelWrap">
-                        <ChatPanel
-                          data-testid="chat-panel"
-                          messages={chat.messages}
-                        />
-                      </div>
-                    </div>
-                  </section>
-                  
-                  <aside className="right-col">
-                    <div className="editorWrap">
-                      <div className="editorHeader">
-                        <div className="leftBits">
-                          <span className="statusLight"></span>
-                          <span>EDITOR</span>
-                          <span style={{ opacity: 0.6 }}>/ {currentProblem.language}</span>
+                  <div className="proctorWrap sessionProctorWrap">
+                    <div className="chatHeader">
+                      <div className="label">Proctor Channel</div>
+                      <div className="signal">
+                        <div className="bars" aria-hidden="true">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                          <span></span>
                         </div>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                          <span style={{ color: 'rgba(182,255,182,0.55)' }}>Mode:</span>
-                          <span style={{ color: 'var(--hot)' }}>Assessment</span>
-                        </div>
-                      </div>
-                      
-                      <div className="editor">
-                        <CodeEditorPanel
-                          data-testid="code-editor-panel"
-                          problemPrompt={currentProblem.prompt}
-                          code={sessionHook.session?.code || ''}
-                          onCodeChange={handleEditorCodeChange}
-                          onSubmit={handleSubmitClick}
-                          isDisabled={chat.isLoading || sessionHook.session?.status !== 'active'}
-                          vimMode={vimMode}
-                          language={currentProblem.language}
-                        />
+                        <span>secure link</span>
                       </div>
                     </div>
 
-                    <div className="chatInputDock">
-                      <ChatInput
-                        onSendMessage={handleSendMessage}
-                        isDisabled={chat.isLoading || sessionHook.session?.status !== 'active'}
+                    <div className="chatPanelWrap">
+                      <ChatPanel
+                        data-testid="chat-panel"
+                        messages={chat.messages}
                       />
                     </div>
-                  </aside>
+
+                    <div className="proctorInputDock">
+                      <ChatInput
+                        onSendMessage={handleSendMessage}
+                        isDisabled={chat.isLoading || !isSessionActive}
+                        disabledPlaceholder={
+                          isSessionPendingStart
+                            ? 'Chat unlocks when the timer starts'
+                            : 'Chat disabled'
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -1350,18 +1503,34 @@ function AppShell() {
             {/* Review View */}
             {currentView === 'review' && currentEvaluation && (
               <div className="appViewShell" data-testid="review-view">
-                <div className="topbar appTopbar">
+                <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
                     <span>INTERVIEW SIMULATOR</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>REVIEW</span>
                   </div>
-                  <div className="meta">
+                  <button
+                    type="button"
+                    className="topbarMenuButton"
+                    aria-label={topbarMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                    aria-expanded={topbarMenuOpen}
+                    onClick={handleToggleTopbarMenu}
+                  >
+                    {topbarMenuOpen ? '✕' : '☰'}
+                  </button>
+                  <div className={topbarMetaClassName}>
                     <div className="pill">
                       <span>VIEW</span>
                       <span style={{ color: 'var(--cool)' }}>Evaluation Results</span>
                     </div>
+                    <button
+                      className="btn subtle"
+                      type="button"
+                      onClick={handleThemeToggle}
+                    >
+                      {themeToggleLabel}
+                    </button>
                     <AuthStatusControls />
                     <button
                       className="btn subtle"
@@ -1392,18 +1561,34 @@ function AppShell() {
             {/* History View */}
             {currentView === 'history' && (
               <div className="appViewShell" data-testid="history-view">
-                <div className="topbar appTopbar">
+                <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
                     <span>INTERVIEW SIMULATOR</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>HISTORY</span>
                   </div>
-                  <div className="meta">
+                  <button
+                    type="button"
+                    className="topbarMenuButton"
+                    aria-label={topbarMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                    aria-expanded={topbarMenuOpen}
+                    onClick={handleToggleTopbarMenu}
+                  >
+                    {topbarMenuOpen ? '✕' : '☰'}
+                  </button>
+                  <div className={topbarMetaClassName}>
                     <div className="pill">
                       <span>VIEW</span>
                       <span style={{ color: 'var(--cool)' }}>Session History</span>
                     </div>
+                    <button
+                      className="btn subtle"
+                      type="button"
+                      onClick={handleThemeToggle}
+                    >
+                      {themeToggleLabel}
+                    </button>
                     <AuthStatusControls />
                     <button
                       className="btn subtle"

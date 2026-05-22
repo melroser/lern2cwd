@@ -17,5 +17,9 @@ export function RequireAuth({ children, fallback = null, loadingFallback = null 
     return <>{fallback}</>;
   }
 
+  if (auth.callbackState) {
+    return <>{fallback}</>;
+  }
+
   return <>{children}</>;
 }

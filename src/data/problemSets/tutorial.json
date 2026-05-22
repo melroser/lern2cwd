@@ -1,0 +1,35 @@
+[
+  {
+    "id": "tutorial-first-session",
+    "title": "Tutorial: First Session",
+    "difficulty": "easy",
+    "timeLimit": 8,
+    "language": "yaml",
+    "assessmentType": "behavioral",
+    "domain": "onboarding",
+    "competencyTags": ["tutorial", "app-flow", "onboarding"],
+    "prompt": "This is a guided walkthrough of the interview simulator. Use it to learn the flow before enabling real problem packs in Settings. After you press Ready, read this prompt, open the editor, write a few short notes about what each part of the app does, ask the proctor one question, then submit when you are done.",
+    "constraints": [
+      "The prompt stays hidden until you press Ready. Start Timer.",
+      "The editor unlocks only after the timer starts.",
+      "The proctor chat unlocks only after the timer starts.",
+      "When you are ready for real practice, open Settings and enable at least one problem pack."
+    ],
+    "scaffold": "# Tutorial notes\n# 1. What did the Ready button do?\n# 2. What can you use the editor for?\n# 3. What can you ask the proctor?\n# 4. Which problem pack do you want to enable next?\n\nready_button: \neditor: \nproctor_chat: \nnext_problem_pack: ",
+    "examples": [
+      {
+        "input": "Ask: \"Can I ask for clarification during a session?\"",
+        "output": "The proctor can answer clarifying questions and give nudges after the timer starts.",
+        "explanation": "The tutorial is successful when the user understands the app flow."
+      }
+    ],
+    "expectedApproach": "Start the timer, read the prompt, use the editor for notes, send one proctor message, submit, and enable a real problem pack from Settings.",
+    "commonPitfalls": [
+      "Trying to use chat before starting the timer",
+      "Expecting the editor to unlock before the prompt is revealed",
+      "Leaving all problem packs disabled after the tutorial"
+    ],
+    "idealSolutionOutline": "A short set of notes showing the user understands Ready, editor, proctor chat, submit, and Settings.",
+    "evaluationNotes": "Pass if the user demonstrates basic navigation through the app and knows how to enable real problem packs."
+  }
+]

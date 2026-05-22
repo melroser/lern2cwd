@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   isDisabled?: boolean;
+  disabledPlaceholder?: string;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -36,6 +37,7 @@ const styles: Record<string, React.CSSProperties> = {
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   isDisabled,
+  disabledPlaceholder = 'Chat disabled',
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -80,7 +82,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         onKeyDown={handleKeyDown}
         onFocus={() => setIsInputFocused(true)}
         onBlur={() => setIsInputFocused(false)}
-        placeholder={isDisabled ? 'Chat disabled' : 'Type your message...'}
+        placeholder={isDisabled ? disabledPlaceholder : 'Type your message...'}
         disabled={isDisabled}
         style={{
           ...styles.input,

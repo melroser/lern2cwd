@@ -20,14 +20,14 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: '#1e1e2e',
-    color: '#cdd6f4',
+    backgroundColor: 'var(--panel-solid)',
+    color: 'var(--text-strong)',
     overflow: 'hidden',
   },
   header: {
     padding: '24px',
-    borderBottom: '1px solid #45475a',
-    backgroundColor: '#181825',
+    borderBottom: '1px solid var(--panel-border-strong)',
+    backgroundColor: 'var(--panel-subtle)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -36,21 +36,21 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     fontSize: '1.5rem',
     fontWeight: 600,
-    color: '#89b4fa',
+    color: 'var(--accent-primary)',
   },
   closeButton: {
     padding: '10px 20px',
     fontSize: '0.9rem',
     fontWeight: 500,
-    color: '#cdd6f4',
-    backgroundColor: '#313244',
+    color: 'var(--text-strong)',
+    backgroundColor: 'var(--panel-muted)',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
   closeButtonHover: {
-    backgroundColor: '#45475a',
+    backgroundColor: 'var(--panel-border-strong)',
   },
   content: {
     flex: 1,
@@ -62,7 +62,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    borderRight: '1px solid #45475a',
+    borderRight: '1px solid var(--panel-border-strong)',
   },
   sideSection: {
     flex: 1,
@@ -83,15 +83,15 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sessionCard: {
     padding: '16px',
-    backgroundColor: '#313244',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '12px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     border: '2px solid transparent',
   },
   sessionCardHover: {
-    backgroundColor: '#45475a',
-    borderColor: '#89b4fa',
+    backgroundColor: 'var(--panel-border-strong)',
+    borderColor: 'var(--accent-primary)',
   },
   sessionHeader: {
     display: 'flex',
@@ -102,7 +102,7 @@ const styles: Record<string, React.CSSProperties> = {
   sessionTitle: {
     fontSize: '1rem',
     fontWeight: 600,
-    color: '#cdd6f4',
+    color: 'var(--text-strong)',
     margin: 0,
   },
   verdictBadge: {
@@ -113,22 +113,22 @@ const styles: Record<string, React.CSSProperties> = {
     textTransform: 'uppercase' as const,
   },
   verdictPass: {
-    backgroundColor: '#a6e3a1',
-    color: '#1e1e2e',
+    backgroundColor: 'var(--success-accent)',
+    color: 'var(--accent-contrast)',
   },
   verdictBorderline: {
-    backgroundColor: '#f9e2af',
-    color: '#1e1e2e',
+    backgroundColor: 'var(--warning-accent)',
+    color: 'var(--accent-contrast)',
   },
   verdictNoPass: {
-    backgroundColor: '#f38ba8',
-    color: '#1e1e2e',
+    backgroundColor: 'var(--danger-accent)',
+    color: 'var(--accent-contrast)',
   },
   sessionMeta: {
     display: 'flex',
     gap: '16px',
     fontSize: '0.8rem',
-    color: '#a6adc8',
+    color: 'var(--text-soft)',
     marginBottom: '12px',
   },
   scoresRow: {
@@ -138,10 +138,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   scoreChip: {
     padding: '4px 8px',
-    backgroundColor: '#45475a',
+    backgroundColor: 'var(--panel-border-strong)',
     borderRadius: '4px',
     fontSize: '0.7rem',
-    color: '#cdd6f4',
+    color: 'var(--text-strong)',
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
@@ -153,11 +153,11 @@ const styles: Record<string, React.CSSProperties> = {
   },
   missTag: {
     padding: '4px 10px',
-    backgroundColor: 'rgba(243, 139, 168, 0.15)',
+    backgroundColor: 'var(--danger-bg)',
     borderRadius: '12px',
     fontSize: '0.7rem',
     fontWeight: 500,
-    color: '#f38ba8',
+    color: 'var(--danger-accent)',
   },
   patternSection: {
     marginBottom: '24px',
@@ -165,13 +165,13 @@ const styles: Record<string, React.CSSProperties> = {
   sectionTitle: {
     fontSize: '1rem',
     fontWeight: 600,
-    color: '#89b4fa',
+    color: 'var(--accent-primary)',
     marginBottom: '16px',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
   },
   patternCard: {
-    backgroundColor: '#313244',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '12px',
     padding: '16px',
     marginBottom: '12px',
@@ -181,14 +181,14 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '8px 0',
-    borderBottom: '1px solid #45475a',
+    borderBottom: '1px solid var(--panel-border-strong)',
   },
   patternItemLast: {
     borderBottom: 'none',
   },
   patternName: {
     fontSize: '0.85rem',
-    color: '#cdd6f4',
+    color: 'var(--text-strong)',
     textTransform: 'capitalize' as const,
   },
   patternCount: {
@@ -199,24 +199,24 @@ const styles: Record<string, React.CSSProperties> = {
   patternBar: {
     width: '60px',
     height: '6px',
-    backgroundColor: '#45475a',
+    backgroundColor: 'var(--panel-border-strong)',
     borderRadius: '3px',
     overflow: 'hidden',
   },
   patternBarFill: {
     height: '100%',
-    backgroundColor: '#f38ba8',
+    backgroundColor: 'var(--danger-accent)',
     borderRadius: '3px',
   },
   patternNumber: {
     fontSize: '0.8rem',
     fontWeight: 600,
-    color: '#f38ba8',
+    color: 'var(--danger-accent)',
     minWidth: '24px',
     textAlign: 'right' as const,
   },
   statsCard: {
-    backgroundColor: '#313244',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '12px',
     padding: '16px',
   },
@@ -225,19 +225,19 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '8px 0',
-    borderBottom: '1px solid #45475a',
+    borderBottom: '1px solid var(--panel-border-strong)',
   },
   statRowLast: {
     borderBottom: 'none',
   },
   statLabel: {
     fontSize: '0.85rem',
-    color: '#a6adc8',
+    color: 'var(--text-soft)',
   },
   statValue: {
     fontSize: '0.9rem',
     fontWeight: 600,
-    color: '#cdd6f4',
+    color: 'var(--text-strong)',
   },
   emptyState: {
     flex: 1,
@@ -254,18 +254,18 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyStateText: {
     fontSize: '1.125rem',
-    color: '#6c7086',
+    color: 'var(--text-muted)',
     marginBottom: '8px',
   },
   emptyStateSubtext: {
     fontSize: '0.9rem',
-    color: '#585b70',
+    color: 'var(--text-dimmer)',
   },
   recommendationSection: {
     marginBottom: '24px',
   },
   recommendationCard: {
-    backgroundColor: '#313244',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '12px',
     padding: '16px',
     marginBottom: '12px',
@@ -274,29 +274,29 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '8px',
-    backgroundColor: '#45475a',
+    backgroundColor: 'var(--panel-border-strong)',
   },
   recommendationItemLast: {
     marginBottom: 0,
   },
   recommendationPriorityHigh: {
-    borderLeft: '3px solid #f38ba8',
+    borderLeft: '3px solid var(--danger-accent)',
   },
   recommendationPriorityMedium: {
-    borderLeft: '3px solid #f9e2af',
+    borderLeft: '3px solid var(--warning-accent)',
   },
   recommendationPriorityLow: {
-    borderLeft: '3px solid #a6e3a1',
+    borderLeft: '3px solid var(--success-accent)',
   },
   recommendationTitle: {
     fontSize: '0.85rem',
     fontWeight: 600,
-    color: '#cdd6f4',
+    color: 'var(--text-strong)',
     marginBottom: '6px',
   },
   recommendationDescription: {
     fontSize: '0.8rem',
-    color: '#a6adc8',
+    color: 'var(--text-soft)',
     lineHeight: 1.4,
   },
   trendIndicator: {
@@ -310,20 +310,20 @@ const styles: Record<string, React.CSSProperties> = {
     marginLeft: '8px',
   },
   trendImproving: {
-    backgroundColor: 'rgba(166, 227, 161, 0.2)',
-    color: '#a6e3a1',
+    backgroundColor: 'var(--success-bg)',
+    color: 'var(--success-accent)',
   },
   trendWorsening: {
-    backgroundColor: 'rgba(243, 139, 168, 0.2)',
-    color: '#f38ba8',
+    backgroundColor: 'var(--danger-bg)',
+    color: 'var(--danger-accent)',
   },
   trendNew: {
-    backgroundColor: 'rgba(249, 226, 175, 0.2)',
-    color: '#f9e2af',
+    backgroundColor: 'var(--warning-bg)',
+    color: 'var(--warning-accent)',
   },
   trendStable: {
-    backgroundColor: 'rgba(166, 173, 200, 0.2)',
-    color: '#a6adc8',
+    backgroundColor: 'var(--neutral-bg)',
+    color: 'var(--text-soft)',
   },
   sideSectionScrollable: {
     flex: 1,
@@ -891,7 +891,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                   <span
                     style={{
                       ...styles.statValue,
-                      color: stats.passRate >= 70 ? '#a6e3a1' : stats.passRate >= 40 ? '#f9e2af' : '#f38ba8',
+                      color: stats.passRate >= 70 ? 'var(--success-accent)' : stats.passRate >= 40 ? 'var(--warning-accent)' : 'var(--danger-accent)',
                     }}
                     data-testid="stat-pass-rate"
                   >

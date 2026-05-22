@@ -6,12 +6,16 @@
 const EDITOR_SETTINGS_KEY = 'coding-interview-editor-settings';
 let storageScope: string | null = null;
 
+export type ThemeMode = 'system' | 'dark' | 'light';
+
 export interface EditorSettings {
   vimMode: boolean;
+  themeMode: ThemeMode;
 }
 
 const DEFAULT_SETTINGS: EditorSettings = {
   vimMode: false,
+  themeMode: 'system',
 };
 
 function getStorageKey(): string {
@@ -32,9 +36,10 @@ export function getEditorSettings(): EditorSettings {
   }
 }
 
-export function saveEditorSettings(settings: EditorSettings): void {
+export function saveEditorSettings(settings: Partial<EditorSettings>): void {
   try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(settings));
+    const next = { ...getEditorSettings(), ...settings };
+    localStorage.setItem(getStorageKey(), JSON.stringify(next));
   } catch {
     // Ignore storage errors
   }

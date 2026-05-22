@@ -25,6 +25,7 @@ import outrivalExperimentationRaw from '../data/problemSets/outrival-experimenta
 import outrivalPlatformReliabilityRaw from '../data/problemSets/outrival-platform-reliability.json';
 import synthbeeWilliamRaw from '../data/problemSets/synthbee-william-screen.json';
 import synthbeeConversationalRaw from '../data/problemSets/synthbee-conversational-screen.json';
+import tutorialRaw from '../data/problemSets/tutorial.json';
 
 type RawProblem = Partial<Problem> & {
   id: string;
@@ -43,14 +44,22 @@ type CodingProblemOverride = {
   commonPitfalls: string[];
 };
 
+const TUTORIAL_SET_ID = 'tutorial';
+
 const PROBLEM_SET_REGISTRY: Omit<ProblemSetOption, 'questionCount'>[] = [
+  {
+    id: TUTORIAL_SET_ID,
+    label: 'Tutorial',
+    description: 'A guided first-run walkthrough for learning the app flow.',
+    assessmentType: 'behavioral',
+    domain: 'onboarding',
+  },
   {
     id: 'neetcode-50',
     label: 'NeetCode 50',
     description: 'Core coding interview patterns and algorithms.',
     assessmentType: 'coding',
     domain: 'software-engineering',
-    defaultSelected: true,
   },
   {
     id: 'codesignal-tech-force',
@@ -58,7 +67,6 @@ const PROBLEM_SET_REGISTRY: Omit<ProblemSetOption, 'questionCount'>[] = [
     description: 'CodeSignal-style timed algorithm and implementation drills.',
     assessmentType: 'coding',
     domain: 'software-engineering',
-    defaultSelected: true,
   },
   {
     id: 'behavioral-software-engineering',
@@ -140,6 +148,7 @@ const PROBLEM_SET_REGISTRY: Omit<ProblemSetOption, 'questionCount'>[] = [
 ];
 
 const RAW_PROBLEMS_BY_SET: Record<string, RawProblem[]> = {
+  [TUTORIAL_SET_ID]: tutorialRaw as RawProblem[],
   'neetcode-50': neetcode50Raw as RawProblem[],
   'codesignal-tech-force': codeSignalRaw as RawProblem[],
   'cfo-mode': cfoModeRaw as RawProblem[],
@@ -1231,18 +1240,22 @@ class ProblemService implements ProblemServiceInterface {
 
   private sanitizeSetSelection(problemSetIds?: string[]): string[] {
     const allIds = new Set(PROBLEM_SET_REGISTRY.map((s) => s.id));
+    if (!problemSetIds) {
+      return [...DEFAULT_SELECTED_SET_IDS];
+    }
+
     const requested = (problemSetIds ?? [])
       .filter((id): id is string => typeof id === 'string')
       .filter((id) => allIds.has(id));
 
-    if (requested.length > 0) return Array.from(new Set(requested));
-    return [...DEFAULT_SELECTED_SET_IDS];
+    return Array.from(new Set(requested));
   }
 
   private applySelection(problemSetIds?: string[]): Problem[] {
     const selected = this.sanitizeSetSelection(problemSetIds);
+    const activeSetIds = selected.length > 0 ? selected : [TUTORIAL_SET_ID];
     this.selectedSetIds = selected;
-    this.problems = selected.flatMap((setId) => this.allProblemsBySet[setId] ?? []);
+    this.problems = activeSetIds.flatMap((setId) => this.allProblemsBySet[setId] ?? []);
     this.isLoaded = true;
     return this.problems;
   }

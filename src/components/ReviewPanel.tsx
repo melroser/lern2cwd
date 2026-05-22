@@ -21,14 +21,14 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: '#0d1119',
-    color: '#d6e2ff',
+    backgroundColor: 'var(--panel-solid)',
+    color: 'var(--text-strong)',
     overflowY: 'auto',
   },
   header: {
     padding: '24px',
-    borderBottom: '1px solid rgba(137, 180, 250, 0.2)',
-    backgroundColor: 'rgba(8, 12, 20, 0.96)',
+    borderBottom: '1px solid var(--panel-border)',
+    backgroundColor: 'var(--panel-subtle)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -39,12 +39,12 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     fontSize: '1.55rem',
     fontWeight: 700,
-    color: '#9cc4ff',
+    color: 'var(--accent-primary)',
   },
   headerMeta: {
     marginTop: '8px',
     fontSize: '0.95rem',
-    color: 'rgba(214, 226, 255, 0.78)',
+    color: 'var(--text-soft)',
     maxWidth: '780px',
     lineHeight: 1.6,
     whiteSpace: 'pre-wrap',
@@ -70,32 +70,32 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '1px',
   },
   verdictPass: {
-    backgroundColor: '#a6e3a1',
-    color: '#0d1119',
+    backgroundColor: 'var(--success-accent)',
+    color: 'var(--accent-contrast)',
   },
   verdictBorderline: {
-    backgroundColor: '#f9e2af',
-    color: '#0d1119',
+    backgroundColor: 'var(--warning-accent)',
+    color: 'var(--accent-contrast)',
   },
   verdictNoPass: {
-    backgroundColor: '#f38ba8',
-    color: '#0d1119',
+    backgroundColor: 'var(--danger-accent)',
+    color: 'var(--accent-contrast)',
   },
   copyButton: {
     padding: '12px 18px',
     borderRadius: '8px',
-    border: '1px solid rgba(137, 180, 250, 0.35)',
-    backgroundColor: 'rgba(24, 32, 48, 0.96)',
-    color: '#d6e2ff',
+    border: '1px solid var(--panel-border-strong)',
+    backgroundColor: 'var(--panel-muted)',
+    color: 'var(--text-strong)',
     fontWeight: 600,
     cursor: 'pointer',
   },
   copyStatus: {
     fontSize: '0.85rem',
-    color: '#94e2d5',
+    color: 'var(--info-accent)',
   },
   copyStatusError: {
-    color: '#f38ba8',
+    color: 'var(--danger-accent)',
   },
   content: {
     flex: 1,
@@ -105,16 +105,16 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '24px',
   },
   section: {
-    backgroundColor: 'rgba(21, 28, 41, 0.94)',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '14px',
     padding: '20px',
-    border: '1px solid rgba(137, 180, 250, 0.14)',
+    border: '1px solid var(--panel-border)',
   },
   sectionTitle: {
     margin: '0 0 16px 0',
     fontSize: '0.98rem',
     fontWeight: 700,
-    color: '#9cc4ff',
+    color: 'var(--accent-primary)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.7px',
   },
@@ -127,14 +127,14 @@ const styles: Record<string, React.CSSProperties> = {
   recapPill: {
     padding: '6px 10px',
     borderRadius: '999px',
-    backgroundColor: 'rgba(34, 45, 68, 0.92)',
-    color: '#d6e2ff',
+    backgroundColor: 'var(--panel-subtle)',
+    color: 'var(--text-strong)',
     fontSize: '0.78rem',
   },
   recapText: {
     fontSize: '0.98rem',
     lineHeight: 1.7,
-    color: 'rgba(214, 226, 255, 0.9)',
+    color: 'var(--text-strong)',
     whiteSpace: 'pre-wrap' as const,
     margin: 0,
   },
@@ -150,7 +150,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   scoreLabel: {
     fontSize: '0.875rem',
-    color: '#a6adc8',
+    color: 'var(--text-soft)',
     textTransform: 'capitalize' as const,
   },
   scoreBarContainer: {
@@ -161,7 +161,7 @@ const styles: Record<string, React.CSSProperties> = {
   scoreBar: {
     flex: 1,
     height: '8px',
-    backgroundColor: '#1f2a3a',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '4px',
     overflow: 'hidden',
   },
@@ -172,7 +172,7 @@ const styles: Record<string, React.CSSProperties> = {
   scoreValue: {
     fontSize: '0.875rem',
     fontWeight: 600,
-    color: '#d6e2ff',
+    color: 'var(--text-strong)',
     minWidth: '32px',
     textAlign: 'right' as const,
   },
@@ -188,10 +188,10 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.6,
   },
   strengthItem: {
-    color: '#a6e3a1',
+    color: 'var(--success-accent)',
   },
   improvementItem: {
-    color: '#f9e2af',
+    color: 'var(--warning-accent)',
   },
   missTagsContainer: {
     display: 'flex',
@@ -200,23 +200,23 @@ const styles: Record<string, React.CSSProperties> = {
   },
   missTag: {
     padding: '6px 12px',
-    backgroundColor: '#1f2a3a',
+    backgroundColor: 'var(--panel-muted)',
     borderRadius: '16px',
     fontSize: '0.75rem',
     fontWeight: 600,
-    color: '#f38ba8',
+    color: 'var(--danger-accent)',
     textTransform: 'lowercase' as const,
   },
   codeBlock: {
-    backgroundColor: '#0a0f18',
+    backgroundColor: 'var(--code-surface)',
     borderRadius: '10px',
-    border: '1px solid rgba(137, 180, 250, 0.14)',
+    border: '1px solid var(--panel-border)',
     overflow: 'auto',
     maxHeight: '420px',
   },
   emptyCodeState: {
     padding: '18px 16px',
-    color: 'rgba(214, 226, 255, 0.72)',
+    color: 'var(--text-soft)',
     fontSize: '0.95rem',
     lineHeight: 1.6,
   },
@@ -228,10 +228,10 @@ const styles: Record<string, React.CSSProperties> = {
   lineNumber: {
     padding: '0 12px',
     textAlign: 'right' as const,
-    color: 'rgba(214, 226, 255, 0.4)',
+    color: 'var(--text-muted)',
     userSelect: 'none' as const,
-    borderRight: '1px solid rgba(137, 180, 250, 0.1)',
-    backgroundColor: 'rgba(14, 20, 31, 0.96)',
+    borderRight: '1px solid var(--panel-border)',
+    backgroundColor: 'var(--code-gutter-bg)',
     fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
     fontSize: '0.84rem',
     lineHeight: 1.8,
@@ -263,21 +263,21 @@ const styles: Record<string, React.CSSProperties> = {
     whiteSpace: 'pre-wrap' as const,
   },
   annotationInfo: {
-    backgroundColor: 'rgba(148, 226, 213, 0.08)',
-    color: '#94e2d5',
+    backgroundColor: 'var(--info-bg)',
+    color: 'var(--info-accent)',
   },
   annotationWarning: {
-    backgroundColor: 'rgba(249, 226, 175, 0.1)',
-    color: '#f9e2af',
+    backgroundColor: 'var(--warning-bg)',
+    color: 'var(--warning-accent)',
   },
   annotationError: {
-    backgroundColor: 'rgba(243, 139, 168, 0.12)',
-    color: '#f38ba8',
+    backgroundColor: 'var(--danger-bg)',
+    color: 'var(--danger-accent)',
   },
   footer: {
     padding: '24px',
-    borderTop: '1px solid rgba(137, 180, 250, 0.14)',
-    backgroundColor: 'rgba(8, 12, 20, 0.96)',
+    borderTop: '1px solid var(--panel-border)',
+    backgroundColor: 'var(--panel-subtle)',
     display: 'flex',
     justifyContent: 'center',
     gap: '16px',
@@ -292,19 +292,19 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
   },
   nextButton: {
-    backgroundColor: '#89b4fa',
-    color: '#0d1119',
+    backgroundColor: 'var(--button-primary-bg)',
+    color: 'var(--accent-contrast)',
   },
   nextButtonHover: {
-    backgroundColor: '#b4befe',
+    backgroundColor: 'var(--button-primary-hover)',
     transform: 'translateY(-1px)',
   },
   historyButton: {
-    backgroundColor: '#2a3446',
-    color: '#d6e2ff',
+    backgroundColor: 'var(--button-secondary-bg)',
+    color: 'var(--text-strong)',
   },
   historyButtonHover: {
-    backgroundColor: '#36445c',
+    backgroundColor: 'var(--panel-border-strong)',
     transform: 'translateY(-1px)',
   },
   emptyState: {
@@ -318,7 +318,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyStateText: {
     fontSize: '1.125rem',
-    color: '#7e8aa3',
+    color: 'var(--text-muted)',
     marginBottom: '24px',
   },
 };
@@ -373,10 +373,10 @@ function getCommentPrefix(problemSnapshot?: SessionProblemSnapshot | null): stri
  * Get the color for a score bar based on the score value (0-4)
  */
 function getScoreColor(score: number): string {
-  if (score >= 4) return '#a6e3a1';
-  if (score >= 3) return '#94e2d5';
-  if (score >= 2) return '#f9e2af';
-  return '#f38ba8';
+  if (score >= 4) return 'var(--success-accent)';
+  if (score >= 3) return 'var(--info-accent)';
+  if (score >= 2) return 'var(--warning-accent)';
+  return 'var(--danger-accent)';
 }
 
 /**
@@ -673,7 +673,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
 
           {feedback.strengths.length > 0 && (
             <div data-testid="strengths-section">
-              <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: '#a6e3a1' }}>
+              <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: 'var(--success-accent)' }}>
                 Strengths
               </h4>
               <ul style={styles.feedbackList}>
@@ -692,7 +692,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
 
           {feedback.improvements.length > 0 && (
             <div data-testid="improvements-section" style={{ marginTop: feedback.strengths.length > 0 ? '16px' : 0 }}>
-              <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: '#f9e2af' }}>
+              <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: 'var(--warning-accent)' }}>
                 Areas for Improvement
               </h4>
               <ul style={styles.feedbackList}>

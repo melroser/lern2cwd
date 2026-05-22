@@ -30,7 +30,7 @@ describe('scoped local preferences', () => {
 
     saveEditorSettings({ vimMode: false });
     setEditorSettingsStorageScope('netlify:user-a');
-    expect(getEditorSettings()).toEqual({ vimMode: true });
+    expect(getEditorSettings()).toEqual({ ...DEFAULT_EDITOR_SETTINGS, vimMode: true });
   });
 
   it('clears only the current scoped editor settings', () => {
@@ -51,6 +51,12 @@ describe('scoped local preferences', () => {
     saveProblemSetSettings({ selectedProblemSetIds: ['python-intermediate'] });
     setProblemSetSettingsStorageScope('netlify:user-a');
     expect(getProblemSetSettings()).toEqual({ selectedProblemSetIds: ['python-fundamentals'] });
+  });
+
+  it('preserves an intentionally empty problem-set selection', () => {
+    saveProblemSetSettings({ selectedProblemSetIds: [] });
+
+    expect(getProblemSetSettings()).toEqual({ selectedProblemSetIds: [] });
   });
 
   it('clears only the current scoped problem-set selections', () => {

@@ -1,53 +1,28 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, placeholder as cmPlaceholder } from '@codemirror/view';
-import { EditorState, Compartment } from '@codemirror/state';
-import { defaultKeymap, indentWithTab, history, historyKeymap } from '@codemirror/commands';
+import React, { useCallback, useEffect, useRef } from 'react';
+import {
+  EditorView,
+  highlightActiveLine,
+  highlightActiveLineGutter,
+  keymap,
+  lineNumbers,
+  placeholder as cmPlaceholder,
+} from '@codemirror/view';
+import { Compartment, EditorState } from '@codemirror/state';
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
+import { bracketMatching, defaultHighlightStyle, indentUnit, syntaxHighlighting } from '@codemirror/language';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { syntaxHighlighting, defaultHighlightStyle, bracketMatching, indentUnit } from '@codemirror/language';
 import { vim, Vim } from '@replit/codemirror-vim';
 import type { CodeEditorPanelProps } from '../types';
-
-/**
- * CodeEditorPanel - Left panel with CodeMirror 6 editor
- *
- * Requirements:
- * - 7.1: Plain text editing interface
- * - 7.2: Scaffold display and editing
- * - 7.3: Tab key for indentation
- * - 7.4: Preserve user content throughout session
- */
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: '#1e1e2e',
-    color: '#cdd6f4',
-  },
-  promptSection: {
-    padding: '16px',
-    borderBottom: '1px solid #45475a',
-    backgroundColor: '#181825',
-    maxHeight: '200px',
-    overflowY: 'auto',
-  },
-  promptLabel: {
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    textTransform: 'uppercase' as const,
-    color: '#89b4fa',
-    marginBottom: '8px',
-    letterSpacing: '0.5px',
-  },
-  promptText: {
-    fontSize: '0.9rem',
-    lineHeight: 1.6,
-    color: '#cdd6f4',
-    whiteSpace: 'pre-wrap',
-    margin: 0,
+    backgroundColor: 'var(--editor-surface)',
+    color: 'var(--text-strong)',
   },
   editorSection: {
     flex: 1,
@@ -59,21 +34,21 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '12px 16px',
     fontSize: '0.75rem',
     fontWeight: 600,
-    textTransform: 'uppercase' as const,
-    color: '#89b4fa',
-    backgroundColor: '#181825',
-    borderBottom: '1px solid #45475a',
+    textTransform: 'uppercase',
+    color: 'var(--accent-primary)',
+    backgroundColor: 'var(--editor-header-bg)',
+    borderBottom: '1px solid var(--panel-border-strong)',
     letterSpacing: '0.5px',
   },
   editorWrapper: {
     flex: 1,
     overflow: 'auto',
-    backgroundColor: '#1e1e2e',
+    backgroundColor: 'var(--editor-surface)',
   },
   footer: {
     padding: '16px',
-    borderTop: '1px solid #45475a',
-    backgroundColor: '#181825',
+    borderTop: '1px solid var(--panel-border-strong)',
+    backgroundColor: 'var(--editor-header-bg)',
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
@@ -83,40 +58,37 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '12px 24px',
     fontSize: '1rem',
     fontWeight: 600,
-    color: '#1e1e2e',
-    backgroundColor: '#a6e3a1',
+    color: 'var(--button-primary-text)',
+    backgroundColor: 'var(--button-primary-bg)',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
   submitButtonDisabled: {
-    backgroundColor: '#585b70',
-    color: '#9399b2',
+    backgroundColor: 'var(--button-disabled-bg)',
+    color: 'var(--button-disabled-text)',
     cursor: 'not-allowed',
   },
   submitButtonHover: {
-    backgroundColor: '#94e2d5',
+    backgroundColor: 'var(--button-primary-hover)',
     transform: 'translateY(-1px)',
   },
 };
 
-// Compartments let us reconfigure extensions dynamically
 const languageCompartment = new Compartment();
 const readOnlyCompartment = new Compartment();
 const vimCompartment = new Compartment();
+const editorThemeCompartment = new Compartment();
+const chromeThemeCompartment = new Compartment();
 let vimMappingsInitialized = false;
 
 function initVimMappings() {
   if (vimMappingsInitialized) return;
-  // Common insert-mode shortcut: type "jj" to exit insert mode.
   Vim.map('jj', '<Esc>', 'insert');
   vimMappingsInitialized = true;
 }
 
-/**
- * Detect language from code content and return the appropriate CM extension
- */
 function detectLanguage(code: string) {
   if (code.includes(': string') || code.includes(': number') || code.includes('interface ') || code.includes('<T>')) {
     return javascript({ typescript: true });
@@ -124,13 +96,80 @@ function detectLanguage(code: string) {
   if (code.includes('function ') || code.includes('const ') || code.includes('let ') || code.includes('=>')) {
     return javascript();
   }
-  // Default to Python
   return python();
+}
+
+function createEditorChromeTheme(theme: 'dark' | 'light') {
+  const colors = theme === 'light'
+    ? {
+        background: '#f6fbff',
+        gutter: '#e7f0f4',
+        gutterActive: '#d9e8ed',
+        gutterText: '#60808d',
+        cursor: '#14566b',
+        selection: 'rgba(20, 86, 107, 0.16)',
+        activeLine: 'rgba(20, 86, 107, 0.08)',
+        panelBg: '#edf5f8',
+        panelText: '#173843',
+      }
+    : {
+        background: '#1e1e2e',
+        gutter: '#181825',
+        gutterActive: '#313244',
+        gutterText: '#6c7086',
+        cursor: '#f5e0dc',
+        selection: '#45475a',
+        activeLine: 'rgba(69, 71, 90, 0.4)',
+        panelBg: '#181825',
+        panelText: '#cdd6f4',
+      };
+
+  return EditorView.theme({
+    '&': {
+      height: '100%',
+      fontSize: '30px',
+      backgroundColor: colors.background,
+    },
+    '.cm-scroller': {
+      fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+      lineHeight: '1.6',
+    },
+    '.cm-content': {
+      caretColor: colors.cursor,
+      padding: '8px 0',
+    },
+    '.cm-gutters': {
+      backgroundColor: colors.gutter,
+      color: colors.gutterText,
+      border: 'none',
+      minWidth: '40px',
+    },
+    '.cm-activeLineGutter': {
+      backgroundColor: colors.gutterActive,
+    },
+    '&.cm-focused .cm-cursor': {
+      borderLeftColor: colors.cursor,
+    },
+    '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
+      backgroundColor: `${colors.selection} !important`,
+    },
+    '.cm-activeLine': {
+      backgroundColor: colors.activeLine,
+    },
+    '.cm-vim-panel': {
+      backgroundColor: colors.panelBg,
+      color: colors.panelText,
+      padding: '2px 8px',
+      fontSize: '12px',
+      fontFamily: '"Fira Code", monospace',
+    },
+  });
 }
 
 export interface CodeEditorPanelExtendedProps extends CodeEditorPanelProps {
   vimMode?: boolean;
   language?: string;
+  resolvedTheme?: 'light' | 'dark';
 }
 
 export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
@@ -140,19 +179,17 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
   isDisabled,
   vimMode = false,
   language,
+  resolvedTheme = 'dark',
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-  // Track the latest code from parent to avoid echoing our own updates back
   const externalCodeRef = useRef(code);
 
-  // Keep externalCodeRef in sync
   useEffect(() => {
     externalCodeRef.current = code;
   }, [code]);
 
-  // Create the editor once on mount
   useEffect(() => {
     if (!editorRef.current) return;
     initVimMappings();
@@ -177,7 +214,8 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         bracketMatching(),
         history(),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-        oneDark,
+        editorThemeCompartment.of(resolvedTheme === 'dark' ? oneDark : []),
+        chromeThemeCompartment.of(createEditorChromeTheme(resolvedTheme)),
         EditorState.tabSize.of(4),
         indentUnit.of('    '),
         languageCompartment.of(langExt),
@@ -187,52 +225,11 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const newDoc = update.state.doc.toString();
-            // Only notify parent if the change didn't come from parent
             if (newDoc !== externalCodeRef.current) {
               externalCodeRef.current = newDoc;
               onCodeChange(newDoc);
             }
           }
-        }),
-        EditorView.theme({
-          '&': {
-            height: '100%',
-            fontSize: '30px',
-          },
-          '.cm-scroller': {
-            fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
-            lineHeight: '1.6',
-          },
-          '.cm-content': {
-            caretColor: '#f5e0dc',
-            padding: '8px 0',
-          },
-          '.cm-gutters': {
-            backgroundColor: '#181825',
-            color: '#6c7086',
-            border: 'none',
-            minWidth: '40px',
-          },
-          '.cm-activeLineGutter': {
-            backgroundColor: '#313244',
-          },
-          '&.cm-focused .cm-cursor': {
-            borderLeftColor: '#f5e0dc',
-          },
-          '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-            backgroundColor: '#45475a !important',
-          },
-          '.cm-activeLine': {
-            backgroundColor: 'rgba(69, 71, 90, 0.4)',
-          },
-          // Vim status bar styling
-          '.cm-vim-panel': {
-            backgroundColor: '#181825',
-            color: '#cdd6f4',
-            padding: '2px 8px',
-            fontSize: '12px',
-            fontFamily: '"Fira Code", monospace',
-          },
         }),
       ],
     });
@@ -244,7 +241,6 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
 
     viewRef.current = view;
 
-    // Add ResizeObserver to re-measure when container size changes
     const ro = new ResizeObserver(() => {
       view.requestMeasure();
     });
@@ -255,11 +251,9 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
       view.destroy();
       viewRef.current = null;
     };
-    // Only run on mount/unmount — we handle updates via dispatch below
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync code from parent → editor (e.g. scaffold load)
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -271,7 +265,6 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
     }
   }, [code]);
 
-  // Toggle vim mode dynamically
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -280,7 +273,6 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
     });
   }, [vimMode]);
 
-  // Toggle read-only dynamically
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -288,6 +280,17 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
       effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(isDisabled)),
     });
   }, [isDisabled]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: [
+        editorThemeCompartment.reconfigure(resolvedTheme === 'dark' ? oneDark : []),
+        chromeThemeCompartment.reconfigure(createEditorChromeTheme(resolvedTheme)),
+      ],
+    });
+  }, [resolvedTheme]);
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && event.ctrlKey) {
@@ -300,12 +303,11 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
 
   return (
     <div style={styles.container} data-testid="code-editor-panel">
-      {/* Code Editor Section */}
       <div style={styles.editorSection}>
         <div style={styles.editorLabel}>
           Your Solution
           {vimMode && (
-            <span style={{ marginLeft: '12px', color: '#a6e3a1', fontSize: '0.7rem', fontWeight: 400 }}>
+            <span style={{ marginLeft: '12px', color: 'var(--success-accent)', fontSize: '0.7rem', fontWeight: 400 }}>
               VIM
             </span>
           )}
@@ -321,7 +323,6 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         />
       </div>
 
-      {/* Footer with Submit Button */}
       <div style={styles.footer}>
         <button
           onClick={onSubmit}

@@ -350,40 +350,40 @@ describe('ReviewPanel Component', () => {
 
 describe('getScoreColor utility', () => {
   it('returns green for score 4', () => {
-    expect(getScoreColor(4)).toBe('#a6e3a1');
+    expect(getScoreColor(4)).toBe('var(--success-accent)');
   });
 
   it('returns teal for score 3', () => {
-    expect(getScoreColor(3)).toBe('#94e2d5');
+    expect(getScoreColor(3)).toBe('var(--info-accent)');
   });
 
   it('returns yellow for score 2', () => {
-    expect(getScoreColor(2)).toBe('#f9e2af');
+    expect(getScoreColor(2)).toBe('var(--warning-accent)');
   });
 
   it('returns red for score 1', () => {
-    expect(getScoreColor(1)).toBe('#f38ba8');
+    expect(getScoreColor(1)).toBe('var(--danger-accent)');
   });
 
   it('returns red for score 0', () => {
-    expect(getScoreColor(0)).toBe('#f38ba8');
+    expect(getScoreColor(0)).toBe('var(--danger-accent)');
   });
 });
 
 describe('getVerdictStyle utility', () => {
   it('returns pass style for Pass verdict', () => {
     const style = getVerdictStyle('Pass');
-    expect(style).toHaveProperty('backgroundColor', '#a6e3a1');
+    expect(style).toHaveProperty('backgroundColor', 'var(--success-accent)');
   });
 
   it('returns borderline style for Borderline verdict', () => {
     const style = getVerdictStyle('Borderline');
-    expect(style).toHaveProperty('backgroundColor', '#f9e2af');
+    expect(style).toHaveProperty('backgroundColor', 'var(--warning-accent)');
   });
 
   it('returns no pass style for No Pass verdict', () => {
     const style = getVerdictStyle('No Pass');
-    expect(style).toHaveProperty('backgroundColor', '#f38ba8');
+    expect(style).toHaveProperty('backgroundColor', 'var(--danger-accent)');
   });
 });
 

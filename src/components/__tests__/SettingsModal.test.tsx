@@ -64,6 +64,81 @@ describe('SettingsModal', () => {
     expect(onProblemSetSelectionChange).toHaveBeenCalledWith(['python-fundamentals']);
   });
 
+  it('shows a tutorial mode notice when every problem pack is off', () => {
+    render(
+      <SettingsModal
+        isOpen
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        problemSetOptions={[
+          {
+            id: 'tutorial',
+            label: 'Tutorial',
+            description: 'Guided walkthrough.',
+            assessmentType: 'behavioral',
+            domain: 'onboarding',
+            questionCount: 1,
+          },
+          {
+            id: 'python-fundamentals',
+            label: 'Python Fundamentals',
+            description: 'Core Python drills.',
+            assessmentType: 'coding',
+            domain: 'python-fundamentals',
+            questionCount: 12,
+          },
+        ]}
+        selectedProblemSetIds={[]}
+      />,
+    );
+
+    expect(screen.getByTestId('tutorial-mode-notice')).toHaveTextContent(/tutorial mode active/i);
+    expect(screen.queryByTestId('problem-set-toggle-tutorial')).not.toBeInTheDocument();
+  });
+
+  it('hides the tutorial mode notice when a real problem pack is enabled', () => {
+    render(
+      <SettingsModal
+        isOpen
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        problemSetOptions={[
+          {
+            id: 'python-fundamentals',
+            label: 'Python Fundamentals',
+            description: 'Core Python drills.',
+            assessmentType: 'coding',
+            domain: 'python-fundamentals',
+            questionCount: 12,
+          },
+        ]}
+        selectedProblemSetIds={['python-fundamentals']}
+      />,
+    );
+
+    expect(screen.queryByTestId('tutorial-mode-notice')).not.toBeInTheDocument();
+  });
+
+  it('updates the theme mode preference', async () => {
+    const user = userEvent.setup();
+    const onThemeModeChange = vi.fn();
+
+    render(
+      <SettingsModal
+        isOpen
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+        onThemeModeChange={onThemeModeChange}
+        themeMode="system"
+      />,
+    );
+
+    await user.click(screen.getByTestId('theme-mode-light'));
+
+    expect(editorSettings.saveEditorSettings).toHaveBeenCalledWith({ themeMode: 'light' });
+    expect(onThemeModeChange).toHaveBeenCalledWith('light');
+  });
+
   it('clears stored session data after confirmation', async () => {
     const user = userEvent.setup();
 
