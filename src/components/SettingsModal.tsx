@@ -409,10 +409,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div style={styles.infoBox}>
             <div style={styles.infoTitle}>
               <span>ℹ️</span>
-              <span>Welcome to Coding Interview Simulator!</span>
+              <span>Welcome to Lern2Cwd!</span>
             </div>
             <p style={styles.infoText}>
-              This app uses AI to simulate interview sessions. LLM access is configured
+              This app uses AI to help you practice interview questions. LLM access is configured
               centrally for the invite-only beta and is not entered in the browser.
             </p>
           </div>
@@ -443,12 +443,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div style={styles.section} data-testid="editor-settings-section">
-          <h3 style={styles.sectionTitle}>Editor</h3>
+          <h3 style={styles.sectionTitle}>Answer</h3>
 
           <div style={{ marginBottom: '18px' }}>
             <div style={styles.settingLabel}>Theme</div>
             <div style={styles.settingDescription}>
-              Follow the system theme by default, or lock the simulator to dark or light mode.
+              Follow the system theme by default, or lock the app to dark or light mode.
             </div>
             <div style={styles.themeModeRow}>
               {(['system', 'dark', 'light'] as const).map((mode) => (
@@ -494,16 +494,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div style={styles.section} data-testid="problem-set-section">
-          <h3 style={styles.sectionTitle}>Problem Sets</h3>
+          <h3 style={styles.sectionTitle}>Practice Areas</h3>
           <p style={styles.description}>
-            Select which banks are used for random session questions. If none are selected, Start Random opens the tutorial.
+            Choose the kinds of questions you want to practice. If nothing is selected, the tutorial starts first.
           </p>
 
           {isTutorialMode && (
             <div style={styles.tutorialModeNotice} data-testid="tutorial-mode-notice">
-              <div style={styles.tutorialModeTitle}>Tutorial Mode Active</div>
+              <div style={styles.tutorialModeTitle}>Tutorial First</div>
               <p style={styles.tutorialModeText}>
-                All problem packs are off. The home screen will start the tutorial until you enable at least one pack below.
+                No practice areas are selected. The tutorial starts first until you choose one below.
               </p>
             </div>
           )}

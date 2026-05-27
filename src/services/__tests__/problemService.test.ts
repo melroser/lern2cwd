@@ -8,7 +8,9 @@ describe('ProblemService', () => {
 
     expect(problems).toHaveLength(1);
     expect(problems[0].problemSetId).toBe('tutorial');
-    expect(problems[0].title).toMatch(/tutorial/i);
+    expect(problems[0].title).toMatch(/first rep/i);
+    expect(problems[0].tutorPlan?.openingPrompt).toMatch(/first attempt/i);
+    expect(problems[0].tutorPlan?.openingPrompt).not.toContain('measurable result');
   });
 
   it('loads only the selected problem sets', async () => {

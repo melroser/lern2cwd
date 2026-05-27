@@ -17,7 +17,7 @@ describe('CodeEditorPanel', () => {
     render(<CodeEditorPanel {...defaultProps} />);
 
     expect(screen.getByTestId('code-editor-panel')).toBeInTheDocument();
-    expect(screen.getByText(/your solution/i)).toBeInTheDocument();
+    expect(screen.getByText(/your answer/i)).toBeInTheDocument();
     expect(screen.getByTestId('editor-wrapper')).toBeInTheDocument();
   });
 

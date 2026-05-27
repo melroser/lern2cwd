@@ -39,6 +39,16 @@ const NETLIFY_AI_GATEWAY_ENDPOINT = '/.netlify/functions/ai';
 // Helper Functions
 // =============================================================================
 
+type AiLogMetadata = Record<string, string | number | boolean | null | undefined>;
+
+function logAiEvent(event: string, metadata: AiLogMetadata = {}): void {
+  console.info('[lern2cwd:ai]', {
+    event,
+    at: new Date().toISOString(),
+    ...metadata,
+  });
+}
+
 /**
  * Simulates API latency for realistic UI testing in mock mode
  * @param minMs Minimum delay in milliseconds
@@ -1599,6 +1609,8 @@ type DraftQuality = {
   gaps: string[];
 };
 
+type NonCodingResponseStyle = 'math' | 'system-design' | 'story' | 'decision' | 'general';
+
 // =============================================================================
 // LLM API Client
 // =============================================================================
@@ -1698,6 +1710,207 @@ export class ProctorService implements IProctorService {
     return null;
   }
 
+  private getNonCodingResponseStyle(problem: Problem): NonCodingResponseStyle {
+    const assessmentType = problem.assessmentType ?? 'behavioral';
+    if (assessmentType === 'math') return 'math';
+    if (assessmentType === 'system-design') return 'system-design';
+
+    const text = [
+      problem.title,
+      problem.prompt,
+      problem.expectedApproach,
+      problem.idealSolutionOutline,
+      ...problem.constraints,
+      ...(problem.competencyTags ?? []),
+    ].join(' ').toLowerCase();
+
+    if (/\b(star|situation|task|action|result|tell me about a time|story|experience|incident|what happened|measurable outcome)\b/.test(text)) {
+      return 'story';
+    }
+
+    if (/\b(which|pick|choose|choice|superior|defend|why|opinion|would you|how would you|should)\b/.test(text)) {
+      return 'decision';
+    }
+
+    return 'general';
+  }
+
+  private getExpectedAnswerSignal(problem: Problem): string | null {
+    const sources = [
+      problem.expectedApproach,
+      problem.idealSolutionOutline,
+      ...problem.examples.map((example) => example.input),
+      ...problem.examples.map((example) => example.output),
+    ];
+
+    for (const source of sources) {
+      const match = source.match(/\b(?:answer|choose|pick|select)\s+([A-Z][A-Za-z0-9.+#-]*)\b/i);
+      if (match?.[1]) {
+        return match[1];
+      }
+    }
+
+    return null;
+  }
+
+  private getHitPitfall(problem: Problem, lowerDraft: string): string | null {
+    for (const pitfall of problem.commonPitfalls) {
+      const match = pitfall.match(/\b(?:choosing|picking|selecting|using)\s+([A-Za-z0-9.+#-]+)\b/i);
+      if (match?.[1] && new RegExp(`\\b${match[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(lowerDraft)) {
+        return pitfall;
+      }
+    }
+
+    return null;
+  }
+
+  private isFirstTutorialProblem(problem: Problem): boolean {
+    return problem.id === 'tutorial-first-session';
+  }
+
+  private extractFirstTutorialAttempt(problem: Problem, currentCode: string): string {
+    return this.extractNarrativeDraft(problem, currentCode)
+      .replace(/^#.*$/gm, ' ')
+      .replace(/^\s*(answer|question_for_tutor|question_for_help)\s*:\s*/gim, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private isMeaningfulFirstTutorialAttempt(problem: Problem, currentCode: string): boolean {
+    const attempt = this.extractFirstTutorialAttempt(problem, currentCode);
+    const normalized = attempt
+      .toLowerCase()
+      .replace(/[.!?\s]+$/g, '')
+      .trim();
+
+    if (!normalized || /^[?!.,;:]+$/.test(normalized)) return false;
+    if (/^(i\s+)?(don'?t|do not)\s+know$/.test(normalized)) return false;
+    if (/^(idk|no idea|i have no idea|i dunno|dunno|nope|no|nah)$/.test(normalized)) return false;
+    if (/^(i\s+)?(refuse|won'?t|will not|do not want|don'?t want)/.test(normalized)) return false;
+
+    return attempt.length >= 20;
+  }
+
+  private respondToFirstTutorialQuestion(question: string, context: SessionContext): string | null {
+    if (!this.isFirstTutorialProblem(context.problem)) return null;
+
+    const q = question.toLowerCase().trim();
+    const asksWhoJoyce = /\b(who|what)\b.*\b(james\s+joyce|joyce)\b|\b(james\s+joyce|joyce)\b.*\b(who|what)\b/.test(q);
+    const asksUlysses = /\b(what|who)\b.*\bulysses\b|\bulysses\b.*\b(what|who|mean)\b/.test(q);
+    const asksForAnswer = /\b(answer|full answer|tell me what to write|write it for me|give me the answer|just tell me)\b/.test(q);
+    const confusedReaction = /\b(what the fuck|wtf|what is this|what does this even mean|i don'?t get|dont get|confusing|confused)\b/.test(q);
+    const asksHint = /\b(hint|nudge|help|stuck|how do i start)\b/.test(q);
+    const asksSelfCheck = /(hows that|how's that|how is that|is this good|is this right|review|what do you think)/.test(q);
+
+    if (asksWhoJoyce) {
+      return [
+        'Good question. James Joyce was a writer, and Ulysses is known as a difficult book.',
+        '',
+        'You do not need more than that for this rep.',
+        '',
+        'Now make the connection: when something is confusing at first, what is one move you can still make?',
+      ].join('\n');
+    }
+
+    if (asksUlysses) {
+      return [
+        'Ulysses is a famously difficult novel.',
+        '',
+        'For this rep, that is enough.',
+        '',
+        'Think of it as: a hard text you do not understand yet.',
+        '',
+        'How is working through that like learning to program?',
+      ].join('\n');
+    }
+
+    if (asksForAnswer) {
+      return [
+        'I will not give the full answer yet.',
+        '',
+        'Here is a nudge:',
+        'Compare one reading move to one coding move.',
+        '',
+        'Example categories:',
+        'breaking the problem into smaller parts',
+        'looking for patterns',
+        'rereading after getting confused',
+        'using notes or references',
+        'trying again after a wrong guess',
+        '',
+        'Pick one and write your own sentence.',
+      ].join('\n');
+    }
+
+    if (confusedReaction) {
+      return [
+        'That reaction is expected. This prompt is supposed to feel unfamiliar.',
+        '',
+        'Your next move is not to know everything.',
+        'Your next move is to make one guess.',
+        '',
+        "Try starting with:",
+        "'I do not know what Ulysses is, but I think the question is asking me to compare confusion in reading with confusion in programming.'",
+      ].join('\n');
+    }
+
+    if (asksSelfCheck && !this.isMeaningfulFirstTutorialAttempt(context.problem, context.currentCode)) {
+      return [
+        "Not yet. 'I don't know' is allowed as a starting point, but not as the whole attempt.",
+        '',
+        'Add one guess.',
+        '',
+        "Try:",
+        "'I don't know who James Joyce is, but I think the question might be asking...'",
+      ].join('\n');
+    }
+
+    if (asksHint) {
+      return [
+        'Here is a nudge:',
+        'Compare one reading move to one coding move.',
+        '',
+        'You might use breaking the problem into smaller parts, looking for patterns, rereading after confusion, checking references, or trying again after a wrong guess.',
+        '',
+        'Pick one and write your own sentence.',
+      ].join('\n');
+    }
+
+    if (asksSelfCheck) {
+      return 'Good. Now make the connection one step more specific: name one action a learner takes when confused, and compare it to one action in programming.';
+    }
+
+    return 'Make one guess in the Answer box first. Not knowing is expected; the rep starts when you try anyway.';
+  }
+
+  private buildDecisionDraftFeedback(problem: Problem, currentCode: string): string {
+    const draft = this.extractNarrativeDraft(problem, currentCode);
+    const lower = draft.toLowerCase();
+    const expectedAnswer = this.getExpectedAnswerSignal(problem);
+    const expectedIsPresent = expectedAnswer ? new RegExp(`\\b${expectedAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(draft) : false;
+    const hitPitfall = this.getHitPitfall(problem, lower);
+    const hasAnswer = draft.replace(/#.*$/gm, '').trim().length >= 12;
+    const needsReason = /\b(defend|explain|why|reason)\b/i.test(`${problem.prompt} ${problem.constraints.join(' ')}`);
+    const hasReason = /\b(because|since|so|therefore|reason|prefer|choice|tradeoff|risk|benefit)\b/i.test(draft);
+    const strengths: string[] = [];
+    const gaps: string[] = [];
+
+    if (hasAnswer) strengths.push('you answered directly');
+    if (hasReason) strengths.push('you gave a reason instead of only naming an option');
+    if (expectedIsPresent) strengths.push('you aligned with the expected approach');
+
+    if (!hasAnswer) gaps.push('answer the question directly first');
+    if (expectedAnswer && !expectedIsPresent) gaps.push(`align with the expected answer: ${expectedAnswer}`);
+    if (hitPitfall) gaps.push(`avoid this pitfall: ${hitPitfall}`);
+    if (needsReason && !hasReason) gaps.push('add one short reason');
+
+    if (gaps.length === 0) {
+      return `This works. What is working: ${strengths.slice(0, 2).join('; ') || 'your answer is clear'}. Submit when ready.`;
+    }
+
+    return `Good start. What is working: ${strengths.slice(0, 2).join('; ') || 'you have something concrete to edit'}. Next: ${gaps.slice(0, 3).join('; ')}.`;
+  }
+
   private respondDeterministically(question: string, context: SessionContext): string | null {
     const q = question.toLowerCase().trim();
     const assessmentType = context.problem.assessmentType ?? 'coding';
@@ -1719,6 +1932,15 @@ export class ProctorService implements IProctorService {
       const minutes = Math.floor(context.timeRemaining / 60);
       const seconds = context.timeRemaining % 60;
       return `You have ${minutes}:${seconds.toString().padStart(2, '0')} remaining.`;
+    }
+
+    const nonCodingStyle = assessmentType === 'coding' ? null : this.getNonCodingResponseStyle(context.problem);
+    const asksForStoryOrMetricFrame = /\b(star|story|situation|action|result|measurable|mesurable|metric|outcome)\b/.test(q);
+    if (nonCodingStyle !== null && nonCodingStyle !== 'story' && asksForStoryOrMetricFrame) {
+      return this.applyNoRepeatGuard(
+        'This question does not need a metric or story. Answer it directly, give one short reason, then submit.',
+        context,
+      );
     }
 
     if (assessmentType === 'coding' && asksCoreClarification) {
@@ -1761,7 +1983,17 @@ export class ProctorService implements IProctorService {
       if (assessmentType === 'coding') {
         return this.applyNoRepeatGuard('Check empty input, one item, duplicates, negative values when allowed, and the largest constraint size.', context);
       }
-      return this.applyNoRepeatGuard('Check for missing context, a vague decision, no measurable outcome, and whether your answer names the tradeoff clearly.', context);
+      const responseStyle = this.getNonCodingResponseStyle(context.problem);
+      if (responseStyle === 'math') {
+        return this.applyNoRepeatGuard('Check units, denominator, missing assumptions, and whether the final takeaway follows from the calculation.', context);
+      }
+      if (responseStyle === 'system-design') {
+        return this.applyNoRepeatGuard('Check missing requirements, unclear scale assumptions, ignored failure modes, and unspoken tradeoffs.', context);
+      }
+      if (responseStyle === 'story') {
+        return this.applyNoRepeatGuard('Check for missing context, a vague action, no outcome, and no lesson learned.', context);
+      }
+      return this.applyNoRepeatGuard('Check whether you answered directly, gave a reason, and avoided the main pitfall in the prompt.', context);
     }
 
     if (asksDataStructure) {
@@ -1820,9 +2052,18 @@ export class ProctorService implements IProctorService {
       return this.applyNoRepeatGuard('Give me your current plan in one sentence, then we will pressure-test it with one edge case.', context);
     }
 
-    const defaultNarrativeReply =
-      'Use any clear format (paragraph is fine). Tell me your decision, why you chose it, and the outcome.';
-    return this.applyNoRepeatGuard(defaultNarrativeReply, context);
+    const responseStyle = this.getNonCodingResponseStyle(context.problem);
+    if (responseStyle === 'math') {
+      return this.applyNoRepeatGuard('Use any clear format. State the assumption, formula, calculation, and takeaway.', context);
+    }
+    if (responseStyle === 'system-design') {
+      return this.applyNoRepeatGuard('Use any clear format. Name the requirement, the main design choice, and one tradeoff.', context);
+    }
+    if (responseStyle === 'story') {
+      return this.applyNoRepeatGuard('Use any clear format. Tell me the situation, what you did, what happened, and what you learned.', context);
+    }
+
+    return this.applyNoRepeatGuard('Use any clear format. Answer the question directly, give one short reason, then submit.', context);
   }
 
   private enforceCriticalCoaching(question: string, context: SessionContext, llmResponse: string): string {
@@ -1836,6 +2077,16 @@ export class ProctorService implements IProctorService {
     const asksVisibleCodeReview =
       /(look at it|look at my code|look at the code|can't you see|cant you see|that'?s literally what i did|did you look|check the code|can you see it)/.test(q);
     const asksTermDefinition = /(what is|what's|define|meaning of)\b/.test(q);
+
+    const nonCodingStyle = isCoding ? null : this.getNonCodingResponseStyle(context.problem);
+    const llmUsedStoryTemplateForNonStoryPrompt =
+      !isCoding &&
+      nonCodingStyle !== 'story' &&
+      /\b(star|situation, action, result|measurable outcome|interview-ready|decision point|real project)\b/i.test(llmResponse);
+    if (llmUsedStoryTemplateForNonStoryPrompt) {
+      const groundedResponse = this.respondDeterministically(question, context);
+      return groundedResponse ?? this.buildNonCodingDraftFeedback(context.problem, context.currentCode);
+    }
 
     if (isCoding && asksCoreClarification) {
       return this.buildPlainLanguageProblemClarification(context.problem);
@@ -1977,8 +2228,13 @@ export class ProctorService implements IProctorService {
 
   private buildNonCodingDraftFeedback(problem: Problem, currentCode: string): string {
     const assessmentType = problem.assessmentType ?? 'behavioral';
+    const responseStyle = this.getNonCodingResponseStyle(problem);
     const draft = this.extractNarrativeDraft(problem, currentCode);
     const lower = draft.toLowerCase();
+
+    if (responseStyle === 'decision' || responseStyle === 'general') {
+      return this.buildDecisionDraftFeedback(problem, currentCode);
+    }
 
     if (draft.length < 30) {
       if (assessmentType === 'math') {
@@ -2069,6 +2325,10 @@ export class ProctorService implements IProctorService {
     if (!repeated) return response;
 
     const assessmentType = context.problem.assessmentType ?? 'coding';
+    if (this.isFirstTutorialProblem(context.problem)) {
+      return 'Quick reset: make one guess first. Pick one action people use when confused, then compare it to learning programming.';
+    }
+
     if (assessmentType === 'coding') {
       if ((context.currentCode ?? '').trim().length < 60) {
         return 'Quick reset: restate the exact input/output contract, then pick one data structure and explain why.';
@@ -2076,10 +2336,35 @@ export class ProctorService implements IProctorService {
       return 'Quick reset: test your current draft on one edge case and tell me expected output before changing code.';
     }
 
-    return 'Quick reset: paragraph format is fine. Give one concrete decision you made, why, and the measurable outcome.';
+    const responseStyle = this.getNonCodingResponseStyle(context.problem);
+    if (responseStyle === 'math') {
+      return 'Quick reset: state the assumption, write the formula, calculate once, then give the takeaway.';
+    }
+    if (responseStyle === 'system-design') {
+      return 'Quick reset: name the requirement, propose the main components, then call out one tradeoff.';
+    }
+    if (responseStyle === 'story') {
+      return 'Quick reset: give the situation, what you did, what happened, and what you learned.';
+    }
+
+    return 'Quick reset: answer the question directly, give one short reason, then submit.';
   }
 
   private getNarrativeHint(context: SessionContext): string {
+    const responseStyle = this.getNonCodingResponseStyle(context.problem);
+    if (responseStyle === 'math') {
+      return 'Start with one explicit assumption, then write the formula before calculating.';
+    }
+    if (responseStyle === 'system-design') {
+      return 'Start with the most important requirement, then name the components and one tradeoff.';
+    }
+    if (responseStyle === 'decision' || responseStyle === 'general') {
+      const expectedAnswer = this.getExpectedAnswerSignal(context.problem);
+      return expectedAnswer
+        ? `Answer directly first. The expected direction is ${expectedAnswer}; add one short reason.`
+        : 'Answer directly first, then add one short reason or supporting detail.';
+    }
+
     const text = this.extractNarrativeDraft(context.problem, context.currentCode ?? '');
     if (text.length < 40) {
       return 'Start with one concrete situation, then your decision, then the result. STAR is optional; a clear paragraph is fine.';
@@ -2380,9 +2665,9 @@ export class ProctorService implements IProctorService {
     await simulateLatency(300, 600);
 
     return [
-      'Welcome to the assessment.',
-      'Press "Ready. Start Timer" to reveal the prompt and unlock chat.',
-      'Once the timer starts, you can talk to me here if you need a nudge, clarification, or help thinking through tradeoffs.',
+      'Welcome.',
+      'Press Start when you are ready.',
+      'After that, you can ask me for help here if you want a nudge or clarification.',
     ].join(' ');
   }
 
@@ -2402,16 +2687,40 @@ export class ProctorService implements IProctorService {
       question: string,
       context: SessionContext
     ): Promise<string> {
+      const firstTutorialResponse = this.respondToFirstTutorialQuestion(question, context);
+      if (firstTutorialResponse) {
+        await simulateLatency(180, 420);
+        this.lastInteractionMode = 'fallback';
+        return this.applyNoRepeatGuard(firstTutorialResponse, context);
+      }
+
       // LLM-first mode: if an authenticated gateway is available, use AI for every user interaction.
       if (this.isLLMAvailable()) {
+        logAiEvent('chat_attempt', {
+          problemId: context.problem.id,
+          problemSetId: context.problem.problemSetId,
+          assessmentType: context.problem.assessmentType ?? 'coding',
+          historyCount: context.chatHistory.length,
+        });
+
         try {
           const llmResponse = await this.respondToQuestionLLM(question, context);
           this.lastInteractionMode = 'llm';
+          logAiEvent('chat_success', {
+            problemId: context.problem.id,
+            mode: 'llm',
+          });
           const coachedResponse = this.enforceCriticalCoaching(question, context, llmResponse);
           return this.applyNoRepeatGuard(coachedResponse, context);
         } catch (error) {
           console.warn('LLM chat call failed:', error);
           this.lastInteractionMode = 'fallback';
+          logAiEvent('chat_fallback', {
+            problemId: context.problem.id,
+            mode: 'fallback',
+            reason: error instanceof LLMApiError ? 'gateway_error' : 'unknown',
+            statusCode: error instanceof LLMApiError ? error.statusCode : undefined,
+          });
           const localResponse = this.respondDeterministically(question, context);
           if (localResponse) {
             return this.applyNoRepeatGuard(localResponse, context);
@@ -2423,6 +2732,11 @@ export class ProctorService implements IProctorService {
       }
 
       // No live gateway available: use deterministic/mock fallback.
+      logAiEvent('chat_fallback', {
+        problemId: context.problem.id,
+        mode: 'fallback',
+        reason: 'no_gateway_available',
+      });
       const localResponse = this.respondDeterministically(question, context);
       if (localResponse) {
         await simulateLatency(180, 420);
@@ -2664,10 +2978,37 @@ export class ProctorService implements IProctorService {
 
   private respondToBehavioralQuestionMock(question: string, context: SessionContext): string {
     const questionLower = question.toLowerCase();
+    const responseStyle = this.getNonCodingResponseStyle(context.problem);
     const draft = this.extractNarrativeDraft(context.problem, context.currentCode).toLowerCase();
     const timeWarning = context.timeRemaining < 300
       ? ` You are low on time, so keep it to Situation, Action, Result, and one reflection.`
       : '';
+
+    if (responseStyle === 'decision' || responseStyle === 'general') {
+      const expectedAnswer = this.getExpectedAnswerSignal(context.problem);
+      const expectedHint = expectedAnswer ? ` The expected direction is ${expectedAnswer}; give one short reason.` : '';
+
+      if (questionLower.includes('stuck') || questionLower.includes('help') || questionLower.includes('hint')) {
+        return `Answer the question directly first.${expectedHint || ' Then give one short reason and submit.'}`;
+      }
+
+      if (
+        questionLower.includes('is this right') ||
+        questionLower.includes('good answer') ||
+        questionLower.includes('is this good') ||
+        questionLower.includes('how is that') ||
+        questionLower.includes('hows that') ||
+        questionLower.includes('does this work')
+      ) {
+        return this.buildDecisionDraftFeedback(context.problem, context.currentCode);
+      }
+
+      if (questionLower.includes('example') || questionLower.includes('what should i say')) {
+        return `Use one clear sentence for the answer and one clear sentence for the reason.${expectedHint}`;
+      }
+
+      return `Keep it direct: answer the question, give one reason, then submit.${expectedHint}`;
+    }
 
     if (questionLower.includes('stuck') || questionLower.includes('help') || questionLower.includes('hint')) {
       const hasOutcome = /\b(result|impact|improved|reduced|increased|outcome)\b/.test(draft);
@@ -2739,18 +3080,51 @@ export class ProctorService implements IProctorService {
       problem: Problem,
       chatHistory: ChatMessage[]
     ): Promise<EvaluationResult> {
+      if (this.isFirstTutorialProblem(problem)) {
+        logAiEvent('evaluation_fallback', {
+          problemId: problem.id,
+          mode: 'fallback',
+          reason: 'first_tutorial_learning_rep',
+        });
+        return this.evaluateFirstTutorialRep(code, problem, chatHistory);
+      }
+
       // Check if the authenticated gateway is available
       if (this.isLLMAvailable()) {
+        logAiEvent('evaluation_attempt', {
+          problemId: problem.id,
+          problemSetId: problem.problemSetId,
+          assessmentType: problem.assessmentType ?? 'coding',
+          historyCount: chatHistory.length,
+        });
+
         try {
-          return await this.evaluateLLM(code, problem, chatHistory);
+          const result = await this.evaluateLLM(code, problem, chatHistory);
+          logAiEvent('evaluation_success', {
+            problemId: problem.id,
+            mode: 'llm',
+            verdict: result.verdict,
+          });
+          return result;
         } catch (error) {
           // If the gateway call fails for any reason, fall back to mock mode
           console.warn('LLM evaluation call failed, falling back to mock mode:', error);
+          logAiEvent('evaluation_fallback', {
+            problemId: problem.id,
+            mode: 'fallback',
+            reason: error instanceof LLMApiError ? 'gateway_error' : 'unknown',
+            statusCode: error instanceof LLMApiError ? error.statusCode : undefined,
+          });
           return this.evaluateMock(code, problem, chatHistory);
         }
       }
 
       // Fall back to mock mode
+      logAiEvent('evaluation_fallback', {
+        problemId: problem.id,
+        mode: 'fallback',
+        reason: 'no_gateway_available',
+      });
       return this.evaluateMock(code, problem, chatHistory);
     }
 
@@ -2789,17 +3163,19 @@ export class ProctorService implements IProctorService {
         
         // Apply fallback miss tag derivation if model omits tags
         if (result.missTags.length === 0) {
-          result.missTags = deriveMissTagsFromScores(result.scores);
+          result.missTags = this.deriveMissTagsForProblem(problem, result.scores);
         }
 
         if (!result.annotations || result.annotations.length === 0) {
-          result.annotations = buildFallbackAnnotations(
-            problem,
-            code,
-            result.idealSolution,
-            result.feedback,
-            result.missTags
-          );
+          result.annotations = (problem.assessmentType ?? 'coding') === 'coding'
+            ? buildFallbackAnnotations(
+                problem,
+                code,
+                result.idealSolution,
+                result.feedback,
+                result.missTags
+              )
+            : this.buildNonCodingAnnotations(code, result.feedback);
         }
 
         return result;
@@ -2823,17 +3199,19 @@ export class ProctorService implements IProctorService {
 
         // Apply fallback miss tag derivation if model omits tags
         if (result.missTags.length === 0) {
-          result.missTags = deriveMissTagsFromScores(result.scores);
+          result.missTags = this.deriveMissTagsForProblem(problem, result.scores);
         }
 
         if (!result.annotations || result.annotations.length === 0) {
-          result.annotations = buildFallbackAnnotations(
-            problem,
-            code,
-            result.idealSolution,
-            result.feedback,
-            result.missTags
-          );
+          result.annotations = (problem.assessmentType ?? 'coding') === 'coding'
+            ? buildFallbackAnnotations(
+                problem,
+                code,
+                result.idealSolution,
+                result.feedback,
+                result.missTags
+              )
+            : this.buildNonCodingAnnotations(code, result.feedback);
         }
 
         return result;
@@ -2927,6 +3305,90 @@ export class ProctorService implements IProctorService {
     return this.evaluateCodingMock(code, problem);
   }
 
+  private evaluateFirstTutorialRep(
+    code: string,
+    problem: Problem,
+    chatHistory: ChatMessage[]
+  ): EvaluationResult {
+    const attempt = this.extractFirstTutorialAttempt(problem, code);
+    const hasMeaningfulAttempt = this.isMeaningfulFirstTutorialAttempt(problem, code);
+    const lower = attempt.toLowerCase();
+    const askedForNudge = chatHistory.some((message) =>
+      message.role === 'user' &&
+      /\b(hint|nudge|help|who|what|joyce|ulysses|confus|stuck)\b/i.test(message.content)
+    );
+    const madeSpecificMetaphor =
+      /\b(break|smaller|parts?|patterns?|reread|debug|reference|notes?|confus|trying again|try again|wrong guess|patience)\b/i.test(attempt);
+    const onlyBothAreHard =
+      /\bboth\b.*\bhard\b|\bhard\b.*\bboth\b/i.test(attempt) && !madeSpecificMetaphor;
+
+    if (!hasMeaningfulAttempt) {
+      return {
+        verdict: 'Borderline',
+        scores: {
+          approach: 1,
+          completeness: 1,
+          complexity: 4,
+          communication: 2,
+        },
+        feedback: {
+          strengths: [
+            "Not yet. 'I don't know' is allowed as a starting point, but not as the whole attempt.",
+          ],
+          improvements: [
+            'Add one guess.',
+            "Try: 'I don't know who James Joyce is, but I think the question might be asking...'",
+          ],
+        },
+        idealSolution: '',
+        missTags: [],
+        annotations: [],
+      };
+    }
+
+    const strengths = [
+      'You finished your first rep.',
+      'Win: You started even though the question was unfamiliar.',
+      'Win: You made a guess instead of waiting to feel ready.',
+    ];
+
+    if (askedForNudge) {
+      strengths.push('Win: You asked for a nudge instead of asking for the whole answer.');
+    }
+
+    if (madeSpecificMetaphor) {
+      strengths.push('Win: You made the metaphor specific, which is exactly how strong explanations improve.');
+    }
+
+    const improvements = [
+      onlyBothAreHard
+        ? 'Miss to study: "Both are hard" is a valid start, but it is too general. Next time, explain how they are similar. What action does the learner take in both situations?'
+        : 'Miss to study: Next time, make the connection more specific. Instead of only saying both are hard, compare one action, like breaking down a confusing paragraph, to one action in programming, like breaking down a bug.',
+      'Remember: The point is not to know everything before you begin. The point is to try, get a nudge, revise, and learn from feedback.',
+    ];
+
+    if (!/\b(unsure|not sure|don'?t know|do not know|question|ask|wonder)\b/i.test(lower)) {
+      improvements.unshift('Miss to study: Name one thing you are unsure about so the Tutor has something specific to nudge.');
+    }
+
+    return {
+      verdict: 'Pass',
+      scores: {
+        approach: 4,
+        completeness: 4,
+        complexity: 4,
+        communication: 4,
+      },
+      feedback: {
+        strengths: strengths.slice(0, 4),
+        improvements: improvements.slice(0, 3),
+      },
+      idealSolution: '',
+      missTags: [],
+      annotations: [],
+    };
+  }
+
   private evaluateCodingMock(code: string, problem: Problem): EvaluationResult {
     const draft = this.analyzeDraftQuality(problem, code);
     const hasComments = code.includes('#') || code.includes('//') || code.includes('/*') || code.includes('"""');
@@ -3001,6 +3463,43 @@ export class ProctorService implements IProctorService {
     let completeness = 2;
     let complexity = 2;
     let communication = sentenceCount >= 3 ? 3 : 2;
+    const responseStyle = this.getNonCodingResponseStyle(problem);
+
+    if (assessmentType === 'behavioral' && (responseStyle === 'decision' || responseStyle === 'general')) {
+      const expectedAnswer = this.getExpectedAnswerSignal(problem);
+      const expectedIsPresent = expectedAnswer
+        ? new RegExp(`\\b${expectedAnswer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)
+        : false;
+      const hitPitfall = this.getHitPitfall(problem, text.toLowerCase());
+      const hasDirectAnswer = text.replace(/#.*$/gm, '').trim().length >= 12;
+      const needsReason = /\b(defend|explain|why|reason)\b/i.test(`${problem.prompt} ${problem.constraints.join(' ')}`);
+      const hasReason = /\b(because|since|so|therefore|reason|prefer|choice|tradeoff|risk|benefit|fast|speed)\b/i.test(text);
+      const decisionStrengths: string[] = [];
+      const decisionImprovements: string[] = [];
+
+      approach = expectedAnswer ? (expectedIsPresent ? 4 : 2) : (hasDirectAnswer ? 3 : 1);
+      completeness = hasDirectAnswer && (!needsReason || hasReason) ? 4 : hasDirectAnswer ? 2 : 1;
+      complexity = 4;
+      communication = hasDirectAnswer ? Math.max(communication, 3) : 1;
+
+      if (hasDirectAnswer) decisionStrengths.push('You answered the question directly.');
+      if (hasReason) decisionStrengths.push('You gave a reason instead of only naming an option.');
+      if (expectedIsPresent) decisionStrengths.push('You aligned with the expected approach.');
+      if (decisionStrengths.length === 0) decisionStrengths.push('You reached the feedback step and have a draft to revise.');
+
+      if (!hasDirectAnswer) decisionImprovements.push('Answer the question directly first.');
+      if (expectedAnswer && !expectedIsPresent) decisionImprovements.push(`Align with the expected answer: ${expectedAnswer}.`);
+      if (hitPitfall) decisionImprovements.push(`Avoid this pitfall: ${hitPitfall}.`);
+      if (needsReason && !hasReason) decisionImprovements.push('Add one short reason before submitting again.');
+      if (decisionImprovements.length === 0) decisionImprovements.push('No major changes needed for this prompt.');
+
+      return this.buildMockEvaluationResult(problem, {
+        approach,
+        completeness,
+        complexity,
+        communication,
+      }, decisionStrengths, decisionImprovements, responseText);
+    }
 
     if (assessmentType === 'math') {
       const hasFormula = /[=/*+\-]|\bformula\b/i.test(text);
@@ -3072,11 +3571,12 @@ export class ProctorService implements IProctorService {
     candidateText: string
   ): EvaluationResult {
     const idealSolution = this.generateIdealSolution(problem);
-    const missTags = deriveMissTagsFromScores(scores);
     const feedback = {
       strengths: strengths.slice(0, 3),
       improvements: improvements.slice(0, 3),
     };
+    const missTags = this.deriveMissTagsForProblem(problem, scores);
+    const isCoding = (problem.assessmentType ?? 'coding') === 'coding';
 
     return {
       verdict: this.calculateVerdict(scores),
@@ -3084,14 +3584,61 @@ export class ProctorService implements IProctorService {
       feedback,
       idealSolution,
       missTags,
-      annotations: buildFallbackAnnotations(
-        problem,
-        candidateText,
-        idealSolution,
-        feedback,
-        missTags
-      ),
+      annotations: isCoding
+        ? buildFallbackAnnotations(
+            problem,
+            candidateText,
+            idealSolution,
+            feedback,
+            missTags
+          )
+        : this.buildNonCodingAnnotations(candidateText, feedback),
     };
+  }
+
+  private deriveMissTagsForProblem(problem: Problem, scores: EvaluationResult['scores']): MissTag[] {
+    const assessmentType = problem.assessmentType ?? 'coding';
+    if (assessmentType === 'coding') {
+      return deriveMissTagsFromScores(scores);
+    }
+
+    const tags: MissTag[] = [];
+    if (scores.completeness <= 2) {
+      tags.push(scores.completeness <= 1 ? 'incomplete-solution' : 'constraints-missed');
+    }
+    if (scores.communication <= 2) {
+      tags.push('unclear-communication');
+    }
+    if (scores.approach <= 2) {
+      tags.push('incorrect-approach');
+    }
+    if (assessmentType === 'math' && scores.complexity <= 2) {
+      tags.push('complexity-analysis');
+    }
+
+    return [...new Set(tags)].slice(0, 4);
+  }
+
+  private buildNonCodingAnnotations(
+    candidateText: string,
+    feedback: EvaluationResult['feedback']
+  ): EvaluationAnnotation[] {
+    const firstImprovement = feedback.improvements[0];
+    if (!firstImprovement) {
+      return [];
+    }
+
+    const lines = candidateText.length > 0 ? candidateText.split('\n') : [''];
+    const firstAnswerLine = Math.max(1, lines.findIndex((line) => line.trim() && !line.trim().startsWith('#')) + 1);
+
+    return [
+      {
+        target: 'candidate',
+        line: firstAnswerLine,
+        message: firstImprovement,
+        severity: 'warning',
+      },
+    ];
   }
 
   private calculateVerdict(scores: EvaluationResult['scores']): 'Pass' | 'Borderline' | 'No Pass' {
@@ -3117,6 +3664,10 @@ export class ProctorService implements IProctorService {
       const curated = CURATED_IDEAL_SOLUTIONS[problem.id] ?? NEETCODE_CURATED_IDEAL_SOLUTIONS[problem.id];
       if (curated) {
         return curated;
+      }
+
+      if ((problem.assessmentType ?? 'coding') !== 'coding') {
+        return problem.idealSolutionOutline || problem.expectedApproach || '';
       }
 
       // Return problem-specific ideal solutions in Python

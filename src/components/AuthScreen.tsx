@@ -5,7 +5,7 @@ import { useAuth } from '../auth/useAuth';
 type AuthMode = 'login' | 'signup' | 'request' | 'invite' | 'reset';
 
 const REQUEST_ACCESS_FORM_NAME = 'request-access';
-const REQUEST_ACCESS_SUBJECT = 'lern2cwd access request';
+const REQUEST_ACCESS_SUBJECT = 'lern2cwd waitlist request';
 
 function getCurrentLocation(): string {
   if (typeof window === 'undefined') return '/';
@@ -73,10 +73,10 @@ export function AuthScreen() {
 
     if (mode === 'request') {
       return {
-        eyebrow: 'Account access',
-        title: 'Request access',
-        body: 'Send your email and username so we can invite you if there is an open beta spot.',
-        submit: 'Request Access',
+        eyebrow: 'Private beta',
+        title: 'Join the waitlist',
+        body: 'Drop your email and we will send an invite when a beta spot opens.',
+        submit: 'Join Waitlist',
       };
     }
 
@@ -84,27 +84,26 @@ export function AuthScreen() {
       return {
         eyebrow: 'Create access',
         title: 'Create your account',
-        body: 'Choose the username people will see in the simulator.',
+        body: 'Choose the username people will see in Lern2Cwd.',
         submit: 'Sign Up',
       };
     }
 
     return {
       eyebrow: authConfig.netlify.inviteOnly ? 'Invite-only beta' : 'Welcome back',
-      title: 'Interview Simulator',
+      title: 'Lern2Cwd',
       body: authConfig.netlify.inviteOnly
-        ? 'Sign in with an invited email, or request access if you need a beta spot.'
+        ? 'Sign in with an invited email, or join the waitlist for a beta spot.'
         : 'Sign in or create an account to start practicing.',
       submit: 'Log In',
     };
   }, [mode]);
 
-  const submitAccessRequest = async (requestEmail: string, username: string): Promise<void> => {
+  const submitAccessRequest = async (requestEmail: string): Promise<void> => {
     const formData = new URLSearchParams({
       'form-name': REQUEST_ACCESS_FORM_NAME,
       subject: REQUEST_ACCESS_SUBJECT,
       email: requestEmail,
-      username,
       source_path: getCurrentLocation(),
       'bot-field': '',
     });
@@ -155,13 +154,9 @@ export function AuthScreen() {
           throw new Error('Enter your email address.');
         }
 
-        const username = displayName.trim();
-        if (!username) throw new Error('Choose a username.');
-
-        await submitAccessRequest(email.trim(), username);
+        await submitAccessRequest(email.trim());
         setEmail('');
-        setDisplayName('');
-        setNotice('Request sent. If a spot is available, you will receive an invite email.');
+        setNotice('You are on the waitlist. We will send an invite when a beta spot opens.');
         return;
       }
 
@@ -281,7 +276,7 @@ export function AuthScreen() {
                 className={`authModeTab ${mode === 'request' ? 'active' : ''}`}
                 onClick={() => handleModeChange('request')}
               >
-                Request Access
+                Join Waitlist
               </button>
             )}
           </div>
@@ -333,7 +328,7 @@ export function AuthScreen() {
             </label>
           )}
 
-          {(mode === 'signup' || mode === 'invite' || mode === 'request') && (
+          {(mode === 'signup' || mode === 'invite') && (
             <label className="authField">
               <span>Username</span>
               <input

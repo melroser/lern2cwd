@@ -108,7 +108,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
       data-role={message.role}
     >
       <div className="who">
-        {isUser ? 'You' : 'Proctor'}
+        {isUser ? 'You' : 'Tutor'}
       </div>
       <div className="text">
         {isUser ? (
@@ -189,7 +189,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       >
         {messages.length === 0 ? (
           <div style={styles.emptyState} data-testid="empty-state">
-            Start a conversation with the proctor
+            Ask for help when you need it
           </div>
         ) : (
           <>

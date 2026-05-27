@@ -943,43 +943,131 @@ function buildTutorPlan(
   const secondPitfall = commonPitfalls[1] ?? 'Validate edge cases explicitly.';
 
   if (assessmentType !== 'coding') {
+    if (_problem.id === 'tutorial-first-session') {
+      return {
+        openingPrompt: 'Make your first attempt in the Answer box. If you get stuck after trying, ask for a nudge.',
+        clarifications: [
+          {
+            triggers: ['stuck', 'help', 'hint', 'nudge'],
+            response: 'Make one guess first. Then ask for a nudge and use it to improve your answer.',
+          },
+        ],
+        hintLadder: [
+          { level: 1, hint: 'Compare one reading move to one coding move.' },
+          { level: 2, hint: 'Pick an action like breaking something into smaller parts, looking for patterns, or trying again after confusion.' },
+          { level: 3, hint: 'Write one sentence that connects that action to learning programming.' },
+          { level: 4, hint: 'Add one thing you are unsure about, then submit your attempt.' },
+        ],
+        selfCheckPrompts: [
+          'Did you make a guess before asking for help?',
+          'Did you name one thing you are unsure about?',
+          'Did you use the nudge to improve your attempt?',
+        ],
+        nudgeRules: [
+          {
+            id: 'missing-structure',
+            when: 'missing-structure',
+            message: 'Try one guess first. Not knowing is expected; the rep starts when you write something anyway.',
+            cooldownSeconds: 90,
+          },
+        ],
+        approachKeywords: ['attempt', 'uncertainty', 'nudge', 'revise'],
+        llmPolicy: {
+          localFirst: true,
+          maxDeterministicTurns: 6,
+        },
+      };
+    }
+
+    const nonCodingText = `${_problem.title} ${prompt} ${constraints.join(' ')} ${expectedApproach}`.toLowerCase();
+    const asksForStory =
+      /\b(star|situation|task|action|result|tell me about a time|story|experience|incident|measurable outcome)\b/.test(nonCodingText);
+    const asksForDecision =
+      /\b(which|pick|choose|choice|superior|defend|why|opinion|would you|how would you|should)\b/.test(nonCodingText);
+    const openingPrompt =
+      assessmentType === 'math'
+        ? 'What assumptions and formulas will you use first?'
+        : assessmentType === 'system-design'
+          ? 'What requirements and tradeoffs will you prioritize first?'
+          : asksForStory
+            ? 'What situation, action, and result will you use? Any clear format is fine.'
+            : asksForDecision
+              ? 'What answer will you give, and what one reason supports it?'
+              : 'What is your answer, and what evidence or reasoning supports it?';
+    const helpResponse =
+      assessmentType === 'math'
+        ? `Start with the assumptions, then the formula. Constraint reminder: ${firstConstraint}`
+        : assessmentType === 'system-design'
+          ? `Start with the requirement that matters most, then name the tradeoff. Constraint reminder: ${firstConstraint}`
+          : asksForStory
+            ? `Start with one concrete situation, then your action, then the result. Constraint reminder: ${firstConstraint}`
+            : `Answer the question directly first, then give one reason. Constraint reminder: ${firstConstraint}`;
+    const hintLadder: NonNullable<Problem['tutorPlan']>['hintLadder'] = assessmentType === 'math'
+      ? [
+          { level: 1, hint: 'State your core assumption first.' },
+          { level: 2, hint: 'Write the formula before calculating.' },
+          { level: 3, hint: 'Run one sanity check on the result.' },
+          { level: 4, hint: 'Close with the business implication or recommendation.' },
+        ]
+      : assessmentType === 'system-design'
+        ? [
+            { level: 1, hint: 'Name the user-facing requirement first.' },
+            { level: 2, hint: 'Sketch the main components and data flow.' },
+            { level: 3, hint: 'Call out one real tradeoff.' },
+            { level: 4, hint: 'Close with one reliability or follow-up concern.' },
+          ]
+        : asksForStory
+          ? [
+              { level: 1, hint: 'Start with the situation in one sentence.' },
+              { level: 2, hint: 'Say what you personally decided or did.' },
+              { level: 3, hint: 'Add the result or signal that showed what happened.' },
+              { level: 4, hint: 'Close with what you learned or would do next.' },
+            ]
+          : [
+              { level: 1, hint: 'Answer the question directly in one sentence.' },
+              { level: 2, hint: 'Add one reason that supports your answer.' },
+              { level: 3, hint: `Check the main constraint: ${firstConstraint}` },
+              { level: 4, hint: `Before submitting, avoid this pitfall: ${firstPitfall}` },
+            ];
+    const selfCheckPrompts = asksForStory
+      ? [
+          'Did you name the situation?',
+          'Did you say what you personally did?',
+          'Did you include the result or lesson?',
+        ]
+      : [
+          'Did you answer the question directly?',
+          'Did you give one reason or supporting detail?',
+          'Did you avoid the main pitfall?',
+        ];
+
     return {
-      openingPrompt:
-        assessmentType === 'behavioral'
-          ? 'What story will you use, and what measurable result will you emphasize? Any clear format is fine.'
-          : assessmentType === 'math'
-            ? 'What assumptions and formulas will you use first?'
-            : 'What requirements and tradeoffs will you prioritize first?',
+      openingPrompt,
       clarifications: [
         {
           triggers: ['format', 'structure', 'how should i answer', 'template', 'star'],
-          response: 'Any clear format is acceptable (including a paragraph). STAR is optional if it helps you organize your answer.',
+          response: asksForStory
+            ? 'Any clear format is acceptable. STAR is optional if it helps you organize the situation, action, and result.'
+            : 'Any clear format is acceptable. Answer directly first, then add the most important reason or supporting detail.',
         },
         {
           triggers: ['stuck', 'help', 'hint'],
-          response: `Start with one concrete context sentence, then your decision, then outcome. STAR is optional. Constraint reminder: ${firstConstraint}`,
+          response: helpResponse,
         },
       ],
-      hintLadder: [
-        { level: 1, hint: 'Start by restating the problem in one sentence and naming your approach.' },
-        { level: 2, hint: 'List the top 2-3 factors or tradeoffs that drive your decision.' },
-        { level: 3, hint: 'Provide one concrete example or metric to support your recommendation.' },
-        { level: 4, hint: 'Close with a concise conclusion and one follow-up action.' },
-      ],
-      selfCheckPrompts: [
-        'What part of your response is strongest right now?',
-        'Which requirement have you not addressed yet?',
-        'Can you add one concrete metric or outcome?',
-      ],
+      hintLadder,
+      selfCheckPrompts,
       nudgeRules: [
         {
           id: 'missing-structure',
           when: 'missing-structure',
-          message: 'Quick reset: structure your response into context, approach, and outcome so it is easy to evaluate.',
+          message: asksForStory
+            ? 'Quick reset: give the situation, what you did, what happened, and what you learned.'
+            : 'Quick reset: answer the question directly, give one short reason, then submit.',
           cooldownSeconds: 90,
         },
       ],
-      approachKeywords: ['structure', 'tradeoffs', 'outcome'],
+      approachKeywords: inferApproachKeywords(expectedApproach, prompt),
       llmPolicy: {
         localFirst: true,
         maxDeterministicTurns: 6,

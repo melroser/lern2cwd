@@ -118,6 +118,25 @@ const mockCampaignProblem: Problem = {
   problemSetId: 'python-fundamentals',
 };
 
+const mockTutorialProblem: Problem = {
+  id: 'tutorial-first-session',
+  language: 'yaml',
+  title: 'Your First Rep: Shoot Your Shot',
+  difficulty: 'easy',
+  timeLimit: 8,
+  prompt: "How is James Joyce's Ulysses like programming?",
+  constraints: ['Make a real attempt before asking for help.', 'Ask the Tutor for a nudge.'],
+  scaffold: '# Your first rep\n# Try before you feel ready.\n\nanswer: \n\nquestion_for_tutor: ',
+  examples: [{ input: 'I do not know who James Joyce is, but I can make a guess.', output: 'A real attempt is enough.' }],
+  expectedApproach: 'Make a meaningful attempt under uncertainty.',
+  commonPitfalls: ['Stopping at only I do not know'],
+  idealSolutionOutline: 'A real first attempt that makes one guess, names uncertainty, asks for a nudge, and improves the answer before submitting.',
+  evaluationNotes: 'Pass any meaningful attempt.',
+  assessmentType: 'behavioral',
+  domain: 'onboarding',
+  problemSetId: 'tutorial',
+};
+
 const mockEvaluation: EvaluationResult = {
   verdict: 'Pass',
   scores: {
@@ -139,11 +158,11 @@ describe('App session context', () => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
-    const allProblems = [mockProblem, mockSecondProblem, mockCampaignProblem];
+    const allProblems = [mockTutorialProblem, mockProblem, mockSecondProblem, mockCampaignProblem];
 
     vi.mocked(problemService.loadProblems).mockImplementation(async (selectedIds?: string[]) => {
       if (!selectedIds || selectedIds.length === 0) {
-        return allProblems;
+        return allProblems.filter((problem) => problem.problemSetId === 'tutorial');
       }
 
       return allProblems.filter((problem) => selectedIds.includes(problem.problemSetId ?? ''));
@@ -200,7 +219,7 @@ describe('App session context', () => {
 
     await user.click(screen.getByTestId('start-session-button'));
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
       expect(screen.getByText('Welcome to the test!')).toBeInTheDocument();
     });
 
@@ -209,7 +228,7 @@ describe('App session context', () => {
     expect(screen.getAllByTestId('chat-input')).toHaveLength(1);
     expect(screen.getByTestId('send-button')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
     await user.type(screen.getByTestId('chat-input'), 'Old session question');
     await user.click(screen.getByTestId('send-button'));
 
@@ -219,7 +238,7 @@ describe('App session context', () => {
     });
 
     await user.click(
-      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /editor/i }),
+      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /answer/i }),
     );
     await user.click(screen.getByTestId('submit-button'));
     await waitFor(() => expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument());
@@ -237,7 +256,7 @@ describe('App session context', () => {
 
     await user.click(screen.getByTestId('start-session-button'));
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
     });
 
     expect(screen.queryByText('Old session question')).not.toBeInTheDocument();
@@ -250,27 +269,27 @@ describe('App session context', () => {
 
     await user.click(screen.getByTestId('start-session-button'));
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
     });
 
     const workspaceToggle = screen.getByTestId('session-workspace-toggle');
-    const promptToggle = within(workspaceToggle).getByRole('button', { name: /prompt/i });
-    const editorToggle = within(workspaceToggle).getByRole('button', { name: /editor/i });
+    const promptToggle = within(workspaceToggle).getByRole('button', { name: /question/i });
+    const editorToggle = within(workspaceToggle).getByRole('button', { name: /answer/i });
 
     expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
     expect(editorToggle).toHaveAttribute('aria-pressed', 'false');
     expect(editorToggle).toBeDisabled();
-    expect(screen.getByText(/ready to start\?/i)).toBeInTheDocument();
-    expect(screen.queryByText(/your solution/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/try one safe practice rep/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your answer/i)).not.toBeInTheDocument();
 
     await user.click(editorToggle);
 
     expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(/ready to start\?/i)).toBeInTheDocument();
-    expect(screen.queryByText(/your solution/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/try one safe practice rep/i)).toBeInTheDocument();
+    expect(screen.queryByText(/your answer/i)).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
-    const activeEditorToggle = within(workspaceToggle).getByRole('button', { name: /^editor$/i });
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
+    const activeEditorToggle = within(workspaceToggle).getByRole('button', { name: /^answer$/i });
 
     expect(activeEditorToggle).toBeEnabled();
 
@@ -278,8 +297,8 @@ describe('App session context', () => {
 
     expect(promptToggle).toHaveAttribute('aria-pressed', 'false');
     expect(activeEditorToggle).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(/your solution/i)).toBeInTheDocument();
-    expect(screen.queryByText(/ready to start\?/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText(/your answer/i)).not.toHaveLength(0);
+    expect(screen.queryByText(/try one safe practice rep/i)).not.toBeInTheDocument();
   });
 
   it('hydrates legacy history sessions so review copy context includes the problem and candidate answer', async () => {
@@ -330,7 +349,7 @@ describe('App session context', () => {
     await user.click(screen.getByTestId('start-session-button'));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
       expect(screen.getByTestId('home-nav-button')).toBeInTheDocument();
     });
 
@@ -346,10 +365,10 @@ describe('App session context', () => {
     render(<App />);
 
     await user.click(screen.getByTestId('start-session-button'));
-    await waitFor(() => expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument());
-    await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
     await user.click(
-      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /editor/i }),
+      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /answer/i }),
     );
     await user.click(screen.getByTestId('submit-button'));
     await waitFor(() => expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument());
@@ -404,11 +423,67 @@ describe('App session context', () => {
     await user.click(screen.getByTestId(`campaign-start-problem-${mockCampaignProblem.id}`));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /ready\. start timer/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('button', { name: /ready\. start timer/i }));
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
 
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'CSV Min Max Scanner' })).toBeInTheDocument();
+    });
+  });
+
+  it('asks the user to choose next reps after the tutorial, then starts from that choice', async () => {
+    localStorage.setItem(
+      'coding-interview-problem-set-settings:netlify:user-1',
+      JSON.stringify({ selectedProblemSetIds: [] }),
+    );
+    vi.mocked(problemService.getRandomProblem)
+      .mockReturnValueOnce(mockTutorialProblem)
+      .mockReturnValueOnce(mockCampaignProblem);
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('start-session-button')).toHaveTextContent('Start Tutorial');
+    });
+
+    await user.click(screen.getByTestId('start-session-button'));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
+    await user.click(
+      within(screen.getByTestId('session-workspace-toggle')).getByRole('button', { name: /answer/i }),
+    );
+    await user.click(screen.getByTestId('submit-button'));
+    await waitFor(() => expect(screen.getByTestId('confirm-dialog')).toBeInTheDocument());
+    await user.click(screen.getByTestId('dialog-confirm-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('review-view')).toBeInTheDocument();
+      expect(screen.getByTestId('post-tutorial-practice-picker')).toBeInTheDocument();
+      expect(screen.getByText('Choose your next reps')).toBeInTheDocument();
+      expect(screen.getByTestId('next-problem-button')).toHaveTextContent('Start practicing');
+    });
+
+    expect(screen.getByTestId('next-problem-button')).toBeDisabled();
+
+    await user.click(screen.getByTestId('post-tutorial-choice-python'));
+
+    await user.click(screen.getByTestId('next-problem-button'));
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /^start$/i })).toBeInTheDocument();
+    });
+
+    expect(JSON.parse(localStorage.getItem('coding-interview-problem-set-settings:netlify:user-1') ?? '{}')).toEqual({
+      selectedProblemSetIds: ['python-fundamentals'],
+    });
+    expect(problemService.loadProblems).toHaveBeenCalledWith(['python-fundamentals']);
+
+    await user.click(screen.getByRole('button', { name: /^start$/i }));
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'CSV Min Max Scanner' })).toBeInTheDocument();
     });

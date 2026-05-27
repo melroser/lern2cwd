@@ -4,6 +4,8 @@
  * Requirements: 4.2, 4.3, 8.1
  */
 
+import type { ReactNode } from 'react';
+
 // =============================================================================
 // Problem Bank Types
 // =============================================================================
@@ -446,6 +448,8 @@ export interface CodeEditorPanelProps {
   onCodeChange: (code: string) => void;
   onSubmit: () => void;
   isDisabled: boolean;
+  submitLabel?: string;
+  submitHelpText?: string;
 }
 
 /**
@@ -469,6 +473,8 @@ export interface ReviewPanelProps {
   onCopyContext?: () => void;
   copyStatus?: 'idle' | 'copied' | 'error';
   nextActionLabel?: string;
+  nextActionDisabled?: boolean;
+  postFeedbackContent?: ReactNode;
 }
 
 /**

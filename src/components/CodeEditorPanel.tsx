@@ -50,9 +50,16 @@ const styles: Record<string, React.CSSProperties> = {
     borderTop: '1px solid var(--panel-border-strong)',
     backgroundColor: 'var(--editor-header-bg)',
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
     gap: '12px',
+    flexWrap: 'wrap',
+  },
+  submitHelpText: {
+    color: 'var(--text-soft)',
+    fontSize: '0.84rem',
+    lineHeight: 1.5,
+    maxWidth: '520px',
   },
   submitButton: {
     padding: '12px 24px',
@@ -180,6 +187,8 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
   vimMode = false,
   language,
   resolvedTheme = 'dark',
+  submitLabel = 'Submit my attempt',
+  submitHelpText = 'Submit when you think it is done. This ends the rep and shows feedback.',
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -221,7 +230,7 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
         languageCompartment.of(langExt),
         readOnlyCompartment.of(EditorState.readOnly.of(isDisabled)),
         keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
-        cmPlaceholder('# Write your solution here...'),
+        cmPlaceholder('# Type your answer here...'),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const newDoc = update.state.doc.toString();
@@ -305,7 +314,7 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
     <div style={styles.container} data-testid="code-editor-panel">
       <div style={styles.editorSection}>
         <div style={styles.editorLabel}>
-          Your Solution
+          Your Answer
           {vimMode && (
             <span style={{ marginLeft: '12px', color: 'var(--success-accent)', fontSize: '0.7rem', fontWeight: 400 }}>
               VIM
@@ -324,6 +333,7 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
       </div>
 
       <div style={styles.footer}>
+        <div style={styles.submitHelpText}>{submitHelpText}</div>
         <button
           onClick={onSubmit}
           disabled={isDisabled}
@@ -335,9 +345,9 @@ export const CodeEditorPanel: React.FC<CodeEditorPanelExtendedProps> = ({
             ...(!isDisabled && isHovered ? styles.submitButtonHover : {}),
           }}
           data-testid="submit-button"
-          aria-label="Submit solution"
+          aria-label={submitLabel}
         >
-          I'm Done
+          {submitLabel}
         </button>
       </div>
     </div>

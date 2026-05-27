@@ -42,6 +42,37 @@ const mockChatHistory: ChatMessage[] = [
   },
 ];
 
+const tutorialProblem: Problem = {
+  id: 'tutorial-first-session',
+  language: 'yaml',
+  title: 'Your First Rep: Shoot Your Shot',
+  difficulty: 'easy',
+  timeLimit: 8,
+  prompt: "How is James Joyce's Ulysses like programming?",
+  constraints: [
+    'Make a real attempt before asking for help.',
+    'Include your best guess.',
+    'Include one thing you are unsure about.',
+    'Ask the Tutor for a nudge, then improve your answer before submitting.',
+  ],
+  scaffold: '# Your first rep\n# Try before you feel ready.\n\nanswer: \n\nquestion_for_tutor: ',
+  examples: [
+    {
+      input: 'I do not know who James Joyce is, but I think the question is asking me to compare something hard to programming.',
+      output: 'A real attempt is enough for this first rep.',
+      explanation: 'The tutorial is successful when you try under uncertainty, ask for a nudge, revise, and submit.',
+    },
+  ],
+  expectedApproach: 'Make a meaningful attempt under uncertainty, connect confusion in reading to confusion in programming, ask for a nudge, revise, and submit.',
+  commonPitfalls: ['Stopping at only I do not know', 'Asking for the full answer before attempting'],
+  idealSolutionOutline: 'A real first attempt that makes one guess, names uncertainty, asks for a nudge, and improves the answer before submitting.',
+  evaluationNotes: 'Pass any meaningful attempt.',
+  assessmentType: 'behavioral',
+  domain: 'onboarding',
+  problemSetId: 'tutorial',
+  competencyTags: ['tutorial', 'retrieval-practice', 'productive-struggle', 'onboarding'],
+};
+
 const createSessionContext = (overrides: Partial<SessionContext> = {}): SessionContext => ({
   problem: baseProblem,
   currentCode: baseProblem.scaffold,
@@ -67,7 +98,7 @@ describe('ProctorService', () => {
     it('returns the current assessment opener', async () => {
       const intro = await service.generateIntro(baseProblem);
       expect(intro).toBe(
-        'Welcome to the assessment. Press "Ready. Start Timer" to reveal the prompt and unlock chat. Once the timer starts, you can talk to me here if you need a nudge, clarification, or help thinking through tradeoffs.',
+        'Welcome. Press Start when you are ready. After that, you can ask me for help here if you want a nudge or clarification.',
       );
     });
 
@@ -159,6 +190,50 @@ describe('ProctorService', () => {
       expect(response.length).toBeGreaterThan(20);
       expect(response.toLowerCase()).toMatch(/close|final check|recheck|revisit|fix|strong/);
     });
+
+    it('answers first tutorial context questions with a nudge instead of the full answer', async () => {
+      const response = await service.respondToQuestion(
+        'Who is James Joyce?',
+        createSessionContext({
+          problem: tutorialProblem,
+          currentCode: tutorialProblem.scaffold,
+        }),
+      );
+
+      expect(response).toContain('James Joyce was a writer');
+      expect(response).toContain('You do not need more than that for this rep.');
+      expect(response).toContain('what is one move you can still make');
+      expect(response).not.toMatch(/full answer|modal editing|Vim/i);
+      expect(service.getLastInteractionMode()).toBe('fallback');
+    });
+
+    it('refuses to give the first tutorial answer and offers next-step categories', async () => {
+      const response = await service.respondToQuestion(
+        'just give me the answer',
+        createSessionContext({
+          problem: tutorialProblem,
+          currentCode: tutorialProblem.scaffold,
+        }),
+      );
+
+      expect(response).toContain('I will not give the full answer yet.');
+      expect(response).toContain('breaking the problem into smaller parts');
+      expect(response).toContain('Pick one and write your own sentence.');
+    });
+
+    it('normalizes first tutorial confusion into a first guess', async () => {
+      const response = await service.respondToQuestion(
+        'what the fuck is this',
+        createSessionContext({
+          problem: tutorialProblem,
+          currentCode: tutorialProblem.scaffold,
+        }),
+      );
+
+      expect(response).toContain('That reaction is expected.');
+      expect(response).toContain('Your next move is to make one guess.');
+      expect(response).toContain('I do not know what Ulysses is');
+    });
   });
 
   describe('evaluate', () => {
@@ -186,6 +261,42 @@ describe('ProctorService', () => {
 
       expect(result.idealSolution).toContain('two_sum');
       expect(result.idealSolution.toLowerCase()).toMatch(/dict|hash|complement/);
+    });
+
+    it('treats a meaningful first tutorial attempt as a win', async () => {
+      const result = await service.evaluate(
+        "answer: I don't know who James Joyce is, but I think the question might be asking me to compare a hard book with learning to code. Maybe both require breaking confusing things into smaller parts. I am unsure what Ulysses is.\nquestion_for_tutor: What is Ulysses?",
+        tutorialProblem,
+        [
+          ...mockChatHistory,
+          {
+            id: '3',
+            role: 'user',
+            content: 'What is Ulysses?',
+            timestamp: Date.now() - 10_000,
+          },
+        ],
+      );
+
+      expect(result.verdict).toBe('Pass');
+      expect(result.feedback.strengths.join(' ')).toContain('You finished your first rep.');
+      expect(result.feedback.strengths.join(' ')).toContain('You asked for a nudge');
+      expect(result.feedback.improvements.join(' ')).toContain('The point is not to know everything');
+      expect(result.idealSolution).toBe('');
+      expect(result.missTags).toEqual([]);
+      expect(result.annotations).toEqual([]);
+    });
+
+    it('does not pass a bare first tutorial non-attempt', async () => {
+      const result = await service.evaluate(
+        'answer: I don’t know\nquestion_for_tutor: ',
+        tutorialProblem,
+        mockChatHistory,
+      );
+
+      expect(result.verdict).toBe('Borderline');
+      expect(result.feedback.strengths.join(' ')).toContain("'I don't know' is allowed");
+      expect(result.feedback.improvements.join(' ')).toContain('Add one guess');
     });
   });
 

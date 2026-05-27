@@ -299,6 +299,12 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'var(--button-primary-hover)',
     transform: 'translateY(-1px)',
   },
+  buttonDisabled: {
+    backgroundColor: 'var(--button-disabled-bg)',
+    color: 'var(--button-disabled-text)',
+    cursor: 'not-allowed',
+    transform: 'none',
+  },
   historyButton: {
     backgroundColor: 'var(--button-secondary-bg)',
     color: 'var(--text-strong)',
@@ -565,7 +571,9 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
   copyStatus = 'idle',
   onNextProblem,
   onViewHistory,
-  nextActionLabel = 'Next Problem',
+  nextActionLabel = 'Next Question',
+  nextActionDisabled = false,
+  postFeedbackContent,
 }) => {
   const [isNextHovered, setIsNextHovered] = React.useState(false);
   const [isHistoryHovered, setIsHistoryHovered] = React.useState(false);
@@ -585,7 +593,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
             }}
             data-testid="start-session-button"
           >
-            Start New Session
+            Start New Question
           </button>
         </div>
       </div>
@@ -594,13 +602,16 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
 
   const { verdict, scores, feedback, idealSolution, missTags, annotations = [] } = evaluation;
   const description = problemSnapshot?.content?.description ?? problemSnapshot?.prompt ?? '';
-  const narrative = isNarrativeSnapshot(problemSnapshot);
+  const isFirstTutorialReview = problemSnapshot?.id === 'tutorial-first-session';
+  const verdictLabel = isFirstTutorialReview
+    ? (verdict === 'Pass' ? 'Rep Complete' : 'Keep Going')
+    : verdict;
 
   return (
     <div style={styles.container} data-testid="review-panel">
       <div style={styles.header}>
         <div>
-          <h2 style={styles.headerTitle}>Evaluation Results</h2>
+          <h2 style={styles.headerTitle}>Feedback</h2>
           {problemSnapshot && (
             <div style={styles.headerMeta}>
               <strong>{problemSnapshot.title}</strong>
@@ -618,7 +629,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
               }}
               data-testid="verdict-badge"
             >
-              {verdict}
+              {verdictLabel}
             </span>
           </div>
           {onCopyContext && (
@@ -648,7 +659,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
       <div style={styles.content}>
         {problemSnapshot && (
           <div style={styles.section} data-testid="problem-recap-section">
-            <h3 style={styles.sectionTitle}>Problem Recap</h3>
+            <h3 style={styles.sectionTitle}>Question Recap</h3>
             <div style={styles.recapMeta}>
               <span style={styles.recapPill}>{problemSnapshot.language}</span>
               <span style={styles.recapPill}>{problemSnapshot.difficulty}</span>
@@ -658,15 +669,17 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           </div>
         )}
 
-        <div style={styles.section} data-testid="scores-section">
-          <h3 style={styles.sectionTitle}>Rubric Scores</h3>
-          <div style={styles.scoresGrid}>
-            <ScoreItem label="Approach" score={scores.approach} />
-            <ScoreItem label="Completeness" score={scores.completeness} />
-            <ScoreItem label="Complexity" score={scores.complexity} />
-            <ScoreItem label="Communication" score={scores.communication} />
+        {!isFirstTutorialReview && (
+          <div style={styles.section} data-testid="scores-section">
+            <h3 style={styles.sectionTitle}>Rubric Scores</h3>
+            <div style={styles.scoresGrid}>
+              <ScoreItem label="Approach" score={scores.approach} />
+              <ScoreItem label="Completeness" score={scores.completeness} />
+              <ScoreItem label="Complexity" score={scores.complexity} />
+              <ScoreItem label="Communication" score={scores.communication} />
+            </div>
           </div>
-        </div>
+        )}
 
         <div style={styles.section} data-testid="feedback-section">
           <h3 style={styles.sectionTitle}>Feedback</h3>
@@ -674,7 +687,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           {feedback.strengths.length > 0 && (
             <div data-testid="strengths-section">
               <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: 'var(--success-accent)' }}>
-                Strengths
+                {isFirstTutorialReview ? 'Wins' : 'Strengths'}
               </h4>
               <ul style={styles.feedbackList}>
                 {feedback.strengths.map((strength, index) => (
@@ -693,7 +706,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           {feedback.improvements.length > 0 && (
             <div data-testid="improvements-section" style={{ marginTop: feedback.strengths.length > 0 ? '16px' : 0 }}>
               <h4 style={{ ...styles.scoreLabel, marginBottom: '8px', color: 'var(--warning-accent)' }}>
-                Areas for Improvement
+                {isFirstTutorialReview ? 'Misses to Study' : 'Areas for Improvement'}
               </h4>
               <ul style={styles.feedbackList}>
                 {feedback.improvements.map((improvement, index) => (
@@ -728,7 +741,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
         )}
 
         <AnnotatedCodeBlock
-          title={narrative ? 'Your Answer' : 'Your Solution'}
+          title="Your Answer"
           code={candidateCode}
           annotations={annotations}
           target="candidate"
@@ -736,9 +749,9 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
           testId="candidate-solution"
         />
 
-        {idealSolution && (
+        {idealSolution && !isFirstTutorialReview && (
           <AnnotatedCodeBlock
-            title={narrative ? 'Ideal Answer' : 'Ideal Solution'}
+            title="Sample Answer"
             code={idealSolution}
             annotations={annotations}
             target="ideal"
@@ -746,20 +759,24 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
             testId="ideal-solution"
           />
         )}
+
+        {postFeedbackContent}
       </div>
 
       <div style={styles.footer}>
         <button
           onClick={onNextProblem}
+          disabled={nextActionDisabled}
           onMouseEnter={() => setIsNextHovered(true)}
           onMouseLeave={() => setIsNextHovered(false)}
           style={{
             ...styles.button,
             ...styles.nextButton,
-            ...(isNextHovered ? styles.nextButtonHover : {}),
+            ...(!nextActionDisabled && isNextHovered ? styles.nextButtonHover : {}),
+            ...(nextActionDisabled ? styles.buttonDisabled : {}),
           }}
           data-testid="next-problem-button"
-          aria-label="Next problem"
+          aria-label="Next question"
         >
           {nextActionLabel}
         </button>

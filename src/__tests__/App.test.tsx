@@ -119,7 +119,7 @@ describe('App', () => {
       expect(screen.getByTestId('home-view')).toBeInTheDocument();
     });
     expect(screen.getByTestId('start-session-button')).toBeInTheDocument();
-    expect(screen.getByText(/browse campaign/i)).toBeInTheDocument();
+    expect(screen.getByText(/browse practice/i)).toBeInTheDocument();
   });
 
   it('renders the invite-only auth screen for signed-out users', () => {
@@ -128,7 +128,7 @@ describe('App', () => {
 
     expect(screen.getByText(/invite-only beta/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /log in/i })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /request access/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /join waitlist/i })).toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: /sign up/i })).not.toBeInTheDocument();
   });
 

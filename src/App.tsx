@@ -20,6 +20,7 @@ import { storageService } from './services/storageService';
 import { getEditorSettings, saveEditorSettings, setEditorSettingsStorageScope, type ThemeMode } from './utils/editorSettings';
 import {
   DEFAULT_SELECTED_PROBLEM_SETS,
+  TUTORIAL_PROBLEM_SET_ID,
   getProblemSetSettings,
   saveProblemSetSettings,
   setProblemSetSettingsStorageScope,
@@ -32,6 +33,7 @@ import type {
   ProblemSetOption,
   ProctorInteractionMode,
   Verdict,
+  ChatMessage,
 } from './types';
 import './App.css';
 
@@ -58,11 +60,51 @@ type CampaignFlow = {
   orderedProblemIds: string[];
 } | null;
 
+type PracticeAreaChoice = {
+  id: string;
+  label: string;
+  description: string;
+  problemSetIds: string[];
+};
+
 const VERDICT_PRIORITY: Record<Verdict, number> = {
   'No Pass': 0,
   Borderline: 1,
   Pass: 2,
 };
+
+const POST_TUTORIAL_PRACTICE_AREAS: PracticeAreaChoice[] = [
+  {
+    id: 'python',
+    label: 'Python',
+    description: 'Start with practical Python reps.',
+    problemSetIds: ['python-fundamentals'],
+  },
+  {
+    id: 'frontend',
+    label: 'Frontend',
+    description: 'Practice browser, UI, and accessibility tasks.',
+    problemSetIds: ['frontend-wordpress'],
+  },
+  {
+    id: 'debugging',
+    label: 'Debugging',
+    description: 'Work through implementation and reasoning drills.',
+    problemSetIds: ['codesignal-tech-force'],
+  },
+  {
+    id: 'behavioral',
+    label: 'Behavioral',
+    description: 'Practice explaining judgment, tradeoffs, and experience.',
+    problemSetIds: ['behavioral-software-engineering'],
+  },
+  {
+    id: 'mixed',
+    label: 'Mixed Practice',
+    description: 'Blend coding, frontend, and communication reps.',
+    problemSetIds: ['python-fundamentals', 'frontend-wordpress', 'behavioral-software-engineering', 'codesignal-tech-force'],
+  },
+];
 
 interface ConfirmDialogState {
   isOpen: boolean;
@@ -70,6 +112,12 @@ interface ConfirmDialogState {
 }
 
 type CopyStatus = 'idle' | 'copied' | 'error';
+
+function haveSameSetIds(left: string[], right: string[]): boolean {
+  if (left.length !== right.length) return false;
+  const rightSet = new Set(right);
+  return left.every((id) => rightSet.has(id));
+}
 
 async function copyTextToClipboard(text: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
@@ -129,21 +177,27 @@ function getCampaignPreview(problem: Problem): string {
   return source.split(/\n+/)[0]?.trim() ?? problem.prompt;
 }
 
+function getTranscriptRoleLabel(role: ChatMessage['role'] | string): string {
+  if (role === 'proctor') return 'TUTOR';
+  if (role === 'user') return 'USER';
+  return role.toUpperCase();
+}
+
 function buildLegacySnapshotFromSession(sessionRecord: SessionRecord): string {
   const transcript = sessionRecord.chatTranscript
-    .map((msg) => `[${msg.role.toUpperCase()}] ${msg.content}`)
+    .map((msg) => `[${getTranscriptRoleLabel(msg.role)}] ${msg.content}`)
     .join('\n\n');
 
   return [
     '=== Session Context Snapshot ===',
     `Captured At: ${new Date().toISOString()}`,
-    `Problem ID: ${sessionRecord.problemId}`,
+    `Question ID: ${sessionRecord.problemId}`,
     `Title: ${sessionRecord.problemTitle}`,
     '',
     '--- Candidate Attempt ---',
     sessionRecord.finalCode || '(no code/answer entered yet)',
     '',
-    '--- Proctor/User Chat ---',
+    '--- Tutor/User Chat ---',
     transcript || '(no chat messages yet)',
     '',
     '--- Evaluation ---',
@@ -177,6 +231,7 @@ function AppShell() {
   const [topbarMenuOpen, setTopbarMenuOpen] = useState(false);
   const [proctorMode, setProctorMode] = useState<ProctorInteractionMode>(() => proctorService.getLastInteractionMode());
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+  const [postTutorialPracticeChoiceIds, setPostTutorialPracticeChoiceIds] = useState<string[]>([]);
   const [selectedProblemSetIds, setSelectedProblemSetIds] = useState<string[]>(DEFAULT_SELECTED_PROBLEM_SETS);
   const [loadedProblems, setLoadedProblems] = useState<Problem[]>([]);
   const [problemSetOptions, setProblemSetOptions] = useState<ProblemSetOption[]>(
@@ -342,6 +397,19 @@ function AppShell() {
 
     return () => ro.disconnect();
   }, [currentProblem, problemTab]);
+
+  const applyProblemSetSelection = useCallback(async (setIds: string[]) => {
+    const nextSetIds = Array.from(new Set(setIds.filter((id) => id.trim().length > 0)));
+    if (!haveSameSetIds(selectedProblemSetIds, nextSetIds)) {
+      setSelectedProblemSetIds(nextSetIds);
+      saveProblemSetSettings({ selectedProblemSetIds: nextSetIds });
+    }
+
+    const problems = await problemService.loadProblems(nextSetIds);
+    setLoadedProblems(problems);
+    setProblemSetOptions(problemService.getAvailableProblemSets());
+    return problems;
+  }, [selectedProblemSetIds]);
   
   // Handle actual submission for evaluation
   const handleSubmitForEvaluation = useCallback(async () => {
@@ -535,7 +603,7 @@ function AppShell() {
     if (isSessionPendingStart) {
       // Do not start timer from chat; require explicit Ready action
       chat.addMessage({ role: 'user', content: message });
-      chat.addMessage({ role: 'proctor', content: 'Press "Ready. Start Timer" to begin.' });
+      chat.addMessage({ role: 'proctor', content: 'Press Start to begin.' });
       return;
     }
     
@@ -573,7 +641,7 @@ function AppShell() {
     timerWithExpiry.start(currentProblem.timeLimit * 60);
     chat.addMessage({
       role: 'proctor',
-      content: `Timer started. ${currentProblem.tutorPlan?.openingPrompt ?? 'What are you thinking for your approach to this problem?'}`,
+      content: `Let's begin. ${currentProblem.tutorPlan?.openingPrompt ?? 'What are you thinking for your answer?'}`,
     });
   }, [currentProblem, isSessionPendingStart, sessionHook, timerWithExpiry, chat]);
 
@@ -619,8 +687,41 @@ function AppShell() {
     return null;
   }, [activeCampaignFlow, currentProblem]);
   
+  const isFirstTutorialReview = (
+    reviewSession?.problemSnapshot?.id === 'tutorial-first-session' ||
+    currentProblem?.id === 'tutorial-first-session'
+  ) && currentView === 'review';
+
+  const selectedPostTutorialProblemSetIds = useMemo(() => {
+    return Array.from(new Set(
+      POST_TUTORIAL_PRACTICE_AREAS
+        .filter((area) => postTutorialPracticeChoiceIds.includes(area.id))
+        .flatMap((area) => area.problemSetIds),
+    ));
+  }, [postTutorialPracticeChoiceIds]);
+
+  const handlePostTutorialPracticeChoiceToggle = useCallback((choiceId: string) => {
+    setPostTutorialPracticeChoiceIds((current) =>
+      current.includes(choiceId)
+        ? current.filter((id) => id !== choiceId)
+        : [...current, choiceId]
+    );
+  }, []);
+
   // Handle next problem
-  const handleNextProblem = useCallback(() => {
+  const handleNextProblem = useCallback(async () => {
+    if (isFirstTutorialReview) {
+      if (selectedPostTutorialProblemSetIds.length === 0) {
+        return;
+      }
+
+      await applyProblemSetSelection(selectedPostTutorialProblemSetIds);
+      const problem = problemService.getRandomProblem();
+      await startSessionWithProblem(problem, null);
+      setPostTutorialPracticeChoiceIds([]);
+      return;
+    }
+
     // Reset all state
     timerWithExpiry.reset();
     chat.clearMessages();
@@ -646,7 +747,19 @@ function AppShell() {
 
     // Start new random session
     handleStartSession();
-  }, [timerWithExpiry, chat, handleStartSession, getNextCampaignProblem, activeCampaignFlow, startSessionWithProblem]);
+  }, [
+    timerWithExpiry,
+    chat,
+    handleStartSession,
+    getNextCampaignProblem,
+    activeCampaignFlow,
+    startSessionWithProblem,
+    reviewSession,
+    currentProblem,
+    isFirstTutorialReview,
+    selectedPostTutorialProblemSetIds,
+    applyProblemSetSelection,
+  ]);
 
   const handleViewCampaign = useCallback(() => {
     setCurrentView('campaign');
@@ -778,12 +891,18 @@ function AppShell() {
   }, [currentProblem, loadedProblems, problemSetOptions]);
 
   const nextReviewActionLabel = useMemo(() => {
-    if (!activeCampaignFlow) {
-      return 'Next Problem';
+    const reviewProblemSetId = reviewSession?.problemSnapshot?.problemSetId ?? currentProblem?.problemSetId;
+
+    if (reviewProblemSetId === TUTORIAL_PROBLEM_SET_ID) {
+      return 'Start practicing';
     }
 
-    return getNextCampaignProblem() ? 'Next In Set' : 'Back to Campaign';
-  }, [activeCampaignFlow, getNextCampaignProblem]);
+    if (!activeCampaignFlow) {
+      return 'Next Question';
+    }
+
+    return getNextCampaignProblem() ? 'Next Question' : 'Back to Practice';
+  }, [activeCampaignFlow, currentProblem, getNextCampaignProblem, reviewSession]);
 
   const handleStartCampaignProblem = useCallback(async (problem: Problem, orderedProblemIds: string[]) => {
     await startSessionWithProblem(problem, {
@@ -813,14 +932,14 @@ function AppShell() {
       if (reviewSession) {
         return buildLegacySnapshotFromSession(reviewSession);
       }
-      return 'No problem context available.';
+      return 'No question context available.';
     }
 
     const description = problemSnapshot.content?.description ?? problemSnapshot.prompt;
     const constraints = problemSnapshot.content?.constraints ?? problemSnapshot.constraints;
     const examples = problemSnapshot.content?.examples ?? problemSnapshot.examples;
     const transcript = transcriptMessages
-      .map((msg) => `[${msg.role.toUpperCase()}] ${msg.content}`)
+      .map((msg) => `[${getTranscriptRoleLabel(msg.role)}] ${msg.content}`)
       .join('\n\n');
 
     const examplesBlock = examples
@@ -833,18 +952,18 @@ function AppShell() {
     return [
       '=== Session Context Snapshot ===',
       `Captured At: ${new Date().toISOString()}`,
-      `Problem ID: ${problemSnapshot.id}`,
-      `Problem Set: ${problemSnapshot.problemSetId ?? 'unknown'}`,
+      `Question ID: ${problemSnapshot.id}`,
+      `Practice Area: ${problemSnapshot.problemSetId ?? 'unknown'}`,
       `Title: ${problemSnapshot.title}`,
       `Assessment Type: ${problemSnapshot.assessmentType ?? 'coding'}`,
       `Difficulty: ${problemSnapshot.difficulty}`,
       `Language: ${problemSnapshot.language}`,
       `Time Remaining: ${currentView === 'session' ? `${Math.floor(timerWithExpiry.timeRemaining / 60).toString().padStart(2, '0')}:${(timerWithExpiry.timeRemaining % 60).toString().padStart(2, '0')}` : 'session ended'}`,
       '',
-      '--- Problem Description ---',
+      '--- Question ---',
       description,
       '',
-      '--- Constraints ---',
+      '--- Rules ---',
       constraints.map((constraint) => `- ${constraint}`).join('\n'),
       '',
       '--- Examples ---',
@@ -853,7 +972,7 @@ function AppShell() {
       '--- Candidate Attempt ---',
       code || '(no code/answer entered yet)',
       '',
-      '--- Proctor/User Chat ---',
+      '--- Tutor/User Chat ---',
       transcript || '(no chat messages yet)',
       '',
       '--- Evaluation ---',
@@ -891,6 +1010,33 @@ function AppShell() {
   const topbarClassName = `topbar${topbarMenuOpen ? ' menuOpen' : ''}`;
   const topbarMetaClassName = `meta${topbarMenuOpen ? ' menuOpen' : ''}`;
   const themeToggleLabel = resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  const postTutorialPracticePicker = isFirstTutorialReview ? (
+    <section className="postTutorialPicker" data-testid="post-tutorial-practice-picker">
+      <div className="postTutorialPickerHeader">
+        <h3>Choose your next reps</h3>
+        <p>Pick what you want to practice next. You can change this later in Settings.</p>
+      </div>
+
+      <div className="postTutorialChoiceGrid">
+        {POST_TUTORIAL_PRACTICE_AREAS.map((area) => {
+          const selected = postTutorialPracticeChoiceIds.includes(area.id);
+          return (
+            <button
+              key={area.id}
+              type="button"
+              className={`postTutorialChoice ${selected ? 'selected' : ''}`}
+              data-testid={`post-tutorial-choice-${area.id}`}
+              aria-pressed={selected}
+              onClick={() => handlePostTutorialPracticeChoiceToggle(area.id)}
+            >
+              <span className="postTutorialChoiceTitle">{area.label}</span>
+              <span className="postTutorialChoiceDescription">{area.description}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  ) : null;
   
   return (
     <>
@@ -945,7 +1091,7 @@ function AppShell() {
               border: '1px solid rgba(96,255,160,0.22)',
               boxShadow: '0 0 30px rgba(0,255,120,0.15)'
             }}>
-              <h3 style={{ color: 'var(--cool)', marginBottom: '1rem' }}>Submit Solution?</h3>
+              <h3 style={{ color: 'var(--cool)', marginBottom: '1rem' }}>Submit Attempt?</h3>
               <p style={{ color: 'rgba(182,255,182,0.9)', marginBottom: '1.5rem' }}>
                 You have {formatTimeRemaining(confirmDialog.timeRemaining)} left. 
                 Are you sure you want to submit now?
@@ -974,8 +1120,8 @@ function AppShell() {
             {currentView === 'home' && (
               <div className="home-view" data-testid="home-view">
                 <div className="home-content">
-                  <h1>Coding Interview Simulator</h1>
-                  <p>Practice coding interviews with AI-powered feedback</p>
+                  <h1>Lern2Cwd</h1>
+                  <p>Practice short interview questions with instant feedback.</p>
 
                   <div className="homeMetaBar">
                     <AuthStatusControls />
@@ -987,12 +1133,12 @@ function AppShell() {
                       className="btn primary"
                       onClick={handleStartSession}
                     >
-                      {isTutorialMode ? 'Start Tutorial' : 'Start Random Session'}
+                      {isTutorialMode ? 'Start Tutorial' : 'Start Random Question'}
                     </button>
 
                     {isTutorialMode && (
                       <p className="homeHint">
-                        Tutorial mode is active. Enable problem packs in Settings when you are ready for real sessions.
+                        Finish one safe rep, then choose what you want to practice next.
                       </p>
                     )}
 
@@ -1001,7 +1147,7 @@ function AppShell() {
                       className="btn"
                       onClick={handleViewCampaign}
                     >
-                      Browse Campaign
+                      Browse Practice
                     </button>
                     
                     {storedSessions.length > 0 && (
@@ -1031,9 +1177,9 @@ function AppShell() {
                 <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
-                    <span>INTERVIEW SIMULATOR</span>
+                    <span>LERN2CWD</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
-                    <span style={{ color: 'var(--hot)' }}>CAMPAIGN</span>
+                    <span style={{ color: 'var(--hot)' }}>PRACTICE</span>
                   </div>
                   <button
                     type="button"
@@ -1062,7 +1208,7 @@ function AppShell() {
                       data-testid="campaign-random-button"
                       onClick={handleStartSession}
                     >
-                      Random Session
+                      Random Question
                     </button>
                     <button
                       className="btn subtle"
@@ -1077,16 +1223,18 @@ function AppShell() {
                 <div className="appViewBody">
                   <div className="campaignView">
                     <div className="campaignIntro">
-                      <h1>Campaign Mode</h1>
+                      <h1>Practice</h1>
                       <p>
-                        Work through your enabled problem sets in order, or jump straight to a specific drill you want to practice again.
+                        Choose a question to practice, or work through a practice area in order.
                       </p>
                     </div>
 
                     {campaignSections.length === 0 ? (
                       <div className="campaignEmpty">
-                        <h2>No enabled problem sets</h2>
-                        <p>Turn on at least one problem set in Settings and it will show up here.</p>
+                        <h2>No practice areas selected</h2>
+                        <p>
+                          Finish the tutorial to choose your next reps, or choose practice areas in Settings.
+                        </p>
                         <button className="btn" onClick={handleOpenSettings}>
                           Open Settings
                         </button>
@@ -1108,7 +1256,7 @@ function AppShell() {
 
                               <div className="campaignSetSummary">
                                 <div className="campaignSummaryStats">
-                                  <span>{section.problems.length} problems</span>
+                                  <span>{section.problems.length} questions</span>
                                   <span>{section.attemptedCount} attempted</span>
                                   <span>{section.passedCount} passed</span>
                                 </div>
@@ -1195,7 +1343,7 @@ function AppShell() {
                 <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
-                    <span>INTERVIEW SIMULATOR</span>
+                    <span>LERN2CWD</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>{currentProblem.language.toUpperCase()}</span>
                   </div>
@@ -1210,14 +1358,14 @@ function AppShell() {
                   </button>
                   <div className={topbarMetaClassName}>
                     <div className="pill">
-                      <span style={{ color: 'rgba(182,255,182,0.65)' }}>PROBLEM</span>
+                      <span style={{ color: 'rgba(182,255,182,0.65)' }}>QUESTION</span>
                       <span style={{ color: 'var(--cool)' }}>
-                        {isSessionPendingStart ? 'Hidden' : currentProblem.title}
+                        {isSessionPendingStart ? 'Not started' : currentProblem.title}
                       </span>
                     </div>
                     {currentProblemSetInfo && (
                       <div className="pill" data-testid="problem-set-pill">
-                        <span style={{ color: 'rgba(182,255,182,0.65)' }}>SET</span>
+                        <span style={{ color: 'rgba(182,255,182,0.65)' }}>AREA</span>
                         <span style={{ color: 'var(--cool)' }}>
                           {currentProblemSetInfo.label}
                           {currentProblemSetInfo.ordinal && currentProblemSetInfo.total
@@ -1231,9 +1379,9 @@ function AppShell() {
                       <span className="timer">{Math.floor(timerWithExpiry.timeRemaining / 60).toString().padStart(2, '0')}:{(timerWithExpiry.timeRemaining % 60).toString().padStart(2, '0')}</span>
                     </div>
                     <div className="pill" data-testid="proctor-mode-pill">
-                      <span>PROCTOR</span>
+                      <span>TUTOR</span>
                       <span className={`proctorModeValue ${proctorMode === 'llm' ? 'live' : proctorMode === 'fallback' ? 'fallback' : ''}`}>
-                        {proctorMode === 'llm' ? 'LIVE' : proctorMode === 'fallback' ? 'LOCAL FALLBACK' : 'IDLE'}
+                        {proctorMode === 'llm' ? 'ONLINE' : proctorMode === 'fallback' ? 'BASIC HELP' : 'READY'}
                       </span>
                     </div>
                     <button
@@ -1279,7 +1427,7 @@ function AppShell() {
                       onClick={() => setSessionWorkspacePane('problem')}
                       aria-pressed={sessionWorkspacePane === 'problem'}
                     >
-                      Prompt
+                      Question
                     </button>
                     <button
                       type="button"
@@ -1291,9 +1439,9 @@ function AppShell() {
                       }}
                       aria-pressed={sessionWorkspacePane === 'editor'}
                       disabled={isSessionPendingStart}
-                      title={isSessionPendingStart ? 'The editor unlocks when you start the timer.' : undefined}
+                      title={isSessionPendingStart ? 'Start to type an answer.' : undefined}
                     >
-                      {isSessionPendingStart ? 'Editor Locked' : 'Editor'}
+                      Answer
                     </button>
                   </div>
 
@@ -1306,10 +1454,10 @@ function AppShell() {
                         <div className="problem" ref={problemRef}>
                           {isSessionPendingStart ? (
                             <div className="readyGate">
-                              <div className="readyTitle">Ready to start?</div>
-                              <div className="readySub">Press the button to reveal the problem and start the timer.</div>
+                              <div className="readyTitle">Try one safe practice rep.</div>
+                              <div className="readySub">Read the question, make an attempt, ask for a nudge if you get stuck, then submit to see feedback.</div>
                               <button className="btn primary" onClick={handleReadyStart}>
-                                Ready. Start Timer
+                                Start
                               </button>
                             </div>
                           ) : (
@@ -1322,7 +1470,7 @@ function AppShell() {
                                 </div>
                               </div>
 
-                              <div className="problemTabs" role="tablist" aria-label="Problem tabs">
+                              <div className="problemTabs" role="tablist" aria-label="Question tabs">
                                 <button
                                   type="button"
                                   role="tab"
@@ -1332,7 +1480,7 @@ function AppShell() {
                                   className={`tabBtn ${problemTab === 'description' ? 'active' : ''}`}
                                   onClick={() => setProblemTab('description')}
                                 >
-                                  Description
+                                  Question
                                 </button>
                                 <button
                                   type="button"
@@ -1343,7 +1491,7 @@ function AppShell() {
                                   className={`tabBtn ${problemTab === 'constraints' ? 'active' : ''}`}
                                   onClick={() => setProblemTab('constraints')}
                                 >
-                                  Constraints
+                                  Rules
                                 </button>
                                 <button
                                   type="button"
@@ -1354,7 +1502,7 @@ function AppShell() {
                                   className={`tabBtn ${problemTab === 'examples' ? 'active' : ''}`}
                                   onClick={() => setProblemTab('examples')}
                                 >
-                                  Examples
+                                  Example
                                 </button>
                               </div>
 
@@ -1395,7 +1543,7 @@ function AppShell() {
                                         ))}
                                       </div>
                                     ) : (
-                                      <div className="problemEmpty">No constraints provided.</div>
+                                      <div className="problemEmpty">No rules provided.</div>
                                     )}
                                   </div>
                                 )}
@@ -1436,7 +1584,7 @@ function AppShell() {
                           <div className="editorHeader">
                             <div className="leftBits">
                               <span className="statusLight"></span>
-                              <span>EDITOR</span>
+                              <span>ANSWER</span>
                               <span style={{ opacity: 0.6 }}>/ {currentProblem.language}</span>
                             </div>
                             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -1465,7 +1613,7 @@ function AppShell() {
 
                   <div className="proctorWrap sessionProctorWrap">
                     <div className="chatHeader">
-                      <div className="label">Proctor Channel</div>
+                      <div className="label">Help</div>
                       <div className="signal">
                         <div className="bars" aria-hidden="true">
                           <span></span>
@@ -1490,8 +1638,8 @@ function AppShell() {
                         isDisabled={chat.isLoading || !isSessionActive}
                         disabledPlaceholder={
                           isSessionPendingStart
-                            ? 'Chat unlocks when the timer starts'
-                            : 'Chat disabled'
+                            ? 'Start to ask for help'
+                            : 'Help unavailable'
                         }
                       />
                     </div>
@@ -1506,7 +1654,7 @@ function AppShell() {
                 <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
-                    <span>INTERVIEW SIMULATOR</span>
+                    <span>LERN2CWD</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>REVIEW</span>
                   </div>
@@ -1522,7 +1670,7 @@ function AppShell() {
                   <div className={topbarMetaClassName}>
                     <div className="pill">
                       <span>VIEW</span>
-                      <span style={{ color: 'var(--cool)' }}>Evaluation Results</span>
+                      <span style={{ color: 'var(--cool)' }}>Feedback</span>
                     </div>
                     <button
                       className="btn subtle"
@@ -1551,6 +1699,8 @@ function AppShell() {
                     onCopyContext={handleCopySessionContext}
                     copyStatus={copyStatus}
                     nextActionLabel={nextReviewActionLabel}
+                    nextActionDisabled={isFirstTutorialReview && selectedPostTutorialProblemSetIds.length === 0}
+                    postFeedbackContent={postTutorialPracticePicker}
                     onNextProblem={handleNextProblem}
                     onViewHistory={handleViewHistory}
                   />
@@ -1564,7 +1714,7 @@ function AppShell() {
                 <div className={`${topbarClassName} appTopbar`}>
                   <div className="brand">
                     <span className="dot"></span>
-                    <span>INTERVIEW SIMULATOR</span>
+                    <span>LERN2CWD</span>
                     <span style={{ color: 'var(--cool)' }}>/</span>
                     <span style={{ color: 'var(--hot)' }}>HISTORY</span>
                   </div>
@@ -1622,8 +1772,8 @@ function AuthLoadingFallback() {
     <div className="home-view authGateView" data-testid="auth-loading-screen">
       <div className="home-content authGateCard">
         <div className="authGateEyebrow">Loading access</div>
-        <h1>Interview Simulator</h1>
-        <p>Checking your session…</p>
+        <h1>Lern2Cwd</h1>
+        <p>Checking your session...</p>
       </div>
     </div>
   );

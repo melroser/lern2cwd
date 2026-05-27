@@ -69,7 +69,7 @@ describe('ReviewPanel Component', () => {
 
     it('renders the header with title', () => {
       render(<ReviewPanel {...defaultProps} />);
-      expect(screen.getByText('Evaluation Results')).toBeInTheDocument();
+      expect(screen.getAllByText('Feedback')).not.toHaveLength(0);
     });
 
     it('renders the verdict badge', () => {
@@ -302,7 +302,7 @@ describe('ReviewPanel Component', () => {
   });
 
   describe('action buttons', () => {
-    it('calls onNextProblem when Next Problem button is clicked', () => {
+    it('calls onNextProblem when Next Question button is clicked', () => {
       const onNextProblem = vi.fn();
       render(<ReviewPanel {...defaultProps} onNextProblem={onNextProblem} />);
       
@@ -318,9 +318,9 @@ describe('ReviewPanel Component', () => {
       expect(onViewHistory).toHaveBeenCalledTimes(1);
     });
 
-    it('Next Problem button has correct text', () => {
+    it('Next Question button has correct text', () => {
       render(<ReviewPanel {...defaultProps} />);
-      expect(screen.getByTestId('next-problem-button')).toHaveTextContent('Next Problem');
+      expect(screen.getByTestId('next-problem-button')).toHaveTextContent('Next Question');
     });
 
     it('View History button has correct text', () => {
@@ -330,11 +330,11 @@ describe('ReviewPanel Component', () => {
   });
 
   describe('accessibility', () => {
-    it('Next Problem button has aria-label', () => {
+    it('Next Question button has aria-label', () => {
       render(<ReviewPanel {...defaultProps} />);
       expect(screen.getByTestId('next-problem-button')).toHaveAttribute(
         'aria-label',
-        'Next problem'
+        'Next question'
       );
     });
 

@@ -22,7 +22,7 @@ describe('ChatPanel', () => {
   it('shows an empty-state message when there is no chat history', () => {
     render(<ChatPanel messages={[]} />);
 
-    expect(screen.getByTestId('empty-state')).toHaveTextContent(/start a conversation/i);
+    expect(screen.getByTestId('empty-state')).toHaveTextContent(/ask for help/i);
   });
 
   it('renders user and proctor messages in order', () => {
@@ -33,7 +33,7 @@ describe('ChatPanel', () => {
     expect(renderedMessages[0]).toHaveAttribute('data-role', 'user');
     expect(renderedMessages[1]).toHaveAttribute('data-role', 'proctor');
     expect(screen.getByText('You')).toBeInTheDocument();
-    expect(screen.getByText('Proctor')).toBeInTheDocument();
+    expect(screen.getByText('Tutor')).toBeInTheDocument();
   });
 
   it('renders markdown formatting for proctor messages only', () => {

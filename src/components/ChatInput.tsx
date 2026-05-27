@@ -37,7 +37,7 @@ const styles: Record<string, React.CSSProperties> = {
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   isDisabled,
-  disabledPlaceholder = 'Chat disabled',
+  disabledPlaceholder = 'Help unavailable',
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);

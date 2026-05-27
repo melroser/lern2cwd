@@ -1,35 +1,35 @@
 [
   {
     "id": "tutorial-first-session",
-    "title": "Tutorial: First Session",
+    "title": "Your First Rep: Shoot Your Shot",
     "difficulty": "easy",
     "timeLimit": 8,
     "language": "yaml",
     "assessmentType": "behavioral",
     "domain": "onboarding",
-    "competencyTags": ["tutorial", "app-flow", "onboarding"],
-    "prompt": "This is a guided walkthrough of the interview simulator. Use it to learn the flow before enabling real problem packs in Settings. After you press Ready, read this prompt, open the editor, write a few short notes about what each part of the app does, ask the proctor one question, then submit when you are done.",
+    "competencyTags": ["tutorial", "retrieval-practice", "productive-struggle", "onboarding"],
+    "prompt": "How is James Joyce's Ulysses like programming?\n\nWrite one response in the answer box.\n\nYour answer should include:\n\n1. Your best guess at what the question is asking.\n2. One possible connection between a difficult book and learning to code.\n3. One thing you are unsure about.\n4. One question you would ask the Tutor for a nudge.\n\nYou do not need to know who James Joyce is.\nYou do not need to have read Ulysses.\nYou do not need to be right.\n\nThe point is to try before you feel ready.\n\nAfter you write your first attempt, ask the Tutor for a hint. Then use the hint to improve your answer before submitting.\n\nRemember:\nThis is a safe place to learn.\nNot knowing is expected.\nShoot your shot before asking for help.\nHelp is available, but expect a nudge, not the answer.\nStudy your misses so they stick next time.",
     "constraints": [
-      "The prompt stays hidden until you press Ready. Start Timer.",
-      "The editor unlocks only after the timer starts.",
-      "The proctor chat unlocks only after the timer starts.",
-      "When you are ready for real practice, open Settings and enable at least one problem pack."
+      "Make a real attempt before asking for help.",
+      "Include your best guess.",
+      "Include one thing you are unsure about.",
+      "Ask the Tutor for a nudge, then improve your answer before submitting."
     ],
-    "scaffold": "# Tutorial notes\n# 1. What did the Ready button do?\n# 2. What can you use the editor for?\n# 3. What can you ask the proctor?\n# 4. Which problem pack do you want to enable next?\n\nready_button: \neditor: \nproctor_chat: \nnext_problem_pack: ",
+    "scaffold": "# Your first rep\n# Try before you feel ready.\n\nanswer: \n\nquestion_for_tutor: ",
     "examples": [
       {
-        "input": "Ask: \"Can I ask for clarification during a session?\"",
-        "output": "The proctor can answer clarifying questions and give nudges after the timer starts.",
-        "explanation": "The tutorial is successful when the user understands the app flow."
+        "input": "I do not know who James Joyce is, but I think the question is asking me to compare something hard to programming. Maybe both require patience and trying again when confused. I am unsure what Ulysses is. I would ask the Tutor who James Joyce is.",
+        "output": "A real attempt is enough for this first rep.",
+        "explanation": "The tutorial is successful when you try under uncertainty, ask for a nudge, revise, and submit."
       }
     ],
-    "expectedApproach": "Start the timer, read the prompt, use the editor for notes, send one proctor message, submit, and enable a real problem pack from Settings.",
+    "expectedApproach": "Make a meaningful attempt under uncertainty, connect confusion in reading to confusion in programming, ask for a nudge, revise, and submit.",
     "commonPitfalls": [
-      "Trying to use chat before starting the timer",
-      "Expecting the editor to unlock before the prompt is revealed",
-      "Leaving all problem packs disabled after the tutorial"
+      "Stopping at only I do not know",
+      "Asking for the full answer before attempting",
+      "Only saying both things are hard without naming an action"
     ],
-    "idealSolutionOutline": "A short set of notes showing the user understands Ready, editor, proctor chat, submit, and Settings.",
-    "evaluationNotes": "Pass if the user demonstrates basic navigation through the app and knows how to enable real problem packs."
+    "idealSolutionOutline": "A real first attempt that makes one guess, names uncertainty, asks for a nudge, and improves the answer before submitting.",
+    "evaluationNotes": "For this first tutorial rep, correctness does not matter. Pass any meaningful attempt other than blank, punctuation-only, a bare refusal, or only I do not know."
   }
 ]

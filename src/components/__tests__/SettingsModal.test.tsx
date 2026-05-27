@@ -92,7 +92,7 @@ describe('SettingsModal', () => {
       />,
     );
 
-    expect(screen.getByTestId('tutorial-mode-notice')).toHaveTextContent(/tutorial mode active/i);
+    expect(screen.getByTestId('tutorial-mode-notice')).toHaveTextContent(/tutorial first/i);
     expect(screen.queryByTestId('problem-set-toggle-tutorial')).not.toBeInTheDocument();
   });
 

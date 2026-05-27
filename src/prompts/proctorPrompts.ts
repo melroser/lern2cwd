@@ -3,7 +3,7 @@
  * 
  * This module contains the prompt templates for the AI proctor:
  * - Live Chat Prompt: Used for every user message during the session
- * - Evaluation Prompt: Called once when user clicks "I'm Done" or timer expires
+ * - Evaluation Prompt: Called once when user submits the attempt or timer expires
  * 
  * Requirements: 3.2, 3.3, 3.4, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 9.2
  */

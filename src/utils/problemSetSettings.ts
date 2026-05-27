@@ -9,6 +9,7 @@ export interface ProblemSetSettings {
   selectedProblemSetIds: string[];
 }
 
+export const TUTORIAL_PROBLEM_SET_ID = 'tutorial';
 export const DEFAULT_SELECTED_PROBLEM_SETS: string[] = [];
 
 function getStorageKey(): string {

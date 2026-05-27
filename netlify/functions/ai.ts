@@ -9,6 +9,20 @@ type AIRequestBody = {
   userPrompt?: unknown;
 };
 
+type FunctionLogMetadata = Record<string, string | number | boolean | null | undefined>;
+
+function logFunctionEvent(
+  level: 'info' | 'warn' | 'error',
+  event: string,
+  metadata: FunctionLogMetadata = {},
+): void {
+  console[level]('[lern2cwd:ai:function]', {
+    event,
+    at: new Date().toISOString(),
+    ...metadata,
+  });
+}
+
 function getServerApiKey(): string | null {
   const configured = process.env.OPENAI_API_KEY;
   return typeof configured === 'string' && configured.trim().length > 0
@@ -27,16 +41,35 @@ function jsonResponse(statusCode: number, body: unknown): HandlerResponse {
 }
 
 export const handler: Handler = async (event, context) => {
+  const requestId = event.headers['x-nf-request-id'] ?? event.headers['x-request-id'] ?? 'unknown';
+
   try {
+    logFunctionEvent('info', 'request_received', {
+      requestId,
+      method: event.httpMethod,
+      hasClientContext: Boolean(context.clientContext?.user),
+    });
+
     if (event.httpMethod !== 'POST') {
+      logFunctionEvent('warn', 'method_not_allowed', {
+        requestId,
+        method: event.httpMethod,
+      });
       return jsonResponse(405, { error: 'Method not allowed.' });
     }
 
     const request = buildRequestFromNetlifyContext(event, context);
-    await requireUser(request);
+    const user = await requireUser(request);
+    logFunctionEvent('info', 'request_authenticated', {
+      requestId,
+      authProvider: user.authProvider,
+      hasEmail: Boolean(user.email),
+      roleCount: user.roles.length,
+    });
 
     const apiKey = getServerApiKey();
     if (!apiKey) {
+      logFunctionEvent('error', 'missing_openai_api_key', { requestId });
       return jsonResponse(503, { error: 'OPENAI_API_KEY is not configured for the AI gateway.' });
     }
 
@@ -45,8 +78,18 @@ export const handler: Handler = async (event, context) => {
     const userPrompt = typeof parsedBody.userPrompt === 'string' ? parsedBody.userPrompt.trim() : '';
 
     if (!systemPrompt || !userPrompt) {
+      logFunctionEvent('warn', 'invalid_prompt_payload', {
+        requestId,
+        hasSystemPrompt: Boolean(systemPrompt),
+        hasUserPrompt: Boolean(userPrompt),
+      });
       return jsonResponse(400, { error: 'systemPrompt and userPrompt are required.' });
     }
+
+    logFunctionEvent('info', 'openai_request_started', {
+      requestId,
+      model: DEFAULT_MODEL,
+    });
 
     const response = await fetch(OPENAI_API_ENDPOINT, {
       method: 'POST',
@@ -66,6 +109,11 @@ export const handler: Handler = async (event, context) => {
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown OpenAI error');
+      logFunctionEvent('warn', 'openai_request_failed', {
+        requestId,
+        status: response.status,
+        errorSnippet: errorText.slice(0, 500),
+      });
       return jsonResponse(response.status, { error: errorText });
     }
 
@@ -73,16 +121,29 @@ export const handler: Handler = async (event, context) => {
     const content = data?.choices?.[0]?.message?.content;
 
     if (typeof content !== 'string' || content.trim().length === 0) {
+      logFunctionEvent('warn', 'openai_empty_completion', { requestId });
       return jsonResponse(502, { error: 'OpenAI returned an empty completion.' });
     }
 
+    logFunctionEvent('info', 'openai_request_succeeded', {
+      requestId,
+      status: response.status,
+    });
     return jsonResponse(200, { content });
   } catch (error) {
     if (error instanceof AuthError) {
+      logFunctionEvent('warn', 'auth_error', {
+        requestId,
+        statusCode: error.statusCode,
+      });
       return jsonResponse(error.statusCode, { error: error.message });
     }
 
     const message = error instanceof Error ? error.message : 'Unknown server error';
+    logFunctionEvent('error', 'unhandled_error', {
+      requestId,
+      message,
+    });
     return jsonResponse(500, { error: message });
   }
 };
