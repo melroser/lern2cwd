@@ -78,7 +78,7 @@ const PROBLEM_SET_REGISTRY: Omit<ProblemSetOption, 'questionCount'>[] = [
   {
     id: 'python-fundamentals',
     label: 'Python Fundamentals',
-    description: 'Core Python, CSV, data-structure, and interview-control drills.',
+    description: 'Core Python lists, loops, data structures, and interview-control drills.',
     assessmentType: 'coding',
     domain: 'python-fundamentals',
   },

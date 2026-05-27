@@ -77,7 +77,7 @@ const POST_TUTORIAL_PRACTICE_AREAS: PracticeAreaChoice[] = [
   {
     id: 'python',
     label: 'Python',
-    description: 'Start with practical Python reps.',
+    description: 'Start with lists, loops, and small Python reps.',
     problemSetIds: ['python-fundamentals'],
   },
   {
@@ -715,8 +715,8 @@ function AppShell() {
         return;
       }
 
-      await applyProblemSetSelection(selectedPostTutorialProblemSetIds);
-      const problem = problemService.getRandomProblem();
+      const problems = await applyProblemSetSelection(selectedPostTutorialProblemSetIds);
+      const problem = problems[0] ?? problemService.getRandomProblem();
       await startSessionWithProblem(problem, null);
       setPostTutorialPracticeChoiceIds([]);
       return;

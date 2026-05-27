@@ -9,7 +9,7 @@ describe('Python Fundamentals problem set', () => {
 
     expect(setOption).toBeDefined();
     expect(setOption?.label).toBe('Python Fundamentals');
-    expect(setOption?.questionCount).toBe(12);
+    expect(setOption?.questionCount).toBe(13);
   });
 
   it('loads only python fundamentals problems when selected explicitly', async () => {
@@ -17,9 +17,10 @@ describe('Python Fundamentals problem set', () => {
 
     const problems = await service.loadProblems(['python-fundamentals']);
 
-    expect(problems).toHaveLength(12);
+    expect(problems).toHaveLength(13);
     expect(problems.every((problem) => problem.problemSetId === 'python-fundamentals')).toBe(true);
     expect(problems.every((problem) => problem.language === 'python')).toBe(true);
+    expect(problems[0]?.id).toBe('python-list-doubler');
     expect(problems.some((problem) => problem.id === 'fde-csv-min-max-scanner')).toBe(true);
     expect(problems.some((problem) => problem.id === 'fde-dp-table-grid-paths')).toBe(true);
   });

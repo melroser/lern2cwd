@@ -545,7 +545,7 @@ body {
   padding: 16px 20px;
   border-bottom: 1px solid var(--glass-border);
   background: linear-gradient(90deg, rgba(10,255,96,0.05), transparent);
-  overflow: hidden;
+  overflow: auto;
   min-height: 0;
   min-width: 0;
   display: flex;
@@ -731,8 +731,8 @@ body {
 }
 
 .readyGate {
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1927,6 +1927,17 @@ body {
   .problem {
     --problem-font-size: 20px;
     padding: 14px 18px;
+  }
+  .readyGate {
+    min-height: 170px;
+    justify-content: flex-start;
+    padding: 18px;
+  }
+  .readyTitle {
+    font-size: 22px;
+  }
+  .readySub {
+    font-size: 15px;
   }
   .problem h2 {
     font-size: 22px;

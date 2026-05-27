@@ -4,6 +4,7 @@ import {
   getSettings,
   getUser,
   handleAuthCallback,
+  hydrateSession,
   login as netlifyLogin,
   logout as netlifyLogout,
   oauthLogin as netlifyOAuthLogin,
@@ -200,10 +201,26 @@ export function createNetlifyIdentityAdapter(): AuthAdapter {
 
     async acceptInvite(options): Promise<void> {
       const password = getRequiredValue(options.password, 'Enter a password.');
-      await acceptNetlifyInvite(options.token, password);
+      const invitedUser = await acceptNetlifyInvite(options.token, password);
       const displayName = options.displayName?.trim();
       if (displayName) {
-        await updateUser({ data: { full_name: displayName } });
+        try {
+          await hydrateSession();
+          await updateUser({ data: { full_name: displayName } });
+        } catch (metadataError) {
+          try {
+            if (invitedUser.email) {
+              await netlifyLogin(invitedUser.email, password);
+              await updateUser({ data: { full_name: displayName } });
+            }
+          } catch (retryError) {
+            console.warn('Unable to save invite username metadata after account creation.', retryError);
+          }
+
+          if (!invitedUser.email) {
+            console.warn('Unable to save invite username metadata after account creation.', metadataError);
+          }
+        }
       }
       callbackState = null;
       applyRedirect(options.redirectTo ?? authConfig.loginRedirectPath);

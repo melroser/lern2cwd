@@ -5,6 +5,7 @@ const identityMock = vi.hoisted(() => ({
   getSettings: vi.fn(),
   getUser: vi.fn(),
   handleAuthCallback: vi.fn(),
+  hydrateSession: vi.fn(),
   login: vi.fn(),
   logout: vi.fn(),
   oauthLogin: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock('@netlify/identity', () => ({
   getSettings: identityMock.getSettings,
   getUser: identityMock.getUser,
   handleAuthCallback: identityMock.handleAuthCallback,
+  hydrateSession: identityMock.hydrateSession,
   login: identityMock.login,
   logout: identityMock.logout,
   oauthLogin: identityMock.oauthLogin,
@@ -58,6 +60,7 @@ describe('netlifyIdentityAdapter', () => {
     identityMock.getSettings.mockResolvedValue(defaultSettings);
     identityMock.getUser.mockResolvedValue(null);
     identityMock.handleAuthCallback.mockResolvedValue(null);
+    identityMock.hydrateSession.mockResolvedValue(null);
     identityMock.login.mockResolvedValue({
       id: 'user-1',
       email: 'invitee@example.com',
@@ -216,7 +219,33 @@ describe('netlifyIdentityAdapter', () => {
     });
 
     expect(identityMock.acceptInvite).toHaveBeenCalledWith('invite-token-123', 'secret-123');
+    expect(identityMock.hydrateSession).toHaveBeenCalled();
     expect(identityMock.updateUser).toHaveBeenCalledWith({ data: { full_name: 'demo-user' } });
+  });
+
+  it('re-establishes the session before saving invite username metadata when needed', async () => {
+    const { createNetlifyIdentityAdapter } = await import('../adapters/netlifyIdentityAdapter');
+
+    identityMock.updateUser
+      .mockRejectedValueOnce(new Error('No user is currently logged in'))
+      .mockResolvedValueOnce({
+        id: 'user-1',
+        email: 'invitee@example.com',
+        confirmedAt: '2026-01-01T00:00:00.000Z',
+      });
+
+    const adapter = createNetlifyIdentityAdapter();
+    await adapter.acceptInvite?.({
+      token: 'invite-token-123',
+      password: 'secret-123',
+      displayName: 'demo-user',
+    });
+
+    expect(identityMock.acceptInvite).toHaveBeenCalledWith('invite-token-123', 'secret-123');
+    expect(identityMock.hydrateSession).toHaveBeenCalled();
+    expect(identityMock.login).toHaveBeenCalledWith('invitee@example.com', 'secret-123');
+    expect(identityMock.updateUser).toHaveBeenCalledTimes(2);
+    expect(identityMock.updateUser).toHaveBeenLastCalledWith({ data: { full_name: 'demo-user' } });
   });
 
   it('exposes enabled OAuth providers and starts Google login', async () => {

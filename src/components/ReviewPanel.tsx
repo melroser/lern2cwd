@@ -776,7 +776,7 @@ export const ReviewPanel: React.FC<ReviewPanelProps> = ({
             ...(nextActionDisabled ? styles.buttonDisabled : {}),
           }}
           data-testid="next-problem-button"
-          aria-label="Next question"
+          aria-label={nextActionLabel}
         >
           {nextActionLabel}
         </button>

@@ -334,7 +334,7 @@ describe('ReviewPanel Component', () => {
       render(<ReviewPanel {...defaultProps} />);
       expect(screen.getByTestId('next-problem-button')).toHaveAttribute(
         'aria-label',
-        'Next question'
+        'Next Question'
       );
     });
 

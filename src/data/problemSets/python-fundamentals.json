@@ -1,5 +1,42 @@
 [
   {
+    "id": "python-list-doubler",
+    "title": "Double Each Number",
+    "difficulty": "easy",
+    "timeLimit": 10,
+    "language": "python",
+    "assessmentType": "coding",
+    "domain": "python-fundamentals",
+    "competencyTags": ["python-basics", "lists", "loops", "return-values"],
+    "prompt": "Given a list of integers, return a new list where each number is doubled. Keep the original order. If the input list is empty, return an empty list.",
+    "constraints": [
+      "Use a loop and append to a new list",
+      "Do not change the input list",
+      "Preserve the original order"
+    ],
+    "scaffold": "def double_each_number(numbers: list[int]) -> list[int]:\n    pass",
+    "examples": [
+      {
+        "input": "numbers = [1, 2, 3]",
+        "output": "[2, 4, 6]",
+        "explanation": "Each value is multiplied by 2 in the same order."
+      },
+      {
+        "input": "numbers = []",
+        "output": "[]",
+        "explanation": "An empty input list produces an empty output list."
+      }
+    ],
+    "expectedApproach": "Create an empty result list, loop through each number, append number * 2, and return the result.",
+    "commonPitfalls": [
+      "Forgetting to return the new list",
+      "Changing the input list when a new list was requested",
+      "Only doubling the first item instead of looping through all items"
+    ],
+    "idealSolutionOutline": "Initialize result = [], for each number append number * 2, then return result.",
+    "evaluationNotes": "Reward basic list iteration, append usage, preserving order, and handling the empty list."
+  },
+  {
     "id": "fde-csv-min-max-scanner",
     "title": "CSV Min Max Scanner",
     "difficulty": "easy",

@@ -118,6 +118,20 @@ const mockCampaignProblem: Problem = {
   problemSetId: 'python-fundamentals',
 };
 
+const mockPythonFirstProblem: Problem = {
+  ...mockProblem,
+  id: 'python-list-doubler',
+  title: 'Double Each Number',
+  prompt: 'Given a list of integers, return a new list where each number is doubled.',
+  scaffold: 'def double_each_number(numbers: list[int]) -> list[int]:\n    pass',
+  expectedApproach: 'Loop over numbers, append number * 2, and return the new list.',
+  commonPitfalls: ['Forgetting to return the new list'],
+  idealSolutionOutline: 'Build and return a new doubled list.',
+  evaluationNotes: 'Basic list loop practice.',
+  domain: 'python-fundamentals',
+  problemSetId: 'python-fundamentals',
+};
+
 const mockTutorialProblem: Problem = {
   id: 'tutorial-first-session',
   language: 'yaml',
@@ -158,7 +172,7 @@ describe('App session context', () => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
-    const allProblems = [mockTutorialProblem, mockProblem, mockSecondProblem, mockCampaignProblem];
+    const allProblems = [mockTutorialProblem, mockProblem, mockSecondProblem, mockPythonFirstProblem, mockCampaignProblem];
 
     vi.mocked(problemService.loadProblems).mockImplementation(async (selectedIds?: string[]) => {
       if (!selectedIds || selectedIds.length === 0) {
@@ -186,7 +200,7 @@ describe('App session context', () => {
         description: 'Core Python practice.',
         assessmentType: 'coding',
         domain: 'python-fundamentals',
-        questionCount: 1,
+        questionCount: 2,
       },
     ]);
     vi.mocked(proctorService.generateIntro).mockResolvedValue('Welcome to the test!');
@@ -485,7 +499,7 @@ describe('App session context', () => {
 
     await user.click(screen.getByRole('button', { name: /^start$/i }));
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'CSV Min Max Scanner' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Double Each Number' })).toBeInTheDocument();
     });
   });
 });
