@@ -8,8 +8,8 @@ describe('ProblemService', () => {
 
     expect(problems).toHaveLength(1);
     expect(problems[0].problemSetId).toBe('tutorial');
-    expect(problems[0].title).toMatch(/first rep/i);
-    expect(problems[0].tutorPlan?.openingPrompt).toMatch(/first attempt/i);
+    expect(problems[0].title).toMatch(/tutorial question/i);
+    expect(problems[0].tutorPlan?.openingPrompt).toMatch(/first impression/i);
     expect(problems[0].tutorPlan?.openingPrompt).not.toContain('measurable result');
   });
 

@@ -109,36 +109,36 @@ function detectLanguage(code: string) {
 function createEditorChromeTheme(theme: 'dark' | 'light') {
   const colors = theme === 'light'
     ? {
-        background: '#f6fbff',
-        gutter: '#e7f0f4',
-        gutterActive: '#d9e8ed',
-        gutterText: '#60808d',
-        cursor: '#14566b',
-        selection: 'rgba(20, 86, 107, 0.16)',
-        activeLine: 'rgba(20, 86, 107, 0.08)',
-        panelBg: '#edf5f8',
-        panelText: '#173843',
+        background: '#ffffff',
+        gutter: '#eef2f7',
+        gutterActive: '#e2e8f0',
+        gutterText: '#5d6b7a',
+        cursor: '#2563eb',
+        selection: 'rgba(37, 99, 235, 0.16)',
+        activeLine: 'rgba(37, 99, 235, 0.07)',
+        panelBg: '#eef2f7',
+        panelText: '#17202a',
       }
     : {
-        background: '#1e1e2e',
-        gutter: '#181825',
-        gutterActive: '#313244',
-        gutterText: '#6c7086',
-        cursor: '#f5e0dc',
-        selection: '#45475a',
-        activeLine: 'rgba(69, 71, 90, 0.4)',
-        panelBg: '#181825',
-        panelText: '#cdd6f4',
+        background: '#181818',
+        gutter: '#232323',
+        gutterActive: '#303030',
+        gutterText: '#9f988e',
+        cursor: '#8ab4f8',
+        selection: 'rgba(138, 180, 248, 0.18)',
+        activeLine: 'rgba(244, 241, 234, 0.06)',
+        panelBg: '#222222',
+        panelText: '#f4f1ea',
       };
 
   return EditorView.theme({
     '&': {
       height: '100%',
-      fontSize: '30px',
+      fontSize: '16px',
       backgroundColor: colors.background,
     },
     '.cm-scroller': {
-      fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+      fontFamily: 'var(--font-code)',
       lineHeight: '1.6',
     },
     '.cm-content': {

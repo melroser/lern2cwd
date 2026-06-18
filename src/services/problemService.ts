@@ -945,33 +945,33 @@ function buildTutorPlan(
   if (assessmentType !== 'coding') {
     if (_problem.id === 'tutorial-first-session') {
       return {
-        openingPrompt: 'Make your first attempt in the Answer box. If you get stuck after trying, ask for a nudge.',
+        openingPrompt: 'Write a quick first impression in the Answer box. If you want to know something, ask me here.',
         clarifications: [
           {
-            triggers: ['stuck', 'help', 'hint', 'nudge'],
-            response: 'Make one guess first. Then ask for a nudge and use it to improve your answer.',
+            triggers: ['stuck', 'help', 'hint', 'nudge', 'what should i write'],
+            response: 'Pick one thing you notice: the colors, speed, layout, or anything you want to know. A short honest thought is enough.',
           },
         ],
         hintLadder: [
-          { level: 1, hint: 'Compare one reading move to one coding move.' },
-          { level: 2, hint: 'Pick an action like breaking something into smaller parts, looking for patterns, or trying again after confusion.' },
-          { level: 3, hint: 'Write one sentence that connects that action to learning programming.' },
-          { level: 4, hint: 'Add one thing you are unsure about, then submit your attempt.' },
+          { level: 1, hint: 'Write one thing you noticed about the app.' },
+          { level: 2, hint: 'You can mention the color scheme, speed, layout, or anything that feels confusing.' },
+          { level: 3, hint: 'If you have a question, add it under question_for_tutor.' },
+          { level: 4, hint: 'Submit when your quick first impression is in the Answer box.' },
         ],
         selfCheckPrompts: [
-          'Did you make a guess before asking for help?',
-          'Did you name one thing you are unsure about?',
-          'Did you use the nudge to improve your attempt?',
+          'Did you write at least one real thought about the app?',
+          'Did you mention anything that stood out?',
+          'Did you ask a question if you had one?',
         ],
         nudgeRules: [
           {
             id: 'missing-structure',
             when: 'missing-structure',
-            message: 'Try one guess first. Not knowing is expected; the rep starts when you write something anyway.',
+            message: 'Add one specific thought about the app. A short first impression is enough.',
             cooldownSeconds: 90,
           },
         ],
-        approachKeywords: ['attempt', 'uncertainty', 'nudge', 'revise'],
+        approachKeywords: ['feedback', 'color', 'performance', 'question', 'layout'],
         llmPolicy: {
           localFirst: true,
           maxDeterministicTurns: 6,

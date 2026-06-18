@@ -45,32 +45,31 @@ const mockChatHistory: ChatMessage[] = [
 const tutorialProblem: Problem = {
   id: 'tutorial-first-session',
   language: 'yaml',
-  title: 'Your First Rep: Shoot Your Shot',
+  title: 'Tutorial Question',
   difficulty: 'easy',
   timeLimit: 8,
-  prompt: "How is James Joyce's Ulysses like programming?",
+  prompt: 'What do you think of the app so far?',
   constraints: [
-    'Make a real attempt before asking for help.',
-    'Include your best guess.',
-    'Include one thing you are unsure about.',
-    'Ask the Tutor for a nudge, then improve your answer before submitting.',
+    'Share one honest first impression.',
+    'Mention something about colors, performance, layout, clarity, or anything you want to know.',
+    'Ask the Tutor a question if you want.',
   ],
-  scaffold: '# Your first rep\n# Try before you feel ready.\n\nanswer: \n\nquestion_for_tutor: ',
+  scaffold: '# Tutorial question\n# Share a quick first impression.\n\nanswer: \n\nquestion_for_tutor: ',
   examples: [
     {
-      input: 'I do not know who James Joyce is, but I think the question is asking me to compare something hard to programming.',
-      output: 'A real attempt is enough for this first rep.',
-      explanation: 'The tutorial is successful when you try under uncertainty, ask for a nudge, revise, and submit.',
+      input: 'The color scheme is readable, and I want to know what happens after I submit.',
+      output: 'A short first impression is enough for this tutorial.',
+      explanation: 'The tutorial is successful when the user tries the answer, Help, submit, and feedback flow.',
     },
   ],
-  expectedApproach: 'Make a meaningful attempt under uncertainty, connect confusion in reading to confusion in programming, ask for a nudge, revise, and submit.',
-  commonPitfalls: ['Stopping at only I do not know', 'Asking for the full answer before attempting'],
-  idealSolutionOutline: 'A real first attempt that makes one guess, names uncertainty, asks for a nudge, and improves the answer before submitting.',
+  expectedApproach: 'Share a quick first impression, optionally ask the Tutor a question, then submit to see feedback.',
+  commonPitfalls: ['Leaving the answer blank', 'Only writing punctuation'],
+  idealSolutionOutline: 'A short honest first impression about the app or a question the user has.',
   evaluationNotes: 'Pass any meaningful attempt.',
   assessmentType: 'behavioral',
   domain: 'onboarding',
   problemSetId: 'tutorial',
-  competencyTags: ['tutorial', 'retrieval-practice', 'productive-struggle', 'onboarding'],
+  competencyTags: ['tutorial', 'feedback', 'onboarding'],
 };
 
 const createSessionContext = (overrides: Partial<SessionContext> = {}): SessionContext => ({
@@ -191,34 +190,33 @@ describe('ProctorService', () => {
       expect(response.toLowerCase()).toMatch(/close|final check|recheck|revisit|fix|strong/);
     });
 
-    it('answers first tutorial context questions with a nudge instead of the full answer', async () => {
+    it('answers first tutorial answer requests without inventing a correct answer', async () => {
       const response = await service.respondToQuestion(
-        'Who is James Joyce?',
+        'What should I write?',
         createSessionContext({
           problem: tutorialProblem,
           currentCode: tutorialProblem.scaffold,
         }),
       );
 
-      expect(response).toContain('James Joyce was a writer');
-      expect(response).toContain('You do not need more than that for this rep.');
-      expect(response).toContain('what is one move you can still make');
-      expect(response).not.toMatch(/full answer|modal editing|Vim/i);
+      expect(response).toContain('There is not a correct answer here.');
+      expect(response).toContain('Write one honest first impression.');
+      expect(response).toContain('colors, speed, layout');
       expect(service.getLastInteractionMode()).toBe('fallback');
     });
 
-    it('refuses to give the first tutorial answer and offers next-step categories', async () => {
+    it('nudges first tutorial users toward one concrete observation', async () => {
       const response = await service.respondToQuestion(
-        'just give me the answer',
+        'Can I get a hint?',
         createSessionContext({
           problem: tutorialProblem,
           currentCode: tutorialProblem.scaffold,
         }),
       );
 
-      expect(response).toContain('I will not give the full answer yet.');
-      expect(response).toContain('breaking the problem into smaller parts');
-      expect(response).toContain('Pick one and write your own sentence.');
+      expect(response).toContain('Here is a nudge:');
+      expect(response).toContain('colors, performance, layout, clarity');
+      expect(response).toContain('Write one sentence about it');
     });
 
     it('normalizes first tutorial confusion into a first guess', async () => {
@@ -230,9 +228,9 @@ describe('ProctorService', () => {
         }),
       );
 
-      expect(response).toContain('That reaction is expected.');
-      expect(response).toContain('Your next move is to make one guess.');
-      expect(response).toContain('I do not know what Ulysses is');
+      expect(response).toContain('This is just a tutorial question.');
+      expect(response).toContain('Write what you think of the app so far.');
+      expect(response).toContain('The app feels');
     });
   });
 
@@ -265,23 +263,23 @@ describe('ProctorService', () => {
 
     it('treats a meaningful first tutorial attempt as a win', async () => {
       const result = await service.evaluate(
-        "answer: I don't know who James Joyce is, but I think the question might be asking me to compare a hard book with learning to code. Maybe both require breaking confusing things into smaller parts. I am unsure what Ulysses is.\nquestion_for_tutor: What is Ulysses?",
+        'answer: The color scheme is readable, and the app feels fast. I want to know what happens after I submit.\nquestion_for_tutor: What happens after submit?',
         tutorialProblem,
         [
           ...mockChatHistory,
           {
             id: '3',
             role: 'user',
-            content: 'What is Ulysses?',
+            content: 'What happens after submit?',
             timestamp: Date.now() - 10_000,
           },
         ],
       );
 
       expect(result.verdict).toBe('Pass');
-      expect(result.feedback.strengths.join(' ')).toContain('You finished your first rep.');
-      expect(result.feedback.strengths.join(' ')).toContain('You asked for a nudge');
-      expect(result.feedback.improvements.join(' ')).toContain('The point is not to know everything');
+      expect(result.feedback.strengths.join(' ')).toContain('You completed the tutorial question.');
+      expect(result.feedback.strengths.join(' ')).toContain('You used Help');
+      expect(result.feedback.improvements.join(' ')).toContain('core loop');
       expect(result.idealSolution).toBe('');
       expect(result.missTags).toEqual([]);
       expect(result.annotations).toEqual([]);
@@ -295,8 +293,8 @@ describe('ProctorService', () => {
       );
 
       expect(result.verdict).toBe('Borderline');
-      expect(result.feedback.strengths.join(' ')).toContain("'I don't know' is allowed");
-      expect(result.feedback.improvements.join(' ')).toContain('Add one guess');
+      expect(result.feedback.strengths.join(' ')).toContain('A short first impression is enough');
+      expect(result.feedback.improvements.join(' ')).toContain('Add one thing you notice');
     });
   });
 

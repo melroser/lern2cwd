@@ -1784,103 +1784,62 @@ export class ProctorService implements IProctorService {
       .trim();
 
     if (!normalized || /^[?!.,;:]+$/.test(normalized)) return false;
-    if (/^(i\s+)?(don'?t|do not)\s+know$/.test(normalized)) return false;
+    if (/^(i\s+)?(don['’]?t|do not)\s+know$/.test(normalized)) return false;
     if (/^(idk|no idea|i have no idea|i dunno|dunno|nope|no|nah)$/.test(normalized)) return false;
-    if (/^(i\s+)?(refuse|won'?t|will not|do not want|don'?t want)/.test(normalized)) return false;
+    if (/^(i\s+)?(refuse|won['’]?t|will not|do not want|don['’]?t want)/.test(normalized)) return false;
 
-    return attempt.length >= 20;
+    return attempt.length >= 8;
   }
 
   private respondToFirstTutorialQuestion(question: string, context: SessionContext): string | null {
     if (!this.isFirstTutorialProblem(context.problem)) return null;
 
     const q = question.toLowerCase().trim();
-    const asksWhoJoyce = /\b(who|what)\b.*\b(james\s+joyce|joyce)\b|\b(james\s+joyce|joyce)\b.*\b(who|what)\b/.test(q);
-    const asksUlysses = /\b(what|who)\b.*\bulysses\b|\bulysses\b.*\b(what|who|mean)\b/.test(q);
-    const asksForAnswer = /\b(answer|full answer|tell me what to write|write it for me|give me the answer|just tell me)\b/.test(q);
+    const asksForAnswer = /\b(answer|full answer|tell me what to write|write it for me|give me the answer|just tell me|what should i write)\b/.test(q);
     const confusedReaction = /\b(what the fuck|wtf|what is this|what does this even mean|i don'?t get|dont get|confusing|confused)\b/.test(q);
     const asksHint = /\b(hint|nudge|help|stuck|how do i start)\b/.test(q);
     const asksSelfCheck = /(hows that|how's that|how is that|is this good|is this right|review|what do you think)/.test(q);
 
-    if (asksWhoJoyce) {
-      return [
-        'Good question. James Joyce was a writer, and Ulysses is known as a difficult book.',
-        '',
-        'You do not need more than that for this rep.',
-        '',
-        'Now make the connection: when something is confusing at first, what is one move you can still make?',
-      ].join('\n');
-    }
-
-    if (asksUlysses) {
-      return [
-        'Ulysses is a famously difficult novel.',
-        '',
-        'For this rep, that is enough.',
-        '',
-        'Think of it as: a hard text you do not understand yet.',
-        '',
-        'How is working through that like learning to program?',
-      ].join('\n');
-    }
-
     if (asksForAnswer) {
       return [
-        'I will not give the full answer yet.',
+        'There is not a correct answer here.',
         '',
-        'Here is a nudge:',
-        'Compare one reading move to one coding move.',
-        '',
-        'Example categories:',
-        'breaking the problem into smaller parts',
-        'looking for patterns',
-        'rereading after getting confused',
-        'using notes or references',
-        'trying again after a wrong guess',
-        '',
-        'Pick one and write your own sentence.',
+        'Write one honest first impression. You can mention the colors, speed, layout, anything confusing, or a question you have.',
       ].join('\n');
     }
 
     if (confusedReaction) {
       return [
-        'That reaction is expected. This prompt is supposed to feel unfamiliar.',
+        'This is just a tutorial question.',
         '',
-        'Your next move is not to know everything.',
-        'Your next move is to make one guess.',
+        'Write what you think of the app so far. A short first impression is enough.',
         '',
-        "Try starting with:",
-        "'I do not know what Ulysses is, but I think the question is asking me to compare confusion in reading with confusion in programming.'",
+        "Try starting with: 'The app feels...' or 'I want to know...'",
       ].join('\n');
     }
 
     if (asksSelfCheck && !this.isMeaningfulFirstTutorialAttempt(context.problem, context.currentCode)) {
       return [
-        "Not yet. 'I don't know' is allowed as a starting point, but not as the whole attempt.",
+        'Not yet. Add one specific thought about the app.',
         '',
-        'Add one guess.',
-        '',
-        "Try:",
-        "'I don't know who James Joyce is, but I think the question might be asking...'",
+        "Try: 'The color scheme feels...' or 'The app feels fast/slow/confusing because...'",
       ].join('\n');
     }
 
     if (asksHint) {
       return [
         'Here is a nudge:',
-        'Compare one reading move to one coding move.',
+        'Pick one thing you notice about the app: colors, performance, layout, clarity, or something you want to know.',
         '',
-        'You might use breaking the problem into smaller parts, looking for patterns, rereading after confusion, checking references, or trying again after a wrong guess.',
-        '',
-        'Pick one and write your own sentence.',
+        'Write one sentence about it in the Answer box.',
       ].join('\n');
     }
 
     if (asksSelfCheck) {
-      return 'Good. Now make the connection one step more specific: name one action a learner takes when confused, and compare it to one action in programming.';
+      return 'Good. If you can, add one concrete detail: what specifically feels good, confusing, fast, slow, or worth asking about?';
     }
 
-    return 'Make one guess in the Answer box first. Not knowing is expected; the rep starts when you try anyway.';
+    return 'Write one honest first impression in the Answer box. A sentence or two is enough.';
   }
 
   private buildDecisionDraftFeedback(problem: Problem, currentCode: string): string {
@@ -3315,12 +3274,12 @@ export class ProctorService implements IProctorService {
     const lower = attempt.toLowerCase();
     const askedForNudge = chatHistory.some((message) =>
       message.role === 'user' &&
-      /\b(hint|nudge|help|who|what|joyce|ulysses|confus|stuck)\b/i.test(message.content)
+      /\b(hint|nudge|help|what|why|how|confus|stuck|question|wonder|mean)\b/i.test(message.content)
     );
-    const madeSpecificMetaphor =
-      /\b(break|smaller|parts?|patterns?|reread|debug|reference|notes?|confus|trying again|try again|wrong guess|patience)\b/i.test(attempt);
-    const onlyBothAreHard =
-      /\bboth\b.*\bhard\b|\bhard\b.*\bboth\b/i.test(attempt) && !madeSpecificMetaphor;
+    const namedSpecificThing =
+      /\b(color|theme|scheme|readab|contrast|font|text|layout|mobile|desktop|speed|fast|slow|performance|lag|editor|answer|question|tutor|help|button|submit|confus|clear|like|dislike)\b/i.test(attempt);
+    const askedQuestion =
+      /\?|(\b(ask|question|wonder|how|what|why|where|when)\b)/i.test(attempt) || askedForNudge;
 
     if (!hasMeaningfulAttempt) {
       return {
@@ -3333,11 +3292,11 @@ export class ProctorService implements IProctorService {
         },
         feedback: {
           strengths: [
-            "Not yet. 'I don't know' is allowed as a starting point, but not as the whole attempt.",
+            'Not yet. A short first impression is enough, but the answer box needs one real thought.',
           ],
           improvements: [
-            'Add one guess.',
-            "Try: 'I don't know who James Joyce is, but I think the question might be asking...'",
+            'Add one thing you notice about the app.',
+            "Try: 'The colors are easy to read, but I want to know what happens after I submit.'",
           ],
         },
         idealSolution: '',
@@ -3347,29 +3306,30 @@ export class ProctorService implements IProctorService {
     }
 
     const strengths = [
-      'You finished your first rep.',
-      'Win: You started even though the question was unfamiliar.',
-      'Win: You made a guess instead of waiting to feel ready.',
+      'You completed the tutorial question.',
+      'Win: You put a real thought in the answer box.',
+      'Win: You tried the basic flow: answer, submit, then review feedback.',
     ];
 
     if (askedForNudge) {
-      strengths.push('Win: You asked for a nudge instead of asking for the whole answer.');
+      strengths.push('Win: You used Help to ask for a nudge.');
     }
 
-    if (madeSpecificMetaphor) {
-      strengths.push('Win: You made the metaphor specific, which is exactly how strong explanations improve.');
+    if (namedSpecificThing) {
+      strengths.push('Win: You named something specific, which makes feedback more useful.');
     }
 
-    const improvements = [
-      onlyBothAreHard
-        ? 'Miss to study: "Both are hard" is a valid start, but it is too general. Next time, explain how they are similar. What action does the learner take in both situations?'
-        : 'Miss to study: Next time, make the connection more specific. Instead of only saying both are hard, compare one action, like breaking down a confusing paragraph, to one action in programming, like breaking down a bug.',
-      'Remember: The point is not to know everything before you begin. The point is to try, get a nudge, revise, and learn from feedback.',
-    ];
+    const improvements: string[] = [];
 
-    if (!/\b(unsure|not sure|don'?t know|do not know|question|ask|wonder)\b/i.test(lower)) {
-      improvements.unshift('Miss to study: Name one thing you are unsure about so the Tutor has something specific to nudge.');
+    if (!namedSpecificThing) {
+      improvements.push('Next time, name one specific thing you noticed, like readability, speed, layout, the Answer box, or Help.');
     }
+
+    if (!askedQuestion && !/\b(anything|nothing|clear|no question|no questions)\b/i.test(lower)) {
+      improvements.push('If something is unclear, ask Tutor one specific question before you submit.');
+    }
+
+    improvements.push('Remember: the core loop is try something, ask for a nudge if needed, revise, submit, and study the feedback.');
 
     return {
       verdict: 'Pass',
