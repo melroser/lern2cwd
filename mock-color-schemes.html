@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lern2Cwd Theme Selector Mockup</title>
+    <style>
+      :root {
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        --bg: #101418;
+        --panel: #171d24;
+        --panel-2: #202832;
+        --text: #f2f5f7;
+        --muted: #aab6c2;
+        --border: #33404d;
+        --primary: #3b82f6;
+        --accent: #14b8a6;
+        --success: #22c55e;
+        --warning: #eab308;
+        --error: #ef4444;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      body.theme-current {
+        --bg: #07100f;
+        --panel: #071716;
+        --panel-2: #0b2223;
+        --text: #eaffff;
+        --muted: #9ac2bd;
+        --border: #0de0d8;
+        --primary: #00f2ff;
+        --accent: #ff22d4;
+        --success: #00ff66;
+        --warning: #ffd65c;
+        --error: #ff5d7d;
+      }
+
+      body.theme-light {
+        --bg: #f7f9fc;
+        --panel: #ffffff;
+        --panel-2: #eef2f7;
+        --text: #17202a;
+        --muted: #5d6b7a;
+        --border: #d5dce6;
+        --primary: #2563eb;
+        --accent: #0f766e;
+        --success: #16803c;
+        --warning: #b7791f;
+        --error: #c2410c;
+      }
+
+      body.theme-complement {
+        --bg: #f4f8fb;
+        --panel: #ffffff;
+        --panel-2: #e8f1f6;
+        --text: #17202a;
+        --muted: #536471;
+        --border: #c7d7df;
+        --primary: #0f766e;
+        --accent: #7c3aed;
+        --success: #15803d;
+        --warning: #b45309;
+        --error: #b91c1c;
+      }
+
+      body.theme-colorblind-light {
+        --bg: #f7f9fc;
+        --panel: #ffffff;
+        --panel-2: #eef2f7;
+        --text: #17202a;
+        --muted: #5d6b7a;
+        --border: #d5dce6;
+        --primary: #1d4ed8;
+        --accent: #7c3aed;
+        --success: #005ea8;
+        --warning: #b45309;
+        --error: #be185d;
+      }
+
+      body.theme-colorblind-dark {
+        --bg: #0b1020;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --text: #f8fafc;
+        --muted: #cbd5e1;
+        --border: #4b5d75;
+        --primary: #56b4e9;
+        --accent: #cc79a7;
+        --success: #009e73;
+        --warning: #f0e442;
+        --error: #e69f00;
+      }
+
+      body.theme-warm {
+        --bg: #121212;
+        --panel: #1c1c1c;
+        --panel-2: #272727;
+        --text: #f4f1ea;
+        --muted: #b8b1a6;
+        --border: #3a3732;
+        --primary: #d97706;
+        --accent: #8ab4f8;
+        --success: #56b4e9;
+        --warning: #facc15;
+        --error: #cc79a7;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 24px 0 36px;
+      }
+
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .note {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 680px;
+        line-height: 1.5;
+      }
+
+      .settingsSentence {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 18px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--muted);
+      }
+
+      .settingsSentence strong {
+        color: var(--text);
+      }
+
+      .themeButton {
+        min-height: 34px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 7px 10px;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .themeButton[aria-pressed="true"] {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .theme-light .themeButton[aria-pressed="true"] {
+        color: #ffffff;
+      }
+
+      .theme-colorblind-dark .themeButton[aria-pressed="true"],
+      .theme-colorblind-dark .action {
+        color: #071016;
+      }
+
+      .previewShell {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+        overflow: hidden;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+      }
+
+      .appTopbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--panel);
+      }
+
+      .brand {
+        color: var(--text);
+        font-weight: 900;
+        letter-spacing: 0.04em;
+      }
+
+      .status {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .pill {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--muted);
+        padding: 6px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .pill.active {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 1fr 0.9fr;
+        min-height: 520px;
+      }
+
+      .mainPane,
+      .helpPane {
+        min-width: 0;
+        padding: 18px;
+      }
+
+      .mainPane {
+        border-right: 1px solid var(--border);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .tab {
+        flex: 1;
+        min-height: 40px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel-2);
+        color: var(--muted);
+        font: inherit;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .tab.active {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .questionCard,
+      .editorCard,
+      .message,
+      .feedback {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel-2);
+      }
+
+      .questionCard {
+        padding: 18px;
+        margin-bottom: 14px;
+      }
+
+      .questionCard h2 {
+        margin: 0 0 12px;
+        font-size: clamp(24px, 3vw, 34px);
+        line-height: 1.15;
+        letter-spacing: 0;
+      }
+
+      .questionCard p,
+      .message p,
+      .feedback p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .editorCard {
+        overflow: hidden;
+      }
+
+      .cardLabel {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      pre {
+        margin: 0;
+        padding: 16px;
+        color: var(--text);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .helpPane h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      .chatStack {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .message {
+        padding: 12px;
+      }
+
+      .message.user {
+        border-color: var(--primary);
+      }
+
+      .messageLabel {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .feedback {
+        margin-top: 14px;
+        padding: 12px;
+        border-color: var(--success);
+      }
+
+      .actionRow {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .action {
+        min-height: 42px;
+        border: 1px solid var(--primary);
+        border-radius: 6px;
+        background: var(--primary);
+        color: #ffffff;
+        padding: 10px 14px;
+        font: inherit;
+        font-weight: 900;
+      }
+
+      .secondaryAction {
+        min-height: 42px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 10px 14px;
+        font: inherit;
+      }
+
+      .palette {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        padding: 14px;
+        border-top: 1px solid var(--border);
+      }
+
+      .swatch {
+        min-width: 0;
+      }
+
+      .swatch div {
+        height: 30px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      .swatch span {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 800px) {
+        .top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .appTopbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .mainPane {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .palette {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body class="theme-readable">
+    <main class="page">
+      <header class="top">
+        <div>
+          <h1>Theme selector mockup</h1>
+          <p class="note">
+            Click each option in the settings sentence to see the same Lern2Cwd screen with a different palette.
+          </p>
+        </div>
+      </header>
+
+      <section class="settingsSentence" aria-label="Theme selector">
+        <strong>Color scheme:</strong>
+        <button class="themeButton" type="button" data-theme="current">Current Neon</button>
+        <button class="themeButton" type="button" data-theme="readable">Readable Dark</button>
+        <button class="themeButton" type="button" data-theme="light">Light Study</button>
+        <button class="themeButton" type="button" data-theme="complement">Light Complement</button>
+        <button class="themeButton" type="button" data-theme="colorblind-light">Colorblind Light</button>
+        <button class="themeButton" type="button" data-theme="colorblind-dark">Colorblind Dark</button>
+        <button class="themeButton" type="button" data-theme="warm">Warm Neutral</button>
+      </section>
+
+      <section class="previewShell" aria-label="App preview">
+        <div class="appTopbar">
+          <div class="brand">Lern2Cwd / Python</div>
+          <div class="status">
+            <span class="pill active">Question</span>
+            <span class="pill">Answer</span>
+            <span class="pill">Tutor Ready</span>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="mainPane">
+            <div class="tabs">
+              <button class="tab active" type="button">Question</button>
+              <button class="tab" type="button">Rules</button>
+              <button class="tab" type="button">Example</button>
+            </div>
+
+            <article class="questionCard">
+              <h2>Double Each Number</h2>
+              <p>
+                Given a list of integers, return a new list where each number is doubled.
+                Keep the original order. If the input list is empty, return an empty list.
+              </p>
+            </article>
+
+            <article class="editorCard">
+              <div class="cardLabel">Answer</div>
+              <pre>def double_each_number(numbers):
+    result = []
+    for number in numbers:
+        result.append(number * 2)
+    return result</pre>
+            </article>
+
+            <div class="actionRow">
+              <button class="action" type="button">Submit my attempt</button>
+              <button class="secondaryAction" type="button">Ask Tutor</button>
+            </div>
+          </div>
+
+          <aside class="helpPane">
+            <h2>Help</h2>
+            <div class="chatStack">
+              <div class="message">
+                <span class="messageLabel">Tutor</span>
+                <p>Start by saying what the function receives and what it returns.</p>
+              </div>
+              <div class="message user">
+                <span class="messageLabel">You</span>
+                <p>I think I loop through the list and append doubled values.</p>
+              </div>
+              <div class="message">
+                <span class="messageLabel">Tutor</span>
+                <p>Good. Now check the empty list case and make sure you return the new list.</p>
+              </div>
+            </div>
+
+            <div class="feedback">
+              <p>
+                Readability check: question text, code, feedback, and Tutor messages should all be comfortable to scan.
+              </p>
+            </div>
+          </aside>
+        </div>
+
+        <div class="palette" aria-label="Active palette">
+          <div class="swatch"><div style="background:var(--bg)"></div><span>Background</span></div>
+          <div class="swatch"><div style="background:var(--panel)"></div><span>Panel</span></div>
+          <div class="swatch"><div style="background:var(--panel-2)"></div><span>Surface</span></div>
+          <div class="swatch"><div style="background:var(--text)"></div><span>Text</span></div>
+          <div class="swatch"><div style="background:var(--muted)"></div><span>Muted</span></div>
+          <div class="swatch"><div style="background:var(--primary)"></div><span>Primary</span></div>
+          <div class="swatch"><div style="background:var(--accent)"></div><span>Accent</span></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const buttons = Array.from(document.querySelectorAll(".themeButton"));
+      const themeClasses = [
+        "theme-current",
+        "theme-readable",
+        "theme-light",
+        "theme-complement",
+        "theme-colorblind-light",
+        "theme-colorblind-dark",
+        "theme-warm",
+      ];
+
+      function setTheme(theme) {
+        document.body.classList.remove(...themeClasses);
+        document.body.classList.add(`theme-${theme}`);
+        buttons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.theme === theme));
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => setTheme(button.dataset.theme));
+      });
+
+      setTheme("readable");
+    </script>
+  </body>
+</html>
