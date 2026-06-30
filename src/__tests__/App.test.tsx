@@ -162,17 +162,19 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.getByTestId('guest-demo-screen')).toBeInTheDocument();
-    expect(screen.getByText(/AI coding interview practice in a timed browser workspace/i)).toBeInTheDocument();
-    expect(screen.getByText(/built around/i)).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /retrieval practice/i })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /advanced cognitive psychological learning patterns/i }));
-    expect(screen.getByRole('link', { name: /retrieval practice/i })).toHaveAttribute(
+    expect(screen.getByText(/Practice online coding interviews and answering behavioral interview questions/i)).toBeInTheDocument();
+    expect(screen.getByText(/This app uses/i)).toBeInTheDocument();
+    expect(screen.getByText(/advanced cognitive psychology/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/The Virgin and The Chad meme/i)).toBeInTheDocument();
+    expect(screen.getByText(/soy dev ---> fully cracked fast/i)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /pubmed/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /advanced cognitive psychology behind lern2cwd/i }));
+    expect(screen.getByRole('dialog', { name: /advanced cognitive psychology/i })).toBeInTheDocument();
+    expect(screen.getByText(/The learner has to produce an answer, not just read one/i)).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /pubmed/i })[0]).toHaveAttribute(
       'href',
       'https://pubmed.ncbi.nlm.nih.gov/16507066/',
     );
-    expect(
-      screen.getByRole('button', { name: /learn about the cognitive psychology principles behind lern2cwd/i }),
-    ).toBeInTheDocument();
     expect(screen.getByText(/no account needed/i)).toBeInTheDocument();
     expect(screen.getByTestId('guest-demo-submit')).toHaveTextContent(/start demo/i);
     expect(screen.queryByText(/join the waitlist/i)).not.toBeInTheDocument();

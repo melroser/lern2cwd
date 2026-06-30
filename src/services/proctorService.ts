@@ -1797,6 +1797,7 @@ export class ProctorService implements IProctorService {
     const q = question.toLowerCase().trim();
     const asksForAnswer = /\b(answer|full answer|tell me what to write|write it for me|give me the answer|just tell me|what should i write)\b/.test(q);
     const confusedReaction = /\b(what the fuck|wtf|what is this|what does this even mean|i don'?t get|dont get|confusing|confused)\b/.test(q);
+    const asksWhatToReactTo = /\b(about what|impression of what|of what|what am i supposed to (write|answer|do)|what do you mean)\b/.test(q);
     const asksHint = /\b(hint|nudge|help|stuck|how do i start)\b/.test(q);
     const asksSelfCheck = /(hows that|how's that|how is that|is this good|is this right|review|what do you think)/.test(q);
 
@@ -1815,6 +1816,14 @@ export class ProctorService implements IProctorService {
         'Write what you think of the app so far. A short first impression is enough.',
         '',
         "Try starting with: 'The app feels...' or 'I want to know...'",
+      ].join('\n');
+    }
+
+    if (asksWhatToReactTo) {
+      return [
+        'About the app itself.',
+        '',
+        'Write one honest first impression about the colors, speed, layout, anything confusing, or anything you want to know.',
       ].join('\n');
     }
 
@@ -2285,7 +2294,7 @@ export class ProctorService implements IProctorService {
 
     const assessmentType = context.problem.assessmentType ?? 'coding';
     if (this.isFirstTutorialProblem(context.problem)) {
-      return 'Quick reset: make one guess first. Pick one action people use when confused, then compare it to learning programming.';
+      return 'Quick reset: this tutorial is asking about the app itself. Write one honest sentence about the colors, speed, layout, what feels confusing, or what you want to know.';
     }
 
     if (assessmentType === 'coding') {

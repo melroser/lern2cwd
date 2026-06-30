@@ -26,8 +26,9 @@ type GuestSessionSuccess = GuestDemoSession & {
 type LearningPrinciple = {
   principle: string;
   productUse: string;
-  source: string;
+  scholarlyAnchor: string;
   href: string;
+  sourceLabel: string;
 };
 
 const GUEST_DEMO_LEAD_FORM_NAME = 'guest-demo-start';
@@ -48,45 +49,80 @@ class GuestSessionRequestError extends Error {
 const learningPrinciples: LearningPrinciple[] = [
   {
     principle: 'Retrieval practice',
-    productUse: 'The learner has to produce code and reasoning before seeing the ideal answer.',
-    source: 'Roediger & Karpicke, 2006',
+    productUse: 'The learner has to produce an answer, not just read one.',
+    scholarlyAnchor: 'Roediger and Karpicke’s work on test enhanced learning found that testing can improve later retention, not merely measure it.',
     href: 'https://pubmed.ncbi.nlm.nih.gov/16507066/',
+    sourceLabel: 'PubMed',
+  },
+  {
+    principle: 'Testing effect',
+    productUse: 'Submitting code is part of learning, not just grading.',
+    scholarlyAnchor: 'Their related Psychological Science paper states that taking a memory test can enhance later retention.',
+    href: 'https://doi.org/10.1111/j.1467-9280.2006.01693.x',
+    sourceLabel: 'DOI',
   },
   {
     principle: 'Spaced repetition',
-    productUse: 'Missed concepts can return across later sessions instead of being crammed once.',
-    source: 'Cepeda et al., 2006',
+    productUse: 'Concepts can come back over time instead of being crammed once.',
+    scholarlyAnchor: 'Cepeda et al. reviewed 839 assessments across 317 experiments on distributed practice and spacing effects.',
     href: 'https://pubmed.ncbi.nlm.nih.gov/16719566/',
+    sourceLabel: 'PubMed',
   },
   {
     principle: 'Graduated interval recall',
-    productUse: 'Concepts can be recalled at increasing intervals, similar to the Pimsleur memory schedule.',
-    source: 'Pimsleur, 1967',
+    productUse: 'The Pimsleur style version: recall something just before it fades, then repeat at longer intervals.',
+    scholarlyAnchor: 'Pimsleur’s A Memory Schedule describes “graduated interval recall” as a procedure for improving memory in language learning.',
     href: 'https://eric.ed.gov/?id=ED012150',
+    sourceLabel: 'ERIC',
   },
   {
     principle: 'Scaffolding',
-    productUse: 'AI hints support the learner without taking over the task.',
-    source: 'Wood, Bruner & Ross, 1976',
+    productUse: 'Hints support the learner without taking over the task.',
+    scholarlyAnchor: 'Wood, Bruner, and Ross introduced scaffolding through tutoring and problem solving research.',
     href: 'https://pubmed.ncbi.nlm.nih.gov/932126/',
+    sourceLabel: 'PubMed',
   },
   {
     principle: 'Deliberate practice',
-    productUse: 'Each session targets a specific interview skill, gives feedback, and creates a clearer next attempt.',
-    source: 'Ericsson, Krampe & Tesch-Romer, 1993',
+    productUse: 'Users practice a specific skill, get feedback, and repeat deliberately.',
+    scholarlyAnchor: 'Ericsson, Krampe, and Tesch-Römer’s deliberate practice framework is the classic expert performance reference, with later reviews debating and refining the claim.',
     href: 'https://psycnet.apa.org/doi/10.1037/0033-295X.100.3.363',
+    sourceLabel: 'PsycNet',
   },
   {
     principle: 'Feedback driven learning',
     productUse: 'The review explains correctness, missed concepts, and what to improve next.',
-    source: 'Hattie & Timperley, 2007',
+    scholarlyAnchor: 'Hattie and Timperley’s The Power of Feedback reviews feedback’s impact on learning and achievement.',
     href: 'https://journals.sagepub.com/doi/10.3102/003465430298487',
+    sourceLabel: 'SAGE',
+  },
+  {
+    principle: 'Worked examples / ideal solution feedback',
+    productUse: 'After trying, users compare their attempt to a better solution.',
+    scholarlyAnchor: 'Sweller and Cooper’s worked example research found that examples can support later problem solving, especially for learners still building schemas.',
+    href: 'https://doi.org/10.1207/s1532690xci0201_3',
+    sourceLabel: 'DOI',
+  },
+  {
+    principle: 'Desirable difficulties',
+    productUse: 'The app makes the learner struggle productively instead of immediately giving the answer.',
+    scholarlyAnchor: 'Bjork and Bjork describe learning conditions that can hurt short term performance while improving long term learning.',
+    href: 'https://bjorklab.psych.ucla.edu/wp-content/uploads/sites/13/2016/07/EBjork_RBjork_2011.pdf',
+    sourceLabel: 'UCLA PDF',
   },
   {
     principle: 'Time constrained problem solving',
-    productUse: 'Timed sessions simulate interview pressure and force prioritization.',
-    source: 'Time pressure decision making research',
+    productUse: 'The timed workspace simulates interview pressure and forces prioritization.',
+    scholarlyAnchor: 'Research on time pressure shows it changes exploration, response behavior, and decision making under constraints.',
     href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8904509/',
+    sourceLabel: 'PMC',
+  },
+  {
+    principle: 'Gamified / game based learning',
+    productUse: 'The product packages serious practice as a fast loop with progress, stakes, feedback, and replayability.',
+    scholarlyAnchor: 'Plass, Homer, and Kinzer’s Foundations of Game Based Learning argues that learning games need cognitive, motivational, affective, and sociocultural design perspectives.',
+    href: 'https://doi.org/10.1080/00461520.2015.1122533',
+    sourceLabel: 'DOI',
   },
 ];
 
@@ -190,7 +226,6 @@ export function GuestDemoScreen({ code }: GuestDemoScreenProps) {
   const [localError, setLocalError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showLearningLinks, setShowLearningLinks] = useState(false);
   const [showLearningModal, setShowLearningModal] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -243,45 +278,36 @@ export function GuestDemoScreen({ code }: GuestDemoScreenProps) {
     <div className="home-view authGateView guestDemoView" data-testid="guest-demo-screen">
       <div className="home-content authGateCard guestDemoCard">
         <div className="authGateEyebrow">Guest Demo</div>
-        <h1>Lern2Cwd</h1>
-        <p className="guestDemoDek">AI coding interview practice in a timed browser workspace.</p>
+        <h1>LeRn2cWd</h1>
+        <p className="guestDemoDek">
+          Practice online coding interviews and answering behavioral interview questions.
+        </p>
 
         <section className="guestDemoCopy" aria-label="About Lern2Cwd">
           <p className="guestDemoLead">
-            Lern2Cwd is a gamified AI coaching demo for coding interview prep, built around
+            This app uses
           </p>
           <div className="guestDemoLearningRow">
-            <button
-              type="button"
-              className="guestDemoLearningToggle"
-              aria-expanded={showLearningLinks}
-              aria-controls="guest-demo-learning-links"
-              onClick={() => setShowLearningLinks((current) => !current)}
-            >
-              <span>Advanced cognitive psychological learning patterns</span>
-              <span className="guestDemoLearningArrow" aria-hidden="true" />
-            </button>
+            <span className="guestDemoLearningLabel">Advanced Cognitive Psychology</span>
             <button
               type="button"
               onClick={() => setShowLearningModal(true)}
               className="guestDemoInfoButton"
-              aria-label="Learn about the cognitive psychology principles behind Lern2Cwd"
+              aria-label="Learn about the advanced cognitive psychology behind Lern2Cwd"
             >
               i
             </button>
           </div>
-          {showLearningLinks && (
-            <div id="guest-demo-learning-links" className="guestDemoLearningLinks" aria-label="Learning principle links">
-              {learningPrinciples.map((principle) => (
-                <a href={principle.href} target="_blank" rel="noreferrer" key={principle.principle}>
-                  {principle.principle}
-                </a>
-              ))}
-            </div>
-          )}
           <p className="guestDemoLoopCopy">
-            Presented as an addictive game-like loop: solve, get unstuck, submit, review, and improve.
+            Presented as a chat with a tutor, you can achieve deliberate practice with a balance of
+            scaffolding, desirable difficulty, time-constrained problem solving, and feedback-driven learning.
           </p>
+          <img
+            className="guestDemoMemeImage"
+            src="/images/virgin-chad-demo.png"
+            alt="The Virgin and The Chad meme showing a before and after transformation"
+          />
+          <p className="guestDemoMemeCaption">soy dev ---&gt; fully cracked fast!</p>
         </section>
 
         {showLearningModal && (
@@ -294,7 +320,7 @@ export function GuestDemoScreen({ code }: GuestDemoScreenProps) {
               onClick={(event) => event.stopPropagation()}
             >
               <div className="guestDemoModalHeader">
-                <h2 id="guest-demo-learning-title">Why this demo is structured this way</h2>
+                <h2 id="guest-demo-learning-title">Advanced Cognitive Psychology</h2>
                 <button
                   type="button"
                   className="guestDemoModalClose"
@@ -304,23 +330,30 @@ export function GuestDemoScreen({ code }: GuestDemoScreenProps) {
                   x
                 </button>
               </div>
-              <p>
-                Lern2Cwd packages evidence based learning principles into a fast coding interview practice loop.
-                The goal is not to let AI solve the task. The goal is to help the learner attempt, recover,
-                submit, review, and improve.
-              </p>
-              <div className="guestDemoPrincipleList">
-                {learningPrinciples.map((principle) => (
-                  <article className="guestDemoPrinciple" key={principle.principle}>
-                    <h3>
-                      <a href={principle.href} target="_blank" rel="noreferrer">
-                        {principle.principle}
-                      </a>
-                    </h3>
-                    <p>{principle.productUse}</p>
-                    <span>{principle.source}</span>
-                  </article>
-                ))}
+              <div className="guestDemoTableWrap">
+                <table className="guestDemoPrincipleTable">
+                  <thead>
+                    <tr>
+                      <th>Principle</th>
+                      <th>What it means in LeRn2cWd</th>
+                      <th>Scholarly anchor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {learningPrinciples.map((principle) => (
+                      <tr key={principle.principle}>
+                        <th scope="row">{principle.principle}</th>
+                        <td>{principle.productUse}</td>
+                        <td>
+                          {principle.scholarlyAnchor}{' '}
+                          <a href={principle.href} target="_blank" rel="noreferrer">
+                            {principle.sourceLabel}
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
               <p className="guestDemoModalFooter">
                 These references inform the learning design. The demo is not claiming clinical or educational outcome

@@ -948,7 +948,7 @@ function buildTutorPlan(
         openingPrompt: 'Write a quick first impression in the Answer box. If you want to know something, ask me here.',
         clarifications: [
           {
-            triggers: ['stuck', 'help', 'hint', 'nudge', 'what should i write'],
+            triggers: ['stuck', 'help', 'hint', 'nudge', 'what should i write', 'about what', 'impression of what'],
             response: 'Pick one thing you notice: the colors, speed, layout, or anything you want to know. A short honest thought is enough.',
           },
         ],

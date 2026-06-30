@@ -232,6 +232,37 @@ describe('ProctorService', () => {
       expect(response).toContain('Write what you think of the app so far.');
       expect(response).toContain('The app feels');
     });
+
+    it('keeps repeated first tutorial clarification grounded in the app prompt', async () => {
+      const previousTutorResponse = 'Write one honest first impression in the Answer box. A sentence or two is enough.';
+      const response = await service.respondToQuestion(
+        'about what?',
+        createSessionContext({
+          problem: tutorialProblem,
+          currentCode: tutorialProblem.scaffold,
+          chatHistory: [
+            ...mockChatHistory,
+            {
+              id: '3',
+              role: 'user',
+              content: 'An impression of what?',
+              timestamp: Date.now() - 10_000,
+            },
+            {
+              id: '4',
+              role: 'proctor',
+              content: previousTutorResponse,
+              timestamp: Date.now() - 5_000,
+            },
+          ],
+        }),
+      );
+
+      expect(response).toContain('About the app itself.');
+      expect(response).toContain('colors, speed, layout');
+      expect(response).not.toContain('make one guess');
+      expect(response).not.toContain('learning programming');
+    });
   });
 
   describe('evaluate', () => {

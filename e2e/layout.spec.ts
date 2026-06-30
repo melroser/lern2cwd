@@ -29,18 +29,22 @@ test.describe('Auth Gate Smoke', () => {
 
     await expect(page.getByTestId('guest-demo-screen')).toBeVisible();
     await expect(page.getByRole('heading', { name: /lern2cwd/i })).toBeVisible();
-    await expect(page.getByText(/AI coding interview practice in a timed browser workspace/i)).toBeVisible();
+    await expect(page.getByText(/Practice online coding interviews and answering behavioral interview questions/i)).toBeVisible();
     await expect(page.getByText(/no account needed/i)).toBeVisible();
-    await expect(page.getByText(/built around/i)).toBeVisible();
-    await expect(page.getByRole('link', { name: /retrieval practice/i })).toHaveCount(0);
-    await page.getByRole('button', { name: /advanced cognitive psychological learning patterns/i }).click();
-    await expect(page.getByRole('link', { name: /retrieval practice/i })).toHaveAttribute(
+    await expect(page.getByText(/This app uses/i)).toBeVisible();
+    await expect(page.getByText(/advanced cognitive psychology/i)).toBeVisible();
+    await expect(page.getByText(/soy dev ---> fully cracked fast/i)).toBeVisible();
+    await expect(page.getByRole('link', { name: /pubmed/i })).toHaveCount(0);
+    await expect(page.getByTestId('guest-demo-submit')).toBeVisible();
+    await page.getByRole('button', { name: /advanced cognitive psychology behind/i }).click();
+    const dialog = page.getByRole('dialog', { name: /advanced cognitive psychology/i });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('columnheader', { name: /principle/i })).toBeVisible();
+    await expect(dialog.getByRole('cell', { name: /The learner has to produce an answer/i })).toBeVisible();
+    await expect(dialog.getByRole('link', { name: /pubmed/i }).first()).toHaveAttribute(
       'href',
       'https://pubmed.ncbi.nlm.nih.gov/16507066/',
     );
-    await expect(page.getByTestId('guest-demo-submit')).toBeVisible();
-    await page.getByRole('button', { name: /cognitive psychology principles/i }).click();
-    await expect(page.getByRole('dialog', { name: /why this demo is structured this way/i })).toBeVisible();
     await expect(page.getByText(/not claiming clinical or educational outcome guarantees/i)).toBeVisible();
   });
 
