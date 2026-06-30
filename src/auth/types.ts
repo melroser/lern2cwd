@@ -1,4 +1,4 @@
-export type AuthProviderName = 'netlify' | 'clerk' | 'auth0';
+export type AuthProviderName = 'netlify' | 'clerk' | 'auth0' | 'guest';
 
 export type AuthOAuthProvider = 'google' | 'github' | 'gitlab' | 'bitbucket' | 'facebook';
 

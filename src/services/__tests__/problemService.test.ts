@@ -21,6 +21,19 @@ describe('ProblemService', () => {
     expect(problems.every((problem) => problem.problemSetId === 'python-fundamentals')).toBe(true);
   });
 
+  it('starts Python fundamentals with beginner list practice and plain tutor guidance', async () => {
+    const service = new ProblemService();
+    const problems = await service.loadProblems(['python-fundamentals']);
+
+    expect(problems[0].title).toBe('Double Each Number');
+    expect(problems[0].prompt).toMatch(/list of integers/i);
+    expect(problems[0].prompt).not.toMatch(/csv|file path|column/i);
+    expect(problems[0].tutorPlan?.openingPrompt).toBe(
+      'Start by restating the input and output, then name the first Python step you would code.',
+    );
+    expect(problems[0].tutorPlan?.openingPrompt).not.toMatch(/complexity are you aiming/i);
+  });
+
   it('returns metadata for all registered problem sets with counts', () => {
     const service = new ProblemService();
     const sets = service.getAvailableProblemSets();

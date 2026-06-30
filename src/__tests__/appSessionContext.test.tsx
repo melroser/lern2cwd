@@ -123,6 +123,14 @@ const mockPythonFirstProblem: Problem = {
   id: 'python-list-doubler',
   title: 'Double Each Number',
   prompt: 'Given a list of integers, return a new list where each number is doubled.',
+  constraints: ['Use a loop and append to a new list', 'Do not change the input list'],
+  examples: [
+    {
+      input: 'numbers = [1, 2, 3]',
+      output: '[2, 4, 6]',
+      explanation: 'Each value is multiplied by 2 in the same order.',
+    },
+  ],
   scaffold: 'def double_each_number(numbers: list[int]) -> list[int]:\n    pass',
   expectedApproach: 'Loop over numbers, append number * 2, and return the new list.',
   commonPitfalls: ['Forgetting to return the new list'],
@@ -293,13 +301,13 @@ describe('App session context', () => {
     expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
     expect(editorToggle).toHaveAttribute('aria-pressed', 'false');
     expect(editorToggle).toBeDisabled();
-    expect(screen.getByText(/try one safe practice rep/i)).toBeInTheDocument();
+    expect(screen.getByText(/ready for the next question/i)).toBeInTheDocument();
     expect(screen.queryByText(/your answer/i)).not.toBeInTheDocument();
 
     await user.click(editorToggle);
 
     expect(promptToggle).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(/try one safe practice rep/i)).toBeInTheDocument();
+    expect(screen.getByText(/ready for the next question/i)).toBeInTheDocument();
     expect(screen.queryByText(/your answer/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /^start$/i }));
@@ -312,7 +320,7 @@ describe('App session context', () => {
     expect(promptToggle).toHaveAttribute('aria-pressed', 'false');
     expect(activeEditorToggle).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getAllByText(/your answer/i)).not.toHaveLength(0);
-    expect(screen.queryByText(/try one safe practice rep/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ready for the next question/i)).not.toBeInTheDocument();
   });
 
   it('hydrates legacy history sessions so review copy context includes the problem and candidate answer', async () => {
@@ -497,10 +505,28 @@ describe('App session context', () => {
     });
     expect(problemService.loadProblems).toHaveBeenCalledWith(['python-fundamentals']);
 
+    const workspaceToggle = screen.getByTestId('session-workspace-toggle');
+    expect(within(workspaceToggle).getByRole('button', { name: /^answer$/i })).toBeDisabled();
+    expect(screen.getByText(/ready for the next question/i)).toBeInTheDocument();
+    expect(screen.getByTestId('chat-input')).toHaveAttribute('placeholder', 'Press Start to unlock Help');
+    expect(screen.queryByText(/try one safe practice rep/i)).not.toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: /^start$/i }));
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Double Each Number' })).toBeInTheDocument();
+      expect(screen.getByText(/Given a list of integers/i)).toBeInTheDocument();
     });
+
+    expect(within(workspaceToggle).getByRole('button', { name: /^answer$/i })).toBeEnabled();
+    expect(screen.getByRole('tab', { name: 'Question' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Rules' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Example' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Rules' }));
+    expect(screen.getByText(/Use a loop and append to a new list/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Example' }));
+    expect(screen.getByText(/numbers = \[1, 2, 3\]/i)).toBeInTheDocument();
   });
 });
 

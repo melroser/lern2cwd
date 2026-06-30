@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { 
   HistoryPanel, 
   formatDate, 
@@ -50,6 +50,28 @@ function createMockSession(overrides: Partial<SessionRecord> = {}): SessionRecor
   };
 }
 
+function mockMatchMedia(matches: boolean) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  delete (window as unknown as { matchMedia?: typeof window.matchMedia }).matchMedia;
+});
+
 describe('HistoryPanel', () => {
   describe('Empty State', () => {
     it('should render empty state when no sessions provided', () => {
@@ -89,6 +111,26 @@ describe('HistoryPanel', () => {
   });
 
   describe('Session List', () => {
+    it('stacks history content on narrow mobile viewports', () => {
+      mockMatchMedia(true);
+
+      const session = createMockSession({ id: 'session-1', problemTitle: 'Tutorial Question' });
+      const onSelectSession = vi.fn();
+      const onClose = vi.fn();
+
+      render(
+        <HistoryPanel
+          sessions={[session]}
+          onSelectSession={onSelectSession}
+          onClose={onClose}
+        />
+      );
+
+      expect(screen.getByTestId('history-content')).toHaveStyle({ flexDirection: 'column' });
+      expect(screen.getByTestId('history-side-section')).toHaveStyle({ order: '-1' });
+      expect(screen.getByTestId('history-main-section')).not.toHaveStyle({ borderRight: '1px solid var(--panel-border-strong)' });
+    });
+
     it('should render session cards for each session', () => {
       const sessions = [
         createMockSession({ id: 'session-1', problemTitle: 'FizzBuzz' }),

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { HistoryPanelProps, SessionRecord, MissTag, Verdict } from '../types';
 
 /**
@@ -329,7 +329,89 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
     overflowY: 'auto',
   },
+  mobileHeader: {
+    padding: '16px',
+    gap: '12px',
+  },
+  mobileHeaderTitle: {
+    fontSize: '1.25rem',
+    lineHeight: 1.2,
+  },
+  mobileCloseButton: {
+    padding: '9px 12px',
+    minWidth: '72px',
+  },
+  mobileContent: {
+    flexDirection: 'column',
+    overflow: 'auto',
+  },
+  mobileMainSection: {
+    flex: '0 0 auto',
+    borderRight: 'none',
+    overflow: 'visible',
+  },
+  mobileSideSection: {
+    order: -1,
+    flex: '0 0 auto',
+    minWidth: 0,
+    maxWidth: 'none',
+    padding: '14px',
+    borderBottom: '1px solid var(--panel-border-strong)',
+    overflow: 'visible',
+  },
+  mobileSideSectionScrollable: {
+    overflow: 'visible',
+  },
+  mobileSessionList: {
+    flex: '0 0 auto',
+    overflow: 'visible',
+    padding: '14px',
+  },
+  mobileSessionCard: {
+    padding: '14px',
+  },
+  mobileSessionHeader: {
+    flexDirection: 'column',
+    gap: '8px',
+    alignItems: 'flex-start',
+  },
+  mobileSessionMeta: {
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  mobileScoresRow: {
+    flexWrap: 'wrap',
+  },
+  mobileScoreChip: {
+    flex: '1 1 135px',
+  },
+  mobileSectionTitle: {
+    marginBottom: '10px',
+    fontSize: '0.9rem',
+  },
 };
+
+function useNarrowHistoryLayout() {
+  const [isNarrow, setIsNarrow] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(max-width: 760px)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+
+    const mediaQuery = window.matchMedia('(max-width: 760px)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsNarrow(event.matches);
+    };
+
+    setIsNarrow(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return isNarrow;
+}
 
 /**
  * Format a timestamp to a readable date string
@@ -645,6 +727,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   onSelectSession,
   onClose,
 }) => {
+  const isNarrow = useNarrowHistoryLayout();
   const [isCloseHovered, setIsCloseHovered] = useState(false);
   const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
 
@@ -678,14 +761,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   if (sessions.length === 0) {
     return (
       <div style={styles.container} data-testid="history-panel">
-        <div style={styles.header}>
-          <h2 style={styles.headerTitle}>Session History</h2>
+        <div style={{ ...styles.header, ...(isNarrow ? styles.mobileHeader : {}) }}>
+          <h2 style={{ ...styles.headerTitle, ...(isNarrow ? styles.mobileHeaderTitle : {}) }}>
+            Session History
+          </h2>
           <button
             onClick={onClose}
             onMouseEnter={() => setIsCloseHovered(true)}
             onMouseLeave={() => setIsCloseHovered(false)}
             style={{
               ...styles.closeButton,
+              ...(isNarrow ? styles.mobileCloseButton : {}),
               ...(isCloseHovered ? styles.closeButtonHover : {}),
             }}
             data-testid="close-button"
@@ -707,14 +793,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   return (
     <div style={styles.container} data-testid="history-panel">
       {/* Header */}
-      <div style={styles.header}>
-        <h2 style={styles.headerTitle}>Session History</h2>
+      <div style={{ ...styles.header, ...(isNarrow ? styles.mobileHeader : {}) }}>
+        <h2 style={{ ...styles.headerTitle, ...(isNarrow ? styles.mobileHeaderTitle : {}) }}>
+          Session History
+        </h2>
         <button
           onClick={onClose}
           onMouseEnter={() => setIsCloseHovered(true)}
           onMouseLeave={() => setIsCloseHovered(false)}
           style={{
             ...styles.closeButton,
+            ...(isNarrow ? styles.mobileCloseButton : {}),
             ...(isCloseHovered ? styles.closeButtonHover : {}),
           }}
           data-testid="close-button"
@@ -724,10 +813,16 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       </div>
 
       {/* Content */}
-      <div style={styles.content}>
+      <div
+        style={{ ...styles.content, ...(isNarrow ? styles.mobileContent : {}) }}
+        data-testid="history-content"
+      >
         {/* Main Section - Session List */}
-        <div style={styles.mainSection}>
-          <div style={styles.sessionList} data-testid="session-list">
+        <div
+          style={{ ...styles.mainSection, ...(isNarrow ? styles.mobileMainSection : {}) }}
+          data-testid="history-main-section"
+        >
+          <div style={{ ...styles.sessionList, ...(isNarrow ? styles.mobileSessionList : {}) }} data-testid="session-list">
             {sessions.map((session) => (
               <div
                 key={session.id}
@@ -736,12 +831,13 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 onMouseLeave={() => setHoveredSessionId(null)}
                 style={{
                   ...styles.sessionCard,
+                  ...(isNarrow ? styles.mobileSessionCard : {}),
                   ...(hoveredSessionId === session.id ? styles.sessionCardHover : {}),
                 }}
                 data-testid={`session-card-${session.id}`}
               >
                 {/* Session Header */}
-                <div style={styles.sessionHeader}>
+                <div style={{ ...styles.sessionHeader, ...(isNarrow ? styles.mobileSessionHeader : {}) }}>
                   <h3 style={styles.sessionTitle}>{session.problemTitle}</h3>
                   <span
                     style={{
@@ -755,7 +851,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 </div>
 
                 {/* Session Meta */}
-                <div style={styles.sessionMeta}>
+                <div style={{ ...styles.sessionMeta, ...(isNarrow ? styles.mobileSessionMeta : {}) }}>
                   <span data-testid={`date-${session.id}`}>
                     📅 {formatDate(session.timestamp)} at {formatTime(session.timestamp)}
                   </span>
@@ -765,17 +861,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 </div>
 
                 {/* Scores Row */}
-                <div style={styles.scoresRow} data-testid={`scores-${session.id}`}>
-                  <span style={styles.scoreChip}>
+                <div style={{ ...styles.scoresRow, ...(isNarrow ? styles.mobileScoresRow : {}) }} data-testid={`scores-${session.id}`}>
+                  <span style={{ ...styles.scoreChip, ...(isNarrow ? styles.mobileScoreChip : {}) }}>
                     Approach: {session.evaluation.scores.approach}/4
                   </span>
-                  <span style={styles.scoreChip}>
+                  <span style={{ ...styles.scoreChip, ...(isNarrow ? styles.mobileScoreChip : {}) }}>
                     Completeness: {session.evaluation.scores.completeness}/4
                   </span>
-                  <span style={styles.scoreChip}>
+                  <span style={{ ...styles.scoreChip, ...(isNarrow ? styles.mobileScoreChip : {}) }}>
                     Complexity: {session.evaluation.scores.complexity}/4
                   </span>
-                  <span style={styles.scoreChip}>
+                  <span style={{ ...styles.scoreChip, ...(isNarrow ? styles.mobileScoreChip : {}) }}>
                     Communication: {session.evaluation.scores.communication}/4
                   </span>
                 </div>
@@ -800,12 +896,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         </div>
 
         {/* Side Section - Patterns, Recommendations & Stats */}
-        <div style={styles.sideSection}>
-          <div style={styles.sideSectionScrollable}>
+        <div
+          style={{ ...styles.sideSection, ...(isNarrow ? styles.mobileSideSection : {}) }}
+          data-testid="history-side-section"
+        >
+          <div style={{ ...styles.sideSectionScrollable, ...(isNarrow ? styles.mobileSideSectionScrollable : {}) }}>
             {/* Recommendations Section */}
             {recommendations.length > 0 && (
               <div style={styles.recommendationSection} data-testid="recommendations-section">
-                <h3 style={styles.sectionTitle}>Recommendations</h3>
+                <h3 style={{ ...styles.sectionTitle, ...(isNarrow ? styles.mobileSectionTitle : {}) }}>
+                  Recommendations
+                </h3>
                 <div style={styles.recommendationCard}>
                   {recommendations.map((rec, index) => (
                     <div
@@ -830,7 +931,9 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
             {/* Weakness Patterns with Trends */}
             {missTagTrends.length > 0 && (
               <div style={styles.patternSection} data-testid="patterns-section">
-                <h3 style={styles.sectionTitle}>Weakness Patterns</h3>
+                <h3 style={{ ...styles.sectionTitle, ...(isNarrow ? styles.mobileSectionTitle : {}) }}>
+                  Weakness Patterns
+                </h3>
                 <div style={styles.patternCard}>
                   {missTagTrends.map((trend, index) => (
                     <div
@@ -878,7 +981,9 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
 
             {/* Overall Statistics */}
             <div style={styles.patternSection} data-testid="stats-section">
-              <h3 style={styles.sectionTitle}>Overall Statistics</h3>
+              <h3 style={{ ...styles.sectionTitle, ...(isNarrow ? styles.mobileSectionTitle : {}) }}>
+                Overall Statistics
+              </h3>
               <div style={styles.statsCard}>
                 <div style={styles.statRow}>
                   <span style={styles.statLabel}>Total Sessions</span>

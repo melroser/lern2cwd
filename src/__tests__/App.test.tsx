@@ -10,8 +10,8 @@ const mockAuthState = {
     id: 'user-1',
     email: 'tester@example.com',
     displayName: 'Test User',
-    roles: [],
-    authProvider: 'netlify' as const,
+    roles: [] as string[],
+    authProvider: 'netlify' as 'netlify' | 'guest',
   },
   profileKey: 'netlify:user-1',
   provider: 'netlify' as const,
@@ -33,6 +33,8 @@ const mockAuthState = {
   hasAnyRole: vi.fn().mockReturnValue(false),
 };
 
+let mockGuestDemoCode: string | null = null;
+
 vi.mock('../auth/AuthProvider', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
@@ -48,6 +50,18 @@ vi.mock('../auth/RequireAuth', () => ({
     if (mockAuthState.callbackState) return <>{fallback}</>;
     return <>{children}</>;
   },
+}));
+
+vi.mock('../auth/guestSession', () => ({
+  canUseLocalGuestDemoFallback: vi.fn().mockReturnValue(true),
+  createLocalGuestDemoSession: vi.fn(({ code, email }: { code: string; email: string }) => ({
+    token: 'local-dev-guest-token',
+    email,
+    code,
+    expiresAt: Date.now() + 7_200_000,
+  })),
+  getGuestDemoCodeFromPath: () => mockGuestDemoCode,
+  saveGuestDemoSession: vi.fn(),
 }));
 
 vi.mock('../services/problemService', () => ({
@@ -88,6 +102,14 @@ describe('App', () => {
     mockAuthState.callbackState = null;
     mockAuthState.signupEnabled = false;
     mockAuthState.oauthProviders = [];
+    mockAuthState.user = {
+      id: 'user-1',
+      email: 'tester@example.com',
+      displayName: 'Test User',
+      roles: [],
+      authProvider: 'netlify',
+    };
+    mockGuestDemoCode = null;
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
@@ -130,6 +152,59 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /log in/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /join waitlist/i })).toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: /sign up/i })).not.toBeInTheDocument();
+  });
+
+  it('renders the guest demo screen for the demo link when signed out', async () => {
+    const user = userEvent.setup();
+    mockAuthState.isAuthenticated = false;
+    mockGuestDemoCode = 'demo';
+
+    render(<App />);
+
+    expect(screen.getByTestId('guest-demo-screen')).toBeInTheDocument();
+    expect(screen.getByText(/AI coding interview practice in a timed browser workspace/i)).toBeInTheDocument();
+    expect(screen.getByText(/built around/i)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /retrieval practice/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /advanced cognitive psychological learning patterns/i }));
+    expect(screen.getByRole('link', { name: /retrieval practice/i })).toHaveAttribute(
+      'href',
+      'https://pubmed.ncbi.nlm.nih.gov/16507066/',
+    );
+    expect(
+      screen.getByRole('button', { name: /learn about the cognitive psychology principles behind lern2cwd/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/no account needed/i)).toBeInTheDocument();
+    expect(screen.getByTestId('guest-demo-submit')).toHaveTextContent(/start demo/i);
+    expect(screen.queryByText(/join the waitlist/i)).not.toBeInTheDocument();
+  });
+
+  it('lets an existing guest restart the demo link instead of trapping them in the old guest session', () => {
+    mockGuestDemoCode = 'demo';
+    mockAuthState.isAuthenticated = true;
+    mockAuthState.user = {
+      id: 'demo',
+      email: 'old-guest@example.com',
+      displayName: 'Guest Demo',
+      roles: ['guest-demo'],
+      authProvider: 'guest',
+    };
+
+    render(<App />);
+
+    expect(screen.getByTestId('guest-demo-screen')).toBeInTheDocument();
+    expect(screen.getByTestId('guest-demo-submit')).toHaveTextContent(/start demo/i);
+  });
+
+  it('does not replace the app with the demo screen for a real signed-in user', async () => {
+    mockGuestDemoCode = 'demo';
+    mockAuthState.isAuthenticated = true;
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-view')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('guest-demo-screen')).not.toBeInTheDocument();
   });
 
   it('toggles between dark and light mode from the top navigation', async () => {

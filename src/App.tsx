@@ -6,10 +6,12 @@ import { ReviewPanel } from './components/ReviewPanel';
 import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsModal } from './components/SettingsModal';
 import { AuthScreen } from './components/AuthScreen';
+import { GuestDemoScreen } from './components/GuestDemoScreen';
 import { AuthDebugPanel } from './components/AuthDebugPanel';
 import { AuthStatusControls } from './components/AuthStatusControls';
 import { AuthProvider } from './auth/AuthProvider';
 import { RequireAuth } from './auth/RequireAuth';
+import { getGuestDemoCodeFromPath } from './auth/guestSession';
 import { useAuth } from './auth/useAuth';
 import { useSession } from './hooks/useSession';
 import { useTimer } from './hooks/useTimer';
@@ -183,6 +185,20 @@ function getTranscriptRoleLabel(role: ChatMessage['role'] | string): string {
   return role.toUpperCase();
 }
 
+function getReadyGateCopy(problem: Problem | null) {
+  if (problem?.id === 'tutorial-first-session') {
+    return {
+      title: 'Start the tutorial question.',
+      subtitle: 'Press Start to reveal the question, unlock Help, and try a short answer.',
+    };
+  }
+
+  return {
+    title: 'Ready for the next question?',
+    subtitle: 'Press Start to reveal the question, unlock Help, and begin the timer.',
+  };
+}
+
 function buildLegacySnapshotFromSession(sessionRecord: SessionRecord): string {
   const transcript = sessionRecord.chatTranscript
     .map((msg) => `[${getTranscriptRoleLabel(msg.role)}] ${msg.content}`)
@@ -266,6 +282,7 @@ function AppShell() {
   const isSessionPendingStart = sessionHook.session?.status === 'waiting_to_start';
   const isSessionActive = sessionHook.session?.status === 'active';
   const isTutorialMode = selectedProblemSetIds.length === 0;
+  const readyGateCopy = getReadyGateCopy(currentProblem);
 
   useEffect(() => {
     storageService.setStorageScope(auth.profileKey);
@@ -603,7 +620,7 @@ function AppShell() {
     if (isSessionPendingStart) {
       // Do not start timer from chat; require explicit Ready action
       chat.addMessage({ role: 'user', content: message });
-      chat.addMessage({ role: 'proctor', content: 'Press Start to begin.' });
+      chat.addMessage({ role: 'proctor', content: 'Press Start to reveal the question and unlock Help.' });
       return;
     }
     
@@ -1138,7 +1155,7 @@ function AppShell() {
 
                     {isTutorialMode && (
                       <p className="homeHint">
-                        Finish one safe rep, then choose what you want to practice next.
+                        Finish the tutorial, then choose what you want to practice next.
                       </p>
                     )}
 
@@ -1454,8 +1471,8 @@ function AppShell() {
                         <div className="problem" ref={problemRef}>
                           {isSessionPendingStart ? (
                             <div className="readyGate">
-                              <div className="readyTitle">Try one safe practice rep.</div>
-                              <div className="readySub">Read the question, make an attempt, ask for a nudge if you get stuck, then submit to see feedback.</div>
+                              <div className="readyTitle">{readyGateCopy.title}</div>
+                              <div className="readySub">{readyGateCopy.subtitle}</div>
                               <button className="btn primary" onClick={handleReadyStart}>
                                 Start
                               </button>
@@ -1638,7 +1655,7 @@ function AppShell() {
                         isDisabled={chat.isLoading || !isSessionActive}
                         disabledPlaceholder={
                           isSessionPendingStart
-                            ? 'Start to ask for help'
+                            ? 'Press Start to unlock Help'
                             : 'Help unavailable'
                         }
                       />
@@ -1779,15 +1796,27 @@ function AuthLoadingFallback() {
   );
 }
 
+function AppRoutes() {
+  const guestDemoCode = getGuestDemoCodeFromPath();
+  const auth = useAuth();
+  const shouldShowGuestDemo =
+    guestDemoCode !== null &&
+    (!auth.isAuthenticated || auth.user?.authProvider === 'guest');
+
+  return (
+    <RequireAuth
+      fallback={guestDemoCode ? <GuestDemoScreen code={guestDemoCode} /> : <AuthScreen />}
+      loadingFallback={<AuthLoadingFallback />}
+    >
+      {shouldShowGuestDemo ? <GuestDemoScreen code={guestDemoCode} /> : <AppShell />}
+    </RequireAuth>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
-      <RequireAuth
-        fallback={<AuthScreen />}
-        loadingFallback={<AuthLoadingFallback />}
-      >
-        <AppShell />
-      </RequireAuth>
+      <AppRoutes />
       <AuthDebugPanel />
     </AuthProvider>
   );

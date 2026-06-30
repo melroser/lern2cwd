@@ -2,6 +2,11 @@ import { createContext, useCallback, useEffect, useMemo, useState, type PropsWit
 import { createAuthAdapter } from './createAuthAdapter';
 import { authConfig } from './config';
 import {
+  clearGuestDemoSession,
+  getGuestDemoAuthSession,
+  readGuestDemoSession,
+} from './guestSession';
+import {
   getAppUserProfileKey,
   type AuthCallbackState,
   type AuthOAuthProvider,
@@ -74,16 +79,33 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [error, setError] = useState<string | null>(null);
 
   const refreshSession = useCallback(async () => {
+    let adapterError: unknown = null;
+
     try {
       const nextSession = normalizeSession(await adapter.getSession());
-      setSession(nextSession);
       setCallbackState(adapter.getCallbackState?.() ?? null);
       setOauthProviders(adapter.getOAuthProviders?.() ?? []);
-      setError(null);
+
+      if (nextSession.isAuthenticated) {
+        setSession(nextSession);
+        setError(null);
+        return;
+      }
     } catch (authError) {
-      setSession({ ...initialSession, isLoaded: true });
-      setError(toErrorMessage(authError));
+      adapterError = authError;
     }
+
+    const guestSession = getGuestDemoAuthSession();
+    if (guestSession) {
+      setSession(guestSession);
+      setCallbackState(null);
+      setOauthProviders([]);
+      setError(null);
+      return;
+    }
+
+    setSession({ ...initialSession, isLoaded: true });
+    setError(adapterError ? toErrorMessage(adapterError) : null);
   }, [adapter]);
 
   useEffect(() => {
@@ -124,6 +146,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const logout = useCallback(async (options?: { redirectTo?: string }) => {
     setError(null);
+    if (readGuestDemoSession()) {
+      clearGuestDemoSession();
+      setCallbackState(null);
+      setSession({ ...initialSession, isLoaded: true });
+      window.location.assign(options?.redirectTo ?? authConfig.logoutRedirectPath);
+      return;
+    }
+
     await adapter.logout(options);
     setCallbackState(adapter.getCallbackState?.() ?? null);
     setSession({ ...initialSession, isLoaded: true });
@@ -199,6 +229,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [adapter]);
 
   const getAccessToken = useCallback(async () => {
+    const guestSession = readGuestDemoSession();
+    if (guestSession) {
+      return guestSession.token;
+    }
+
     if (!adapter.getAccessToken) {
       return null;
     }

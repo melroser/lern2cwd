@@ -1,10 +1,11 @@
 import type { HandlerContext, HandlerEvent } from '@netlify/functions';
+import { normalizeGuestBearerToken, verifyGuestDemoToken } from './guestAuth';
 
 export type VerifiedRequestUser = {
   id: string;
   email: string | null;
   roles: string[];
-  authProvider: 'netlify' | 'clerk' | 'auth0';
+  authProvider: 'netlify' | 'clerk' | 'auth0' | 'guest';
 };
 
 type NetlifyRequestUser = {
@@ -82,6 +83,21 @@ function parseNetlifyUser(req: Request): VerifiedRequestUser | null {
   };
 }
 
+function parseGuestUser(req: Request): VerifiedRequestUser | null {
+  const token = normalizeGuestBearerToken(req.headers.get('authorization'));
+  if (!token) return null;
+
+  const guest = verifyGuestDemoToken(token);
+  if (!guest) return null;
+
+  return {
+    id: guest.sub,
+    email: guest.email,
+    roles: ['guest-demo'],
+    authProvider: 'guest',
+  };
+}
+
 function configuredServerAuthProvider(): 'netlify' | 'clerk' | 'auth0' {
   const configured = process.env.AUTH_PROVIDER ?? process.env.VITE_AUTH_PROVIDER ?? 'netlify';
   if (configured === 'clerk' || configured === 'auth0' || configured === 'netlify') {
@@ -133,6 +149,11 @@ export function seedNetlifyIdentityContext(context: HandlerContext): boolean {
 }
 
 export async function requireUser(req: Request): Promise<VerifiedRequestUser> {
+  const guestUser = parseGuestUser(req);
+  if (guestUser) {
+    return guestUser;
+  }
+
   switch (configuredServerAuthProvider()) {
     case 'netlify': {
       const user = parseNetlifyUser(req);

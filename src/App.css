@@ -1369,6 +1369,279 @@ body {
   min-height: 44px;
 }
 
+.guestDemoCard {
+  width: min(760px, 100%);
+}
+
+.guestDemoView {
+  height: 100%;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(20px, 5vh, 48px) clamp(14px, 4vw, 24px);
+  scroll-padding-block: 24px;
+}
+
+.guestDemoView .guestDemoCard {
+  margin: 0 auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.guestDemoDek {
+  max-width: 620px;
+  margin-inline: auto;
+  color: var(--text-strong);
+  font-size: 1.08rem;
+}
+
+.guestDemoCopy {
+  max-width: 620px;
+  margin: 0 auto 22px;
+  text-align: left;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.guestDemoCopy a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.guestDemoCopy a:hover,
+.guestDemoCopy a:focus-visible {
+  color: var(--text-strong);
+}
+
+.guestDemoCopy h2 {
+  margin: 20px 0 8px;
+  color: var(--accent-primary);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.8px;
+}
+
+.guestDemoCopy h2 a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.guestDemoCopy h2 a:hover,
+.guestDemoCopy h2 a:focus-visible {
+  color: var(--text-strong);
+}
+
+.guestDemoCopy p {
+  margin: 0 0 12px;
+}
+
+.guestDemoLead {
+  margin-bottom: 8px;
+}
+
+.guestDemoLearningRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.guestDemoLearningToggle {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border-strong);
+  border-radius: 8px;
+  background: var(--panel-muted);
+  color: var(--text-strong);
+  font: 700 0.92rem var(--font);
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guestDemoLearningToggle:hover,
+.guestDemoLearningToggle:focus-visible {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+.guestDemoLearningArrow {
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+  transition: transform 140ms ease;
+}
+
+.guestDemoLearningToggle[aria-expanded='true'] .guestDemoLearningArrow {
+  transform: rotate(180deg);
+}
+
+.guestDemoLearningLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.guestDemoLearningLinks a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  background: var(--panel-translucent);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.guestDemoLoopCopy {
+  color: var(--text-soft);
+}
+
+.guestDemoCopy ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.guestDemoCopy li {
+  padding-left: 2px;
+}
+
+.guestDemoInfoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-soft);
+  font: 700 17px var(--font);
+  cursor: pointer;
+}
+
+.guestDemoInfoButton:hover,
+.guestDemoInfoButton:focus-visible {
+  border-color: var(--accent-primary);
+  color: var(--text-strong);
+  outline: none;
+}
+
+.guestDemoModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.guestDemoModal {
+  width: min(760px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid var(--panel-border-strong);
+  border-radius: 10px;
+  background: var(--panel-solid);
+  box-shadow: 0 24px 60px var(--shadow-strong);
+  color: var(--text-main);
+  text-align: left;
+}
+
+.guestDemoModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.guestDemoModalHeader h2 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.guestDemoModalClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--panel-translucent);
+  color: var(--text-strong);
+  font: 700 22px var(--font);
+  cursor: pointer;
+}
+
+.guestDemoModal > p {
+  margin: 0 0 16px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.guestDemoPrincipleList {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.guestDemoPrinciple {
+  padding: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-muted);
+}
+
+.guestDemoPrinciple h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.guestDemoPrinciple a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.guestDemoPrinciple p {
+  margin: 0 0 8px;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
+
+.guestDemoPrinciple span,
+.guestDemoModalFooter {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
 .authDebugPanel {
   position: fixed;
   right: 20px;
@@ -1817,6 +2090,7 @@ body {
     overflow-y: auto;
   }
   .crt {
+    padding: 8px;
     overflow-x: hidden;
     overflow-y: auto;
   }
@@ -1825,8 +2099,8 @@ body {
     min-height: 100%;
   }
   .topbar {
-    padding: 12px 14px;
-    gap: 12px;
+    padding: 10px 12px;
+    gap: 10px;
   }
   .appTopbar {
     align-items: center;
@@ -1839,6 +2113,11 @@ body {
     max-width: calc(100% - 54px);
     overflow: hidden;
     pointer-events: none;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .appTopbar.menuOpen {
+    align-items: stretch;
   }
   .topbarMenuButton {
     display: inline-flex;
@@ -1853,6 +2132,7 @@ body {
   }
   .appTopbar .meta {
     display: none;
+    flex: 1 0 100%;
     width: 100%;
     gap: 10px;
     justify-content: flex-start;
@@ -1926,8 +2206,9 @@ body {
     max-height: 38vh;
   }
   .problem {
-    --problem-font-size: 20px;
-    padding: 14px 18px;
+    --problem-font-size: 17px;
+    --problem-line-height: 1.42;
+    padding: 14px;
   }
   .readyGate {
     min-height: 170px;
@@ -1941,7 +2222,8 @@ body {
     font-size: 15px;
   }
   .problem h2 {
-    font-size: 22px;
+    font-size: 21px;
+    line-height: 1.2;
   }
   .campaignView {
     padding: 16px;
@@ -1970,16 +2252,73 @@ body {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 420px) {
   .crt {
+    padding: 6px;
+  }
+
+  .shell {
+    border-radius: 10px;
+  }
+
+  .topbar {
+    padding: 8px 10px;
+  }
+
+  .appTopbar .brand {
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    gap: 8px;
+  }
+
+  .sessionWorkspaceToggle {
+    padding: 10px 10px 0;
+  }
+
+  .workspaceToggleBtn,
+  .tabBtn,
+  .btn {
+    letter-spacing: 0.5px;
+  }
+
+  .problem {
+    --problem-font-size: 16px;
+    padding: 12px;
+  }
+
+  .problem .title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .problem h2 {
+    font-size: 20px;
+  }
+
+  .sessionProctorWrap {
+    flex-basis: clamp(190px, 32vh, 280px);
+    min-height: 170px;
+  }
+
+  .chatInput {
     padding: 10px;
   }
+
+  .field {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .crt {
+    padding: 6px;
+  }
   .topbar {
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
   .brand {
-    font-size: clamp(16px, 4.6vw, 22px);
-    letter-spacing: 1.5px;
+    font-size: clamp(13px, 4vw, 18px);
+    letter-spacing: 0.6px;
     white-space: normal;
   }
   .sessionWorkspaceToggle {
@@ -1987,20 +2326,20 @@ body {
   }
   .workspaceToggleBtn {
     font-size: 11px;
-    letter-spacing: 1.4px;
+    letter-spacing: 0.5px;
     padding: 9px 10px;
   }
   .problem {
-    --problem-font-size: 18px;
+    --problem-font-size: 16px;
     --problem-line-height: 1.42;
-    padding: 14px;
+    padding: 12px;
   }
   .problem .title {
     align-items: flex-start;
   }
   .problem h2 {
-    font-size: clamp(21px, 6vw, 28px);
-    line-height: 1.25;
+    font-size: clamp(20px, 5.6vw, 24px);
+    line-height: 1.2;
     overflow-wrap: anywhere;
   }
   .problemTabs {
@@ -2011,8 +2350,8 @@ body {
     flex: 0 0 auto;
   }
   .sessionProctorWrap {
-    flex-basis: clamp(210px, 32vh, 280px);
-    min-height: 180px;
+    flex-basis: clamp(190px, 32vh, 280px);
+    min-height: 170px;
     max-height: 34vh;
   }
   .chatHeader {

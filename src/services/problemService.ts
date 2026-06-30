@@ -50,7 +50,7 @@ const PROBLEM_SET_REGISTRY: Omit<ProblemSetOption, 'questionCount'>[] = [
   {
     id: TUTORIAL_SET_ID,
     label: 'Tutorial',
-    description: 'A guided first-run walkthrough for learning the app flow.',
+    description: 'A quick practice question before choosing what to work on next.',
     assessmentType: 'behavioral',
     domain: 'onboarding',
   },
@@ -1082,7 +1082,7 @@ function buildTutorPlan(
     : 'Use the function signature shown in the editor as the source of truth.';
 
   return {
-    openingPrompt: 'What approach are you considering first, and what complexity are you aiming for?',
+    openingPrompt: 'Start by restating the input and output, then name the first Python step you would code.',
     clarifications: [
       {
         triggers: ['input', 'parameter', 'argument', 'format', 'variable', 'data'],
@@ -1103,13 +1103,18 @@ function buildTutorPlan(
       { level: 1, hint: 'Restate input/output in your own words before coding.' },
       { level: 2, hint: expectedApproach || 'Choose one data structure and explain why it fits.' },
       { level: 3, hint: `Edge-case checkpoint: ${firstPitfall}` },
-      { level: 4, hint: `Before submitting, verify complexity and this pitfall: ${secondPitfall}` },
+      {
+        level: 4,
+        hint: complexityTarget
+          ? `Before submitting, verify ${complexityTarget} complexity and this pitfall: ${secondPitfall}`
+          : `Before submitting, test the smallest input and this pitfall: ${secondPitfall}`,
+      },
     ],
     selfCheckPrompts: [
       'Does your code satisfy the exact function contract?',
       complexityTarget
         ? `Can you justify ${complexityTarget} (or better) complexity for your implementation?`
-        : 'Can you clearly justify your time and space complexity?',
+        : 'Did you test the smallest input and one normal input?',
       'Which edge case could still break your current solution?',
     ],
     nudgeRules: [
